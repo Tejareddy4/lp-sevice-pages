@@ -3,6 +3,7 @@
 // Support both naming styles used by page files.
 $origin = $origin ?? ($Origin ?? "");
 $destination = $destination ?? ($Destination ?? "");
+$excerpt = $excerpt ?? ($Excerpt ?? "");
 
 $title = "$origin to $destination Courier Shipment";
 
@@ -17,6 +18,9 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <title><?php echo $title; ?></title>
 <meta name="description" content="<?php echo $meta_description; ?>">
 <link rel="canonical" href="https://shipglobal.in/lp/<?php echo strtolower($origin); ?>-to-<?php echo strtolower($destination); ?>-courier">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
 
 <style>
 
@@ -169,6 +173,65 @@ h2{
 .desc span{
   color:#F59E0B;
   font-weight:700;
+}
+
+/* Excerpt */
+.excerpt{
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  color: rgb(19, 19, 19);
+  font-size: 18px;
+  line-height: 35px;
+  margin-top: 16px;
+}
+
+/* Updated HTML */
+.updatedhtml-section{
+  padding: 60px 20px;
+}
+.updatedhtml-container{
+  max-width: 1100px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  color: rgb(0, 0, 2);
+  font-size: 16px;
+  line-height: 28px;
+}
+.updatedhtml-container h1,
+.updatedhtml-container h2,
+.updatedhtml-container h3,
+.updatedhtml-container h4,
+.updatedhtml-container h5,
+.updatedhtml-container h6{
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: rgb(0, 0, 2);
+  line-height: 1.3;
+  margin: 24px 0 12px;
+  letter-spacing: normal;
+}
+.updatedhtml-container h1{ font-size: 32px; }
+.updatedhtml-container h2{ font-size: 28px; }
+.updatedhtml-container h3{ font-size: 22px; }
+.updatedhtml-container h4{ font-size: 18px; }
+.updatedhtml-container h5{ font-size: 16px; }
+.updatedhtml-container h6{ font-size: 14px; }
+.updatedhtml-container p{
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 28px;
+  color: rgb(0, 0, 2);
+}
+.Updatedhtml{
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  color: rgb(0, 0, 2);
+  font-size: 16px;
+  line-height: 28px;
 }
 
 /* Stats */
@@ -457,20 +520,8 @@ h2{
     <p class="desc">
       Affordable, reliable, and built for <span>Indian businesses &amp; consumers</span>
     </p>
-
-    <div class="stats">
-      <div>
-        <div class="stat-num">25,000+</div>
-        <div class="stat-label">Exporters</div>
-      </div>
-      <div>
-        <div class="stat-num">1 Crore+</div>
-        <div class="stat-label">Orders Shipped</div>
-      </div>
-      <div>
-        <div class="stat-num">220+</div>
-        <div class="stat-label">Countries</div>
-      </div>
+    <div class="excerpt">
+      <?php echo $excerpt; ?>
     </div>
   </section>
 
@@ -919,6 +970,20 @@ h2{
       <img src="https://shipglobal.in/wp-content/uploads/2025/12/ebay.png" alt="Marketplace">
       <img src="https://shipglobal.in/wp-content/uploads/2025/12/amazon.png" alt="Marketplace">
     </div>
+  </div>
+</section>
+
+<!-- Updated html code -->
+<section class="updatedhtml-section">
+  <div class="updatedhtml-container">
+    <?php echo $Updatedhtml; ?>
+  </div>
+</section>
+
+<!-- Updated html code -->
+<section class="Relposts-section">
+  <div class="Relposts-container">
+    <?php echo $Relposts; ?>
   </div>
 </section>
 
