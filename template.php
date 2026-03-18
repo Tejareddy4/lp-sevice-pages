@@ -234,6 +234,53 @@ h2{
   line-height: 28px;
 }
 
+.Relposts-section{
+  padding: 0 20px 60px;
+}
+.Relposts-container{
+  max-width: 1100px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  color: rgb(0, 0, 2);
+  font-size: 16px;
+  line-height: 28px;
+}
+.Relposts-container h1,
+.Relposts-container h2,
+.Relposts-container h3,
+.Relposts-container h4,
+.Relposts-container h5,
+.Relposts-container h6{
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: rgb(0, 0, 2);
+  line-height: 1.3;
+  margin: 24px 0 12px;
+  letter-spacing: normal;
+}
+.Relposts-container h1{ font-size: 32px; }
+.Relposts-container h2{ font-size: 28px; }
+.Relposts-container h3{ font-size: 22px; }
+.Relposts-container h4{ font-size: 18px; }
+.Relposts-container h5{ font-size: 16px; }
+.Relposts-container h6{ font-size: 14px; }
+.Relposts-container p{
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 28px;
+  color: rgb(0, 0, 2);
+}
+.Relposts-container ul,
+.Relposts-container ol{
+  margin: 0 0 24px;
+  padding-left: 20px;
+}
+.Relposts-container li + li{
+  margin-top: 6px;
+}
+
 /* Stats */
 .stats{
   display:flex;
@@ -984,6 +1031,7 @@ h2{
 <section class="Relposts-section">
   <div class="Relposts-container">
     <?php echo $Relposts; ?>
+    <?php echo $FAQ ?? ''; ?>
   </div>
 </section>
 
