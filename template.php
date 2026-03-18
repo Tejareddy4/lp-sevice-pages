@@ -4,6 +4,45 @@
 $origin = $origin ?? ($Origin ?? "");
 $destination = $destination ?? ($Destination ?? "");
 $excerpt = $excerpt ?? ($Excerpt ?? "");
+$Updatedhtml = $Updatedhtml ?? "";
+
+function add_read_more_shortcode(string $html): string
+{
+  $trimmed_html = trim($html);
+
+  if ($trimmed_html === '' || str_contains($trimmed_html, '[read more]') || str_ends_with($trimmed_html, '[/read]')) {
+    return $html;
+  }
+
+  $with_read_more = preg_replace_callback(
+    '/(<[^>]+>)([\s\S]*?)(<\/[^>]+>)/',
+    static function (array $matches): string {
+      $inner_text = trim($matches[2]);
+
+      if ($inner_text === '') {
+        return $matches[0];
+      }
+
+      $words = preg_split('/\s+/', $inner_text) ?: [];
+      $insert_index = max(count($words) - 5, 1);
+
+      $before = implode(' ', array_slice($words, 0, $insert_index));
+      $after = implode(' ', array_slice($words, $insert_index));
+
+      return $matches[1] . $before . ' <!--...-->[read more] ' . $after . $matches[3];
+    },
+    $trimmed_html,
+    1
+  );
+
+  if ($with_read_more === null) {
+    return $html;
+  }
+
+  return rtrim($with_read_more) . '[/read]';
+}
+
+$Updatedhtml = add_read_more_shortcode($Updatedhtml);
 
 $title = "$origin to $destination Courier Shipment";
 
@@ -232,6 +271,53 @@ h2{
   color: rgb(0, 0, 2);
   font-size: 16px;
   line-height: 28px;
+}
+
+.Relposts-section{
+  padding: 0 20px 60px;
+}
+.Relposts-container{
+  max-width: 1100px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  color: rgb(0, 0, 2);
+  font-size: 16px;
+  line-height: 28px;
+}
+.Relposts-container h1,
+.Relposts-container h2,
+.Relposts-container h3,
+.Relposts-container h4,
+.Relposts-container h5,
+.Relposts-container h6{
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: rgb(0, 0, 2);
+  line-height: 1.3;
+  margin: 24px 0 12px;
+  letter-spacing: normal;
+}
+.Relposts-container h1{ font-size: 32px; }
+.Relposts-container h2{ font-size: 28px; }
+.Relposts-container h3{ font-size: 22px; }
+.Relposts-container h4{ font-size: 18px; }
+.Relposts-container h5{ font-size: 16px; }
+.Relposts-container h6{ font-size: 14px; }
+.Relposts-container p{
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 28px;
+  color: rgb(0, 0, 2);
+}
+.Relposts-container ul,
+.Relposts-container ol{
+  margin: 0 0 24px;
+  padding-left: 20px;
+}
+.Relposts-container li + li{
+  margin-top: 6px;
 }
 
 /* Stats */
@@ -984,6 +1070,7 @@ h2{
 <section class="Relposts-section">
   <div class="Relposts-container">
     <?php echo $Relposts; ?>
+    <?php echo $FAQ ?? ''; ?>
   </div>
 </section>
 
