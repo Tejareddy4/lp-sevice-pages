@@ -4,6 +4,45 @@
 $origin = $origin ?? ($Origin ?? "");
 $destination = $destination ?? ($Destination ?? "");
 $excerpt = $excerpt ?? ($Excerpt ?? "");
+$Updatedhtml = $Updatedhtml ?? "";
+
+function add_read_more_shortcode(string $html): string
+{
+  $trimmed_html = trim($html);
+
+  if ($trimmed_html === '' || str_contains($trimmed_html, '[read more]') || str_ends_with($trimmed_html, '[/read]')) {
+    return $html;
+  }
+
+  $with_read_more = preg_replace_callback(
+    '/(<[^>]+>)([\s\S]*?)(<\/[^>]+>)/',
+    static function (array $matches): string {
+      $inner_text = trim($matches[2]);
+
+      if ($inner_text === '') {
+        return $matches[0];
+      }
+
+      $words = preg_split('/\s+/', $inner_text) ?: [];
+      $insert_index = max(count($words) - 5, 1);
+
+      $before = implode(' ', array_slice($words, 0, $insert_index));
+      $after = implode(' ', array_slice($words, $insert_index));
+
+      return $matches[1] . $before . ' <!--...-->[read more] ' . $after . $matches[3];
+    },
+    $trimmed_html,
+    1
+  );
+
+  if ($with_read_more === null) {
+    return $html;
+  }
+
+  return rtrim($with_read_more) . '[/read]';
+}
+
+$Updatedhtml = add_read_more_shortcode($Updatedhtml);
 
 $title = "$origin to $destination Courier Shipment";
 
