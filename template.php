@@ -5,6 +5,19 @@ $origin = $origin ?? ($Origin ?? "");
 $destination = $destination ?? ($Destination ?? "");
 $excerpt = $excerpt ?? ($Excerpt ?? "");
 $Updatedhtml = $Updatedhtml ?? "";
+$Relposts = $Relposts ?? "";
+$FAQ = $FAQ ?? "";
+$faqScript = $faqScript ?? ($FAQscript ?? "");
+$reviewSchema = $reviewSchema ?? ($Review_Schema ?? "");
+$featuredImage = $featuredImage ?? ($FeaturedImage ?? "");
+$featuredImageAlt = $featuredImageAlt ?? ($FeaturedImageAlt ?? "");
+
+function slugify_text(string $text): string
+{
+  $text = strtolower(trim($text));
+  $text = preg_replace('/[^a-z0-9]+/', '-', $text) ?? '';
+  return trim($text, '-');
+}
 
 function add_read_more_shortcode(string $html): string
 {
@@ -44,6 +57,50 @@ function add_read_more_shortcode(string $html): string
 
 $Updatedhtml = add_read_more_shortcode($Updatedhtml);
 
+if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !== '') {
+  $destination_slug = slugify_text($destination);
+  $origin_slug = slugify_text($origin);
+  $page_slug = $origin_slug . '-to-' . $destination_slug;
+  $image_root = __DIR__ . DIRECTORY_SEPARATOR . 'Images';
+
+  if (is_dir($image_root)) {
+    $destination_directories = glob($image_root . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
+
+    foreach ($destination_directories as $destination_dir) {
+      if (slugify_text(basename($destination_dir)) !== $destination_slug) {
+        continue;
+      }
+
+      $extensions = ['png', 'jpg', 'jpeg', 'webp'];
+      foreach ($extensions as $extension) {
+        $file_name = $page_slug . '.' . $extension;
+        $absolute_file = $destination_dir . DIRECTORY_SEPARATOR . $file_name;
+
+        if (!is_file($absolute_file)) {
+          continue;
+        }
+
+        $destination_folder_name = basename($destination_dir);
+        $featuredImage = '/lp/Images/' . rawurlencode($destination_folder_name) . '/' . rawurlencode($file_name);
+        break 2;
+      }
+    }
+  }
+}
+
+if (trim($featuredImageAlt) === '') {
+  $featuredImageAlt = $origin . ' to ' . $destination . ' courier featured image';
+}
+
+$featuredImageSeoUrl = '';
+if (trim($featuredImage) !== '') {
+  if (preg_match('/^https?:\/\//i', $featuredImage) === 1) {
+    $featuredImageSeoUrl = $featuredImage;
+  } else {
+    $featuredImageSeoUrl = 'https://shipglobal.in' . (str_starts_with($featuredImage, '/') ? '' : '/') . $featuredImage;
+  }
+}
+
 $title = "$origin to $destination Courier Shipment";
 
 $meta_description = "Ship internationally from $origin to $destination with transparent pricing, fast delivery, and customs support.";
@@ -57,9 +114,20 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <title><?php echo $title; ?></title>
 <meta name="description" content="<?php echo $meta_description; ?>">
 <link rel="canonical" href="https://shipglobal.in/lp/<?php echo strtolower($origin); ?>-to-<?php echo strtolower($destination); ?>-courier">
+<?php if (trim($featuredImageSeoUrl) !== ''): ?>
+<meta property="og:image" content="<?php echo htmlspecialchars($featuredImageSeoUrl, ENT_QUOTES, 'UTF-8'); ?>">
+<meta property="og:image:alt" content="<?php echo htmlspecialchars($featuredImageAlt, ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="<?php echo htmlspecialchars($featuredImageSeoUrl, ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="twitter:image:alt" content="<?php echo htmlspecialchars($featuredImageAlt, ENT_QUOTES, 'UTF-8'); ?>">
+<?php endif; ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
+
+<?php if (trim($reviewSchema) !== ''): ?>
+<?php echo $reviewSchema; ?>
+<?php endif; ?>
 
 <style>
 
@@ -1070,7 +1138,7 @@ h2{
 <section class="Relposts-section">
   <div class="Relposts-container">
     <?php echo $Relposts; ?>
-    <?php echo $FAQ ?? ''; ?>
+    <?php echo $FAQ; ?>
   </div>
 </section>
 
@@ -1200,6 +1268,9 @@ function scrollToForm() {
 </script>
 
 
+<?php if (trim($faqScript) !== ''): ?>
+<?php echo $faqScript; ?>
+<?php else: ?>
 <script type="application/ld+json">
 {
 "@context": "https://schema.org",
@@ -1214,5 +1285,6 @@ function scrollToForm() {
 }]
 }
 </script>
+<?php endif; ?>
 </body>
 </html>

@@ -5,8 +5,5 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Public URL: /city-to-country-courier.php -> /service/city/city-to-country-courier.php
-RewriteRule ^([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)-courier\.php/?$ service/$1/$1-to-$2-courier.php [L,NC,QSA]
-
-# Optional extensionless public URL variant.
-RewriteRule ^([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)-courier/?$ service/$1/$1-to-$2-courier.php [L,NC,QSA]
+# Public URL: /services/city-to-country -> /services/country/city-to-country-courier.php
+RewriteRule ^services/([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)/?$ services/$2/$1-to-$2-courier.php [L,NC,QSA]

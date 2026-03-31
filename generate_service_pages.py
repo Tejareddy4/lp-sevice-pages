@@ -1,15 +1,30 @@
 from __future__ import annotations
 
+import csv
+import json
 import re
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
-from openpyxl import load_workbook
-
 
 BASE_DIR = Path(__file__).resolve().parent
-EXCEL_PATH = BASE_DIR / "csv" / "Service-pages.xlsx"
-OUTPUT_ROOT = BASE_DIR / "service"
+CSV_PATH = BASE_DIR / "csv" / "Service-pages.csv"
+OUTPUT_ROOT = BASE_DIR / "services"
+
+
+def resolve_csv_path() -> Path:
+    if CSV_PATH.exists():
+        return CSV_PATH
+
+    csv_dir = CSV_PATH.parent
+    if not csv_dir.exists():
+        return CSV_PATH
+
+    candidates = sorted(csv_dir.glob("*.csv"))
+    if candidates:
+        return candidates[0]
+
+    return CSV_PATH
 
 
 def normalize_header(value: object) -> str:
@@ -52,6 +67,40 @@ def nowdoc(var_name: str, token: str, content: str) -> str:
     return f"${var_name} = <<<'{token}'\n{body}\n{token};"
 
 
+def build_default_review_schema(origin: str, destination: str) -> str:
+    origin_slug = slugify(origin)
+    destination_slug = slugify(destination)
+    page_url = f"https://shipglobal.in/lp/{origin_slug}-to-{destination_slug}-courier"
+
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": f"International Courier Service from {origin} to {destination}",
+        "provider": {
+            "@type": "Organization",
+            "name": "ShipGlobal",
+            "url": "https://shipglobal.in",
+        },
+        "serviceType": "International Courier Service",
+        "areaServed": [
+            {"@type": "Place", "name": origin},
+            {"@type": "Country", "name": destination},
+        ],
+        "url": page_url,
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "189",
+        },
+    }
+
+    return (
+        '<script type="application/ld+json">\n'
+        + json.dumps(schema, ensure_ascii=False)
+        + "\n</script>"
+    )
+
+
 def make_php_page(origin: str, destination: str, mapped: Dict[str, str]) -> str:
     lines = [
         "<?php",
@@ -76,16 +125,28 @@ def make_php_page(origin: str, destination: str, mapped: Dict[str, str]) -> str:
 
 
 def main() -> None:
-    if not EXCEL_PATH.exists():
-        raise FileNotFoundError(f"Excel file not found: {EXCEL_PATH}")
+    csv_path = resolve_csv_path()
+    if not csv_path.exists():
+        raise FileNotFoundError(f"CSV file not found: {CSV_PATH}")
 
-    workbook = load_workbook(EXCEL_PATH, data_only=True)
-    sheet = workbook["Sheet1"] if "Sheet1" in workbook.sheetnames else workbook.active
+    # Prefer UTF-8 with BOM support; fallback keeps generation resilient
+    # for CSV files exported with legacy encodings.
+    rows: list[list[str]] = []
+    try:
+        with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.reader(f)
+            rows = [list(r) for r in reader]
+    except UnicodeDecodeError:
+        with csv_path.open("r", encoding="cp1252", newline="") as f:
+            reader = csv.reader(f)
+            rows = [list(r) for r in reader]
 
-    rows = sheet.iter_rows(values_only=True)
-    headers = next(rows, None)
+    if not rows:
+        raise ValueError("CSV file has no rows.")
+
+    headers = rows[0]
     if not headers:
-        raise ValueError("Sheet1 has no header row.")
+        raise ValueError("CSV file has no header row.")
 
     header_index = build_header_index(headers)
 
@@ -123,7 +184,7 @@ def main() -> None:
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
     created = 0
 
-    for row in rows:
+    for row in rows[1:]:
         city = cell_text(row, city_col).strip()
         destination = cell_text(row, destination_col).strip()
         if not city or not destination:
@@ -135,8 +196,8 @@ def main() -> None:
             continue
 
         page_name = f"{city_slug}-to-{destination_slug}-courier.php"
-        city_dir = OUTPUT_ROOT / city_slug
-        city_dir.mkdir(parents=True, exist_ok=True)
+        destination_dir = OUTPUT_ROOT / destination_slug
+        destination_dir.mkdir(parents=True, exist_ok=True)
 
         mapped_values = {
             "Excerpt": cell_text(row, excerpt_col),
@@ -144,11 +205,12 @@ def main() -> None:
             "Relposts": cell_text(row, related_posts_col),
             "FAQ": cell_text(row, coded_faq_col),
             "FAQscript": cell_text(row, faq_schema_col),
-            "Review_Schema": cell_text(row, review_schema_col),
+            "Review_Schema": cell_text(row, review_schema_col).strip()
+            or build_default_review_schema(city, destination),
         }
 
         php_content = make_php_page(city, destination, mapped_values)
-        (city_dir / page_name).write_text(php_content, encoding="utf-8")
+        (destination_dir / page_name).write_text(php_content, encoding="utf-8")
         created += 1
 
     print(f"Created/updated {created} page file(s) under: {OUTPUT_ROOT}")

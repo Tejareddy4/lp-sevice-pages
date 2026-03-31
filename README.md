@@ -1,15 +1,15 @@
-# Service Pages Generator (Excel to PHP)
+# Service Pages Generator (CSV to PHP)
 
-This project generates courier landing pages from an Excel file and stores them in city-based subfolders.
+This project generates courier landing pages from a CSV file and stores them in country-based subfolders.
 
 ## What It Does
 
-- Reads `csv/Service-pages.xlsx` (Sheet1).
+- Reads `csv/Service-pages.csv` (or the first available CSV file in the `csv/` folder).
 - Maps spreadsheet columns to PHP variables.
 - Creates files in this structure:
 
 ```text
-service/<city-slug>/<city-slug>-to-<destination-slug>-courier.php
+services/<destination-slug>/<city-slug>-to-<destination-slug>-courier.php
 ```
 
 - Uses `template.php` as the shared design/layout template for all generated pages.
@@ -23,19 +23,15 @@ lp/
   template.php
   generate_service_pages.py
   csv/
-    Service-pages.xlsx
-  service/
-    <city>/
+    Service-pages.csv
+  services/
+    <destination>/
       <city>-to-<destination>-courier.php
 ```
 
 ## Required Python Dependency
 
-Install once:
-
-```bash
-python -m pip install openpyxl
-```
+No external Python package is required for CSV-based generation.
 
 ## Generate Pages
 
@@ -48,10 +44,41 @@ python generate_service_pages.py
 Expected output:
 
 ```text
-Created/updated <N> page file(s) under: ...\service
+Created/updated <N> page file(s) under: ...\services
 ```
 
-## Excel Column Mapping (Sheet1)
+## Generate Sitemap
+
+From the `lp` folder:
+
+```bash
+python generate_sitemap.py
+```
+
+Expected output:
+
+```text
+Generated sitemap with <N> URLs: ...\sitemap.xml
+```
+
+## Cleanup Services Folders
+
+Use this to remove folders under `services/` that are not present as destination countries in your active CSV:
+
+```bash
+python cleanup_services_folders.py
+```
+
+Expected output:
+
+```text
+CSV used: ...\csv\<file>.csv
+Keep folders: <N>
+Removed folders: <N>
+Remaining folders: <N>
+```
+
+## CSV Column Mapping
 
 The generator uses these columns:
 
@@ -83,12 +110,12 @@ Example:
 Internal file path for that example:
 
 ```text
-service/agra/agra-to-austria-courier.php
+services/austria/agra-to-austria-courier.php
 ```
 
 ## Rewrite Rules
 
-`.htaccess` maps the public URL to the generated file under `service/<city>/...`.
+`.htaccess` maps the public URL to the generated file under `services/<destination>/...`.
 
 If links return 404, verify:
 
@@ -112,11 +139,13 @@ Use either:
 
 ## Regeneration Workflow
 
-Whenever Excel data changes:
+Whenever CSV data changes:
 
-1. Update `csv/Service-pages.xlsx`.
+1. Update `csv/Service-pages.csv` (or your active CSV in `csv/`).
 2. Run `python generate_service_pages.py`.
-3. Upload updated `service/` files to server.
+3. Run `python cleanup_services_folders.py`.
+4. Run `python generate_sitemap.py`.
+5. Upload updated `services/` files and `sitemap.xml` to server.
 
 ## Laravel Deployment
 
