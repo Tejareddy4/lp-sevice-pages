@@ -71,7 +71,8 @@ if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !=
         continue;
       }
 
-      $extensions = ['png', 'jpg', 'jpeg', 'webp'];
+      // Prefer WebP first, then fall back to legacy formats.
+      $extensions = ['webp', 'png', 'jpg', 'jpeg'];
       foreach ($extensions as $extension) {
         $file_name = $page_slug . '.' . $extension;
         $absolute_file = $destination_dir . DIRECTORY_SEPARATOR . $file_name;
@@ -90,6 +91,14 @@ if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !=
 
 if (trim($featuredImageAlt) === '') {
   $featuredImageAlt = $origin . ' to ' . $destination . ' courier featured image';
+}
+
+if (trim($featuredImage) !== '') {
+  // If a PNG URL/path is provided, switch to WebP variant.
+  $webpImage = preg_replace('/\.png(\?.*)?$/i', '.webp$1', $featuredImage);
+  if (is_string($webpImage) && $webpImage !== $featuredImage) {
+    $featuredImage = $webpImage;
+  }
 }
 
 $featuredImageSeoUrl = '';
