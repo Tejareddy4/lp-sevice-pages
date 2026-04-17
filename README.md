@@ -150,3 +150,5 @@ Whenever CSV data changes:
 ## Laravel Deployment
 
 See full guide: `docs/LARAVEL_UPLOAD.md`
+
+For a manual file manager workflow, see: `docs/FILEMANAGER_UPLOAD.md`

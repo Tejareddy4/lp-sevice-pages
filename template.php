@@ -82,7 +82,7 @@ if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !=
         }
 
         $destination_folder_name = basename($destination_dir);
-        $featuredImage = '/lp/Images/' . rawurlencode($destination_folder_name) . '/' . rawurlencode($file_name);
+        $featuredImage = '/Services/Images/' . rawurlencode($destination_folder_name) . '/' . rawurlencode($file_name);
         break 2;
       }
     }
