@@ -7,13 +7,13 @@ This guide explains how to upload and run the generated `lp` pages inside a Lara
 Serve generated pages like:
 
 ```text
-https://yourdomain.com/lp/agra-to-austria-courier.php
+https://yourdomain.com/lp/agra-to-austria-courier.html
 ```
 
 where the real file is:
 
 ```text
-public/lp/service/agra/agra-to-austria-courier.php
+public/lp/services/austria/agra-to-austria-courier.html
 ```
 
 ## 1) Where to Place Files in Laravel
@@ -27,10 +27,10 @@ Copy this entire `lp` folder to Laravel `public` directory:
 Minimum required files/folders inside `public/lp/`:
 
 - `.htaccess`
-- `template.php`
-- `service/` (generated city folders and pages)
-- `csv/` (optional in production)
-- `generate_service_pages.py` (optional in production)
+- `template.html`
+- `services/` (generated destination folders and pages)
+- `data/csv/` (optional in production)
+- `scripts/` (optional in production)
 
 ## 2) Generate Pages Before Upload
 
@@ -38,14 +38,14 @@ Recommended: generate on local machine, then upload only output.
 
 ```bash
 python -m pip install openpyxl
-python generate_service_pages.py
+python scripts/generate_service_pages.py
 ```
 
 Then upload at least:
 
-- `template.php`
+- `template.html`
 - `.htaccess`
-- `service/`
+- `services/`
 
 ## 3) Apache Requirements
 
@@ -74,20 +74,15 @@ Because `lp/.htaccess` rewrites only inside `/lp`, generated URLs continue to wo
 ## 5) Access URLs
 
 - Public URL:
-  - `/lp/<city>-to-<destination>-courier.php`
+  - `/lp/<city>-to-<destination>-courier.html`
 - Example:
-  - `/lp/hyderabad-to-us-courier.php`
+  - `/lp/hyderabad-to-us-courier.html`
 
 ## 6) Template Consistency Requirement
 
-All generated pages include `template.php`.
+All generated pages are pre-rendered from `template.html` during generation.
 
-Generated files currently define:
-
-- `$Origin`
-- `$Destination`
-
-If template logic uses lowercase (`$origin`, `$destination`), align variable names in template to avoid empty SEO/title fields.
+If you change placeholders in `template.html`, keep `scripts/generate_service_pages.py` in sync.
 
 ## 7) Permissions (Linux Server)
 
@@ -105,16 +100,16 @@ find public/lp -type f -exec chmod 644 {} \;
 Example idea (adapt as needed):
 
 ```nginx
-location ~ ^/lp/([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)-courier\.php$ {
-    rewrite ^/lp/([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)-courier\.php$ /lp/service/$1/$1-to-$2-courier.php last;
+location ~ ^/lp/services/([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)/?$ {
+  rewrite ^/lp/services/([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)/?$ /lp/services/$2/$1-to-$2-courier.html last;
 }
 ```
 
 ## 9) Quick Verification Checklist
 
 - `public/lp/.htaccess` exists
-- `public/lp/template.php` exists
-- `public/lp/service/<city>/<city>-to-<destination>-courier.php` exists
+- `public/lp/template.html` exists
+- `public/lp/services/<destination>/<city>-to-<destination>-courier.html` exists
 - Open one URL in browser and confirm page renders
 - Confirm title/meta values are populated
 
@@ -123,6 +118,6 @@ location ~ ^/lp/([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)-courier\.php$ {
 When sheet content changes:
 
 1. Regenerate pages locally.
-2. Upload updated `service/` files.
-3. Upload `template.php` if design changed.
+2. Upload updated `services/` files.
+3. Upload `template.html` if design changed.
 4. Purge cache/CDN if enabled.

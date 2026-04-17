@@ -1,146 +1,135 @@
 # File Manager Upload Guide for LP Service Pages
 
-This guide explains how to upload the generated LP service pages using a hosting file manager or control panel file manager.
+This guide explains how to upload generated LP service pages using a hosting file manager or control-panel file manager.
 
 ## Goal
 
-Upload only the PHP files that are needed for the LP service pages, without sending the CSV or generator scripts to production.
+Upload only the static files required to serve the LP pages.
 
 ## What You Should Upload
 
-Upload these PHP files only:
+Upload these files/folders:
 
-- `template.php`
-- The generated service page `.php` files inside `services/<destination>/`
+- `template.html`
+- generated service page `.html` files inside `services/<destination>/`
+- `.htaccess` (if your server uses Apache rewrites)
 
 Example generated page:
 
 ```text
-services/austria/agra-to-austria-courier.php
+services/austria/agra-to-austria-courier.html
 ```
 
 ## What You Should Not Upload
 
-Do not upload these unless you are rebuilding the pages on the server:
+Do not upload these unless you also want generation scripts in production:
 
 - `csv/`
-- `generate_service_pages.py`
-- `generate_sitemap.py`
-- `cleanup_services_folders.py`
-- `convert_png_to_webp.py`
-- `sample-service-page.php`
-- any build or source files that are not required to serve the pages
+- `data/csv/`
+- `scripts/generate_service_pages.py`
+- `scripts/generate_sitemap.py`
+- `scripts/cleanup_services_folders.py`
+- `scripts/convert_png_to_webp.py`
+- legacy `.php` files
 
 ## Step by Step
 
-### 1) Generate the pages locally
+### 1) Generate pages locally
 
-Run the generator on your local machine:
+Run this locally:
 
 ```bash
-python generate_service_pages.py
+python scripts/generate_service_pages.py
 ```
 
-This creates or updates the PHP pages under `services/`.
+This creates or updates static `.html` pages in `services/`.
 
-### 2) Open your file manager
+### 2) Open your hosting file manager
 
-Log in to your hosting control panel and open the file manager.
+Open your provider file manager.
 
-Typical examples:
+Common examples:
 
 - cPanel File Manager
 - Plesk File Manager
 - DirectAdmin File Manager
-- Hostinger or similar hosting panel file manager
+- Hostinger File Manager
 
-### 3) Go to the LP folder
+### 3) Open the LP directory on server
 
-Navigate to the folder where the LP pages are hosted.
+Go to the deployed LP folder.
 
-Common location:
+Typical path:
 
 ```text
 public_html/lp/
 ```
 
-If this project is inside Laravel, the location is usually:
+Laravel setup usually:
 
 ```text
 public/lp/
 ```
 
-### 4) Upload the shared template
+### 4) Upload shared template and routing file
 
-Upload `template.php` into the `lp` folder first.
+Upload:
 
-If `template.php` already exists, replace it only when you want to update the page layout or shared content.
+- `template.html`
+- `.htaccess`
 
-### 5) Upload the generated service pages
+### 5) Upload generated service pages
 
-Upload the generated `.php` files from the `services/` folder into the same folder structure on the server.
+Upload generated `.html` files while keeping destination folder structure intact.
 
-Keep the destination folders intact.
-
-Example upload map:
+Example map:
 
 ```text
-local:  services/austria/agra-to-austria-courier.php
-server: public_html/lp/services/austria/agra-to-austria-courier.php
+local:  services/austria/agra-to-austria-courier.html
+server: public_html/lp/services/austria/agra-to-austria-courier.html
 ```
 
-### 6) Upload only the required PHP files
+### 6) Upload only changed HTML on content updates
 
-For a normal content update, you only need to upload:
+For regular updates, upload only:
 
-- `template.php`
-- the changed generated `.php` service pages
+- changed `.html` pages
+- `template.html` only if layout/design changed
 
-Do not upload CSV files, Python scripts, or other project files unless you are also updating the generator workflow.
+### 7) Validate naming and folder structure
 
-### 7) Check file paths and names
-
-Make sure the destination folder name matches the country slug used by the page.
-
-Examples:
+Folder names should match destination slugs:
 
 - `services/austria/`
 - `services/canada/`
 - `services/us/`
 
-The file name should stay in this format:
+File name format:
 
 ```text
-<city>-to-<destination>-courier.php
+<city>-to-<destination>-courier.html
 ```
 
-### 8) Test the page in browser
+### 8) Test in browser
 
-Open one uploaded page in the browser and confirm it loads correctly.
-
-Example:
+Open a deployed page and verify rendering:
 
 ```text
-/lp/agra-to-austria-courier.php
+/lp/agra-to-austria-courier.html
 ```
 
-## Quick Upload Checklist
+## Quick Checklist
 
-- `template.php` is uploaded
-- Required generated `.php` pages are uploaded
-- Folder names match the destination slugs
-- The page opens without a 404 error
-- The page title and content render correctly
-
-## Important Note
-
-The generated pages rely on `template.php`.
-
-If you upload only the page file and forget the shared template, the page will not render correctly.
+- `template.html` uploaded
+- `.htaccess` uploaded (Apache only)
+- required `.html` pages uploaded
+- pages open without 404
+- title/meta/content are visible
 
 ## Recommended Workflow
 
-1. Update the source CSV locally.
-2. Run the generator locally.
-3. Upload only the updated PHP files.
-4. Verify the pages in the browser.
+1. Update source CSV locally.
+2. Run `python scripts/generate_service_pages.py`.
+3. Run `python scripts/generate_sitemap.py`.
+4. Upload updated static files.
+5. Verify pages in browser.
