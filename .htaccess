@@ -1,9 +1,0 @@
-RewriteEngine On
-
-# Keep direct file and directory requests untouched.
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-# Public URL: /services/city-to-country -> /services/country/city-to-country-courier.html
-RewriteRule ^services/([a-zA-Z0-9-]+)-to-([a-zA-Z0-9-]+)/?$ services/$2/$1-to-$2-courier.html [L,NC,QSA]
