@@ -105,7 +105,7 @@ if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !=
         }
 
         $destination_folder_name = basename($destination_dir);
-        $featuredImage = '/Services/Images/' . rawurlencode($destination_folder_name) . '/' . rawurlencode($file_name);
+        $featuredImage = '/services/images/' . rawurlencode($destination_folder_name) . '/' . rawurlencode($file_name);
         break 2;
       }
     }
@@ -145,7 +145,7 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?php echo $title; ?></title>
 <meta name="description" content="<?php echo $meta_description; ?>">
-<link rel="canonical" href="https://shipglobal.in/lp/<?php echo strtolower($origin); ?>-to-<?php echo strtolower($destination); ?>-courier">
+<link rel="canonical" href="https://shipglobal.in/services/<?php echo strtolower($origin); ?>-to-<?php echo strtolower($destination); ?>/">
 <?php if (trim($featuredImageSeoUrl) !== ''): ?>
 <meta property="og:image" content="<?php echo htmlspecialchars($featuredImageSeoUrl, ENT_QUOTES, 'UTF-8'); ?>">
 <meta property="og:image:alt" content="<?php echo htmlspecialchars($featuredImageAlt, ENT_QUOTES, 'UTF-8'); ?>">
