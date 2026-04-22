@@ -23,7 +23,7 @@ function add_read_more_shortcode(string $html): string
 {
   $trimmed_html = trim($html);
 
-  if ($trimmed_html === '' || str_contains($trimmed_html, '[read more]') || str_ends_with($trimmed_html, '[/read]')) {
+  if ($trimmed_html === '' || strpos($trimmed_html, '[read more]') !== false || substr($trimmed_html, -7) === '[/read]') {
     return $html;
   }
 
@@ -55,7 +55,30 @@ function add_read_more_shortcode(string $html): string
   return rtrim($with_read_more) . '[/read]';
 }
 
+function render_read_more_shortcode(string $html): string
+{
+  if (strpos($html, '[read more]') === false) {
+    return $html;
+  }
+
+  $result = preg_replace_callback(
+    '/(<([a-z0-9]+)[^>]*>)([\s\S]*?) <!--\.\.\.-->\[read more\] ([\s\S]*?)(<\/\2>)\[\/read\]/i',
+    static function (array $m): string {
+      return $m[1] . $m[3] . $m[5]
+        . '<div class="rmwr-wrapper">'
+        . '<button type="button" class="read-link" onclick="toggleReadMore(this)">Read More</button>'
+        . '<div class="read-more-content" style="display:none;">'
+        . $m[1] . $m[4] . $m[5]
+        . '</div></div>';
+    },
+    $html
+  );
+
+  return $result ?? $html;
+}
+
 $Updatedhtml = add_read_more_shortcode($Updatedhtml);
+$Updatedhtml = render_read_more_shortcode($Updatedhtml);
 
 if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !== '') {
   $destination_slug = slugify_text($destination);
@@ -106,7 +129,7 @@ if (trim($featuredImage) !== '') {
   if (preg_match('/^https?:\/\//i', $featuredImage) === 1) {
     $featuredImageSeoUrl = $featuredImage;
   } else {
-    $featuredImageSeoUrl = 'https://shipglobal.in' . (str_starts_with($featuredImage, '/') ? '' : '/') . $featuredImage;
+    $featuredImageSeoUrl = 'https://shipglobal.in' . (strpos($featuredImage, '/') === 0 ? '' : '/') . $featuredImage;
   }
 }
 
@@ -606,6 +629,23 @@ h2{
 .steps .cta .submit-btn{
   padding:14px 70px;
 }
+
+/* Read More toggle */
+.rmwr-wrapper { display: inline; }
+.read-link {
+  background: none;
+  border: none;
+  color: #012366;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  text-decoration: underline;
+  display: inline;
+}
+.read-link:hover { color: #ff5c1a; }
+.read-more-content { display: inline; }
 
 /* Responsive */
 @media(max-width:1100px){
@@ -1273,6 +1313,13 @@ function scrollToForm() {
   if (form) {
     form.scrollIntoView({ behavior: "smooth" });
   }
+}
+
+function toggleReadMore(btn) {
+  const content = btn.nextElementSibling;
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'inline' : 'none';
+  btn.textContent = isHidden ? 'Read Less' : 'Read More';
 }
 </script>
 
