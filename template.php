@@ -81,48 +81,19 @@ $Updatedhtml = add_read_more_shortcode($Updatedhtml);
 $Updatedhtml = render_read_more_shortcode($Updatedhtml);
 
 if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !== '') {
-  $destination_slug = slugify_text($destination);
-  $origin_slug = slugify_text($origin);
-  $page_slug = $origin_slug . '-to-' . $destination_slug;
-  $image_root = __DIR__ . DIRECTORY_SEPARATOR . 'Images';
+  // Build slug via regex: lowercase, collapse non-alphanumeric runs to hyphens.
+  $page_slug = preg_replace('/[^a-z0-9]+/', '-', strtolower(trim("$origin to $destination")));
+  $page_slug = trim($page_slug ?? '', '-');
 
-  if (is_dir($image_root)) {
-    $destination_directories = glob($image_root . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
-
-    foreach ($destination_directories as $destination_dir) {
-      if (slugify_text(basename($destination_dir)) !== $destination_slug) {
-        continue;
-      }
-
-      // Prefer WebP first, then fall back to legacy formats.
-      $extensions = ['webp', 'png', 'jpg', 'jpeg'];
-      foreach ($extensions as $extension) {
-        $file_name = $page_slug . '.' . $extension;
-        $absolute_file = $destination_dir . DIRECTORY_SEPARATOR . $file_name;
-
-        if (!is_file($absolute_file)) {
-          continue;
-        }
-
-        $destination_folder_name = basename($destination_dir);
-        $featuredImage = '/services/images/' . rawurlencode($destination_folder_name) . '/' . rawurlencode($file_name);
-        break 2;
-      }
-    }
-  }
+  // Production path: http://shipglobal.in/services/images/{Destination}/{origin-slug}-to-{destination-slug}.webp
+  // Destination folder uses the original $destination casing (e.g. "Croatia").
+  $featuredImage = '/services/images/' . rawurlencode($destination) . '/' . rawurlencode($page_slug) . '.webp';
 }
 
 if (trim($featuredImageAlt) === '') {
   $featuredImageAlt = $origin . ' to ' . $destination . ' courier featured image';
 }
 
-if (trim($featuredImage) !== '') {
-  // If a PNG URL/path is provided, switch to WebP variant.
-  $webpImage = preg_replace('/\.png(\?.*)?$/i', '.webp$1', $featuredImage);
-  if (is_string($webpImage) && $webpImage !== $featuredImage) {
-    $featuredImage = $webpImage;
-  }
-}
 
 $featuredImageSeoUrl = '';
 if (trim($featuredImage) !== '') {
