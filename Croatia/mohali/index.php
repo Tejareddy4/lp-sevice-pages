@@ -19,14 +19,12 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[]}</script>
 FAQSCRIPT;
-$Review_Schema = <<<'REVIEWSCHEMA'
+$reviewSchema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "Service", "name": "International Courier Service from Mohali to Croatia", "provider": {"@type": "Organization", "name": "ShipGlobal", "url": "https://shipglobal.in"}, "serviceType": "International Courier Service", "areaServed": [{"@type": "Place", "name": "Mohali"}, {"@type": "Country", "name": "Croatia"}], "url": "https://shipglobal.in/lp/mohali-to-croatia-courier", "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "189"}}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/mohali/","description":"International courier service from Mohali to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
 </script>
 REVIEWSCHEMA;
 
 include __DIR__ . "/../../template.php";
 
 ?>
-
-include __DIR__ . /../../template.php;

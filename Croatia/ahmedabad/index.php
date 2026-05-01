@@ -128,14 +128,12 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I choose the best international courier service in Ahmedabad?","acceptedAnswer":{"@type":"Answer","text":"Consider delivery speed, cost, tracking features, coverage, and customer reviews. Pick the one that meets your needs best."}},{"@type":"Question","name":"How can I book a courier service in Ahmedabad?","acceptedAnswer":{"@type":"Answer","text":"You can book online through the official website of courier service providers or contact their customer support for assistance."}},{"@type":"Question","name":"Are there international courier services in Ahmedabad that provide real-time tracking?","acceptedAnswer":{"@type":"Answer","text":"Yes, companies like ShipGlobal.in, DHL, FedEx, and Blue Dart offer real-time tracking systems, allowing customers to monitor their shipments throughout the delivery process.​"}},{"@type":"Question","name":"What items can I ship internationally?","acceptedAnswer":{"@type":"Answer","text":"Most items like documents, parcels, and e-commerce products can be shipped internationally. However, some restrictions apply to hazardous or perishable goods—always check before booking."}},{"@type":"Question","name":"Which is the most cost-effective international courier service in Ahmedabad?","acceptedAnswer":{"@type":"Answer","text":"Cost-effectiveness depends on factors like package weight, destination, and delivery speed. ShipGlobal.in is known for offering budget-friendly international shipping packages with prices starting from 50g worldwide."}},{"@type":"Question","name":"Can I ship heavy or bulky items internationally from Ahmedabad?","acceptedAnswer":{"@type":"Answer","text":"Yes, many courier services offer solutions for shipping heavy or bulky items internationally, providing specialized packaging and handling to ensure safe delivery."}}]}</script>
 FAQSCRIPT;
-$Review_Schema = <<<'REVIEWSCHEMA'
+$reviewSchema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "Service", "name": "International Courier Service from Ahmedabad to Croatia", "provider": {"@type": "Organization", "name": "ShipGlobal", "url": "https://shipglobal.in"}, "serviceType": "International Courier Service", "areaServed": [{"@type": "Place", "name": "Ahmedabad"}, {"@type": "Country", "name": "Croatia"}], "url": "https://shipglobal.in/lp/ahmedabad-to-croatia-courier", "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "189"}}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/ahmedabad/","description":"International courier service from Ahmedabad to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
 </script>
 REVIEWSCHEMA;
 
 include __DIR__ . "/../../template.php";
 
 ?>
-
-include __DIR__ . /../../template.php;

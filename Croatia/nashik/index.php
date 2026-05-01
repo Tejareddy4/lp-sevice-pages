@@ -66,14 +66,12 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long does it take to ship a package from Nashik to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Delivery times vary based on the courier and service type. Express shipping can take 2-5 days, while economy options may take 7-15 days."}},{"@type":"Question","name":"What documents are required for international shipping?","acceptedAnswer":{"@type":"Answer","text":"Common documents include an invoice, shipping label, customs declaration form, and any special permits if required (e.g., for restricted items)."}},{"@type":"Question","name":"Can I track my international shipment?","acceptedAnswer":{"@type":"Answer","text":"Yes, most courier services provide real-time tracking through their website or mobile app."}},{"@type":"Question","name":"Are there any items prohibited from shipping to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, restricted items include perishables, hazardous materials, certain electronics, and counterfeit goods. It’s best to check with the courier before shipping."}},{"@type":"Question","name":"How much does it cost to send a parcel from Nashik to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Costs depend on the package weight, dimensions, courier service, and shipping speed. Express services are more expensive than economy options."}},{"@type":"Question","name":"Do I need to pay customs duties on my shipment?","acceptedAnswer":{"@type":"Answer","text":"Yes, the recipient in the Croatia may have to pay customs duties, depending on the package value and category."}},{"@type":"Question","name":"What is the best courier service for urgent deliveries?","acceptedAnswer":{"@type":"Answer","text":"DHL, FedEx, and UPS offer the fastest delivery options for urgent shipments."}},{"@type":"Question","name":"Can I ship food and medicines to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, but certain restrictions apply. Some couriers offer specialized services for food and pharmaceutical shipments."}}]}</script>
 FAQSCRIPT;
-$Review_Schema = <<<'REVIEWSCHEMA'
+$reviewSchema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "Service", "name": "International Courier Service from Nashik to Croatia", "provider": {"@type": "Organization", "name": "ShipGlobal", "url": "https://shipglobal.in"}, "serviceType": "International Courier Service", "areaServed": [{"@type": "Place", "name": "Nashik"}, {"@type": "Country", "name": "Croatia"}], "url": "https://shipglobal.in/lp/nashik-to-croatia-courier", "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "189"}}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/nashik/","description":"International courier service from Nashik to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
 </script>
 REVIEWSCHEMA;
 
 include __DIR__ . "/../../template.php";
 
 ?>
-
-include __DIR__ . /../../template.php;

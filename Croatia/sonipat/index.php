@@ -68,14 +68,12 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long does it take to ship a parcel from Sonipat to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"The delivery time depends on the courier service and shipping option chosen. Express shipping can take 2-5 days, while standard shipping may take 5-10 days."}},{"@type":"Question","name":"What are the charges for international shipping from Sonipat to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Shipping costs vary based on parcel weight, dimensions, service type, and courier provider. It’s best to compare rates before selecting a service."}},{"@type":"Question","name":"Can I track my parcel after shipping?","acceptedAnswer":{"@type":"Answer","text":"Yes, most international courier services provide real-time tracking to monitor the shipment’s progress."}},{"@type":"Question","name":"Are there any restricted items I cannot send to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, items such as perishable foods, hazardous materials, explosives, and certain medications may be restricted. Check with your courier provider for a complete list."}},{"@type":"Question","name":"Do courier services provide packaging assistance?","acceptedAnswer":{"@type":"Answer","text":"Many couriers offer professional packaging services to ensure secure transit of your shipment."}},{"@type":"Question","name":"What happens if my parcel is delayed in customs?","acceptedAnswer":{"@type":"Answer","text":"Customs delays may occur due to missing documents or restricted items. Choosing a courier with customs support can help avoid such issues."}},{"@type":"Question","name":"Is insurance available for international shipping?","acceptedAnswer":{"@type":"Answer","text":"Yes, most courier services offer insurance options to protect valuable shipments against damage or loss."}},{"@type":"Question","name":"Can I send food items from Sonipat to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Some couriers allow food shipments, but restrictions may apply. Ensure compliance with Croatia food import regulations before shipping."}}]}</script>
 FAQSCRIPT;
-$Review_Schema = <<<'REVIEWSCHEMA'
+$reviewSchema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "Service", "name": "International Courier Service from Sonipat to Croatia", "provider": {"@type": "Organization", "name": "ShipGlobal", "url": "https://shipglobal.in"}, "serviceType": "International Courier Service", "areaServed": [{"@type": "Place", "name": "Sonipat"}, {"@type": "Country", "name": "Croatia"}], "url": "https://shipglobal.in/lp/sonipat-to-croatia-courier", "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "189"}}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/sonipat/","description":"International courier service from Sonipat to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
 </script>
 REVIEWSCHEMA;
 
 include __DIR__ . "/../../template.php";
 
 ?>
-
-include __DIR__ . /../../template.php;
