@@ -56,7 +56,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>With all these options, shipping internationally from Bawana Industrial Area has never been easier! So, which one will you trust for your next shipment?</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/bhubaneswar-to-croatia">International Courier Service from Bhubaneswar To Croatia</a></li><li><a href="https://shipglobal.in/service/rourkela-to-croatia">International Courier Service from Rourkela To Croatia</a></li><li><a href="https://shipglobal.in/service/paradip-to-croatia">International Courier Service from Paradip To Croatia</a></li><li><a href="https://shipglobal.in/service/cuttack-to-croatia">International Courier Service from Cuttack To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Bawana Industrial Area to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/croatia/bawana-industrial-area/">International Courier Service from Bhubaneswar To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/bawana-industrial-area/">International Courier Service from Rourkela To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/bawana-industrial-area/">International Courier Service from Paradip To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/bawana-industrial-area/">International Courier Service from Cuttack To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Bawana Industrial Area to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How long does it take to ship a parcel from Bawana Industrial Area to the Croatia?</strong><br>The delivery time depends on the courier service and shipping option chosen. Express shipping can take 2-5 days, while standard shipping may take 5-10 days.</p><p><strong>What are the charges for international shipping from Bawana Industrial Area to the Croatia?</strong><br>Shipping costs vary based on parcel weight, dimensions, service type, and courier provider. It’s best to compare rates before selecting a service.</p><p><strong>Can I track my parcel after shipping?</strong><br>Yes, most international courier services provide real-time tracking to monitor the shipment’s progress.</p><p><strong>Are there any restricted items I cannot send to the Croatia?</strong><br>Yes, items such as perishable foods, hazardous materials, explosives, and certain medications may be restricted. Check with your courier provider for a complete list.</p><p><strong>Do courier services provide packaging assistance?</strong><br>Many couriers offer professional packaging services to ensure secure transit of your shipment.</p><p><strong>What happens if my parcel is delayed in customs?</strong><br>Customs delays may occur due to missing documents or restricted items. Choosing a courier with customs support can help avoid such issues.</p><p><strong>Is insurance available for international shipping?</strong><br>Yes, most courier services offer insurance options to protect valuable shipments against damage or loss.</p><p><strong>Can I send food items from Bawana Industrial Area to the Croatia?</strong><br>Some couriers allow food shipments, but restrictions may apply. Ensure compliance with Croatia food import regulations before shipping.</p>
@@ -75,10 +75,10 @@ $Review_Schema = <<<'REVIEWSCHEMA'
   "image": "https://shipglobal.in/services/croatia/bawana-industrial-area",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": 4.24,
+    "ratingValue": 4.4,
     "bestRating": 5,
     "worstRating": 1,
-    "ratingCount": 2169
+    "ratingCount": 4190
   }
 }
 </script>

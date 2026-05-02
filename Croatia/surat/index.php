@@ -44,7 +44,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>By choosing a trusted service provider, you can ensure your shipping to the Croatia reaches its destination securely and on time. Whether you&rsquo;re sending documents, gifts, or <a href="https://shipglobal.in/blogs/bulk-shipping-and-consolidation-for-ecommerce-the-key-to-cost-efficiency/">bulk shipments</a>, these international courier services make global shipping simple and hassle-free. With the right planning and courier partner, you can experience smooth and efficient international deliveries from Surat to anywhere in the United States.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/vadodara-to-croatia">International Courier Service from Vadodara To Croatia</a></li><li><a href="https://shipglobal.in/service/rajkot-to-croatia">International Courier Service from Rajkot To Croatia</a></li><li><a href="https://shipglobal.in/service/gandhidham-to-croatia">International Courier Service from Gandhidham To Croatia</a></li><li><a href="https://shipglobal.in/service/mumbai-to-croatia">International Courier Service from Mumbai To Croatia</a></li></ul><h2>FAQs for International Courier Service from Surat to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/croatia/surat/">International Courier Service from Vadodara To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/surat/">International Courier Service from Rajkot To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/surat/">International Courier Service from Gandhidham To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/surat/">International Courier Service from Mumbai To Croatia</a></li></ul><h2>FAQs for International Courier Service from Surat to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>What is the fastest way to send a parcel from Surat to Croatia?</strong><br>Air courier is the fastest way to send a parcel from Surat to Croatia, with timelines ranging from 3–7 business days. Delivery timelines depend on the service selected and end destination.</p><p><strong>Which international courier service offers the best balance of price and reliability for shipping to Croatia?</strong><br>ShipGlobal.in is known for its competitive pricing and offers end-to-end support to exporters. With real-time tracking, doorstep pickup, and affordable rates starting from just 50 grams, it’s a preferred choice for shipping from Surat.</p><p><strong>Can I send commercial shipments like textiles or jewellery from Surat to Croatia?</strong><br>Yes, you can. With the growing global demand for Indian goods, you can easily ship products like textiles or jewellery to Croatia with the right export documents like an invoice, packing list, and KYC proofs.</p><p><strong>What kind of items can’t be shipped from Surat to Croatia?</strong><br>Items from the restricted category including batteries, sharp objects, or anything prohibited by the law of the destination country can’t be shipped. It’s always wise to double-check the item eligibility with your courier before booking.</p><p><strong>How do I track my courier from Surat to Croatia?</strong><br>Tracking is seamless with modern courier services. Platforms like ShipGlobal.in and FedEx give you a tracking ID right after dispatch so you can follow the package’s journey in real-time.</p><p><strong>Can I send a personal gift or small parcel to Croatia from Surat?</strong><br>Absolutely. Whether it’s a Rakhi, clothes, or a surprise gift, international courier services offer economical shipping options for personal use packages under gift categories.</p>
@@ -63,10 +63,10 @@ $Review_Schema = <<<'REVIEWSCHEMA'
   "image": "https://shipglobal.in/services/croatia/surat",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": 4.24,
+    "ratingValue": 4.64,
     "bestRating": 5,
     "worstRating": 1,
-    "ratingCount": 2169
+    "ratingCount": 4637
   }
 }
 </script>

@@ -44,7 +44,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>By choosing a trusted service provider, you can ensure your shipping to the Croatia reaches its destination securely and on time. Whether you&rsquo;re sending documents, gifts, or <a href="https://shipglobal.in/blogs/bulk-shipping-and-consolidation-for-ecommerce-the-key-to-cost-efficiency/">bulk shipments</a>, these international courier services make global shipping simple and hassle-free. With the right planning and courier partner, you can experience smooth and efficient international deliveries from Agra to anywhere in the United States.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/visakhapatnam-to-croatia">International Courier Service from Visakhapatnam To Croatia</a></li><li><a href="https://shipglobal.in/service/vijayawada-to-croatia">International Courier Service from Vijayawada To Croatia</a></li><li><a href="https://shipglobal.in/service/guntur-to-croatia">International Courier Service from Guntur To Croatia</a></li><li><a href="https://shipglobal.in/service/tirupati-to-croatia">International Courier Service from Tirupati To Croatia</a></li></ul><h2>FAQs for International Courier Service from Agra to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/croatia/agra/">International Courier Service from Visakhapatnam To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/agra/">International Courier Service from Vijayawada To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/agra/">International Courier Service from Guntur To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/agra/">International Courier Service from Tirupati To Croatia</a></li></ul><h2>FAQs for International Courier Service from Agra to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How long does it take to ship a package from Agra to Croatia?</strong><br>Delivery times vary based on the courier and service type. Express shipping can take 2-5 days, while economy options may take 7-15 days.</p><p><strong>What documents are required for international shipping?</strong><br>Common documents include an invoice, shipping label, customs declaration form, and any special permits if required (e.g., for restricted items).</p><p><strong>Can I track my international shipment?</strong><br>Yes, most courier services provide real-time tracking through their website or mobile app.</p><p><strong>Are there any items prohibited from shipping to the Croatia?</strong><br>Yes, restricted items include perishables, hazardous materials, certain electronics, and counterfeit goods. It’s best to check with the courier before shipping.</p><p><strong>How much does it cost to send a parcel from Agra to Croatia?</strong><br>Costs depend on the package weight, dimensions, courier service, and shipping speed. Express services are more expensive than economy options.</p><p><strong>Do I need to pay customs duties on my shipment?</strong><br>Yes, the recipient in the Croatia may have to pay customs duties, depending on the package value and category.</p><p><strong>What is the best courier service for urgent deliveries?</strong><br>DHL, FedEx, and UPS offer the fastest delivery options for urgent shipments.</p><p><strong>Can I ship food and medicines to the Croatia?</strong><br>Yes, but certain restrictions apply. Some couriers offer specialized services for food and pharmaceutical shipments.</p>
@@ -63,10 +63,10 @@ $Review_Schema = <<<'REVIEWSCHEMA'
   "image": "https://shipglobal.in/services/croatia/agra",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": 4.24,
+    "ratingValue": 4.56,
     "bestRating": 5,
     "worstRating": 1,
-    "ratingCount": 2169
+    "ratingCount": 5223
   }
 }
 </script>

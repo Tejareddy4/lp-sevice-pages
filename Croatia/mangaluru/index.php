@@ -58,7 +58,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>Happy Shipping!</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/mysuru-to-croatia">International Courier Service from Mysuru To Croatia</a></li><li><a href="https://shipglobal.in/service/hubballi-to-croatia">International Courier Service from Hubballi To Croatia</a></li><li><a href="https://shipglobal.in/service/dharwad-to-croatia">International Courier Service from Dharwad To Croatia</a></li><li><a href="https://shipglobal.in/service/belagavi-to-croatia">International Courier Service from Belagavi To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Mangaluru to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/croatia/mangaluru/">International Courier Service from Mysuru To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/mangaluru/">International Courier Service from Hubballi To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/mangaluru/">International Courier Service from Dharwad To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/mangaluru/">International Courier Service from Belagavi To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Mangaluru to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How long does it take to ship a parcel from Mangaluru to the Croatia?</strong><br>The delivery time depends on the courier service and shipping option chosen. Express shipping can take 2-5 days, while standard shipping may take 5-10 days.</p><p><strong>What are the charges for international shipping from Mangaluru to the Croatia?</strong><br>Shipping costs vary based on parcel weight, dimensions, service type, and courier provider. It’s best to compare rates before selecting a service.</p><p><strong>Can I track my parcel after shipping?</strong><br>Yes, most international courier services provide real-time tracking to monitor the shipment’s progress.</p><p><strong>Are there any restricted items I cannot send to the Croatia?</strong><br>Yes, items such as perishable foods, hazardous materials, explosives, and certain medications may be restricted. Check with your courier provider for a complete list.</p><p><strong>Do courier services provide packaging assistance?</strong><br>Many couriers offer professional packaging services to ensure secure transit of your shipment.</p><p><strong>What happens if my parcel is delayed in customs?</strong><br>Customs delays may occur due to missing documents or restricted items. Choosing a courier with customs support can help avoid such issues.</p><p><strong>Is insurance available for international shipping?</strong><br>Yes, most courier services offer insurance options to protect valuable shipments against damage or loss.</p><p><strong>Can I send food items from Mangaluru to the Croatia?</strong><br>Some couriers allow food shipments, but restrictions may apply. Ensure compliance with Croatia food import regulations before shipping.</p>
@@ -77,10 +77,10 @@ $Review_Schema = <<<'REVIEWSCHEMA'
   "image": "https://shipglobal.in/services/croatia/mangaluru",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": 4.24,
+    "ratingValue": 4.81,
     "bestRating": 5,
     "worstRating": 1,
-    "ratingCount": 2169
+    "ratingCount": 6081
   }
 }
 </script>

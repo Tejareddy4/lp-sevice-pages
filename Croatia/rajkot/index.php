@@ -43,7 +43,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>By choosing a trusted courier partner, you can ensure that your parcel delivery to the Croatia is smooth, timely, and stress-free. Whether sending documents, gifts, or bulk shipments, these courier services simplify global logistics, making international shipping from Rajkot efficient and hassle-free.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/gandhidham-to-croatia">International Courier Service from Gandhidham To Croatia</a></li><li><a href="https://shipglobal.in/service/mumbai-to-croatia">International Courier Service from Mumbai To Croatia</a></li><li><a href="https://shipglobal.in/service/pune-to-croatia">International Courier Service from Pune To Croatia</a></li><li><a href="https://shipglobal.in/service/nagpur-to-croatia">International Courier Service from Nagpur To Croatia</a></li></ul><h2>FAQs for Best International Courier Service from Rajkot to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/croatia/rajkot/">International Courier Service from Gandhidham To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/rajkot/">International Courier Service from Mumbai To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/rajkot/">International Courier Service from Pune To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/rajkot/">International Courier Service from Nagpur To Croatia</a></li></ul><h2>FAQs for Best International Courier Service from Rajkot to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How do I choose the best international courier service in Rajkot?</strong><br>Consider delivery speed, cost, tracking features, coverage, and customer reviews. Pick the one that meets your needs best.</p><p><strong>How can I book a courier service in Rajkot?</strong><br>You can book online through the official website of courier service providers or contact their customer support for assistance.</p><p><strong>Are there international courier services in Rajkot that provide real-time tracking?</strong><br>Yes, companies like ShipGlobal.in, DHL, FedEx, and Blue Dart offer real-time tracking systems, allowing customers to monitor their shipments throughout the delivery process.​</p><p><strong>What items can I ship internationally?</strong><br>Most items like documents, parcels, and e-commerce products can be shipped internationally. However, some restrictions apply to hazardous or perishable goods—always check before booking.</p><p><strong>Which is the most cost-effective international courier service in Rajkot?</strong><br>Cost-effectiveness depends on factors like package weight, destination, and delivery speed. ShipGlobal.in is known for offering budget-friendly international shipping packages with prices starting from 50g worldwide.</p><p><strong>Can I ship heavy or bulky items internationally from Rajkot?</strong><br>Yes, many courier services offer solutions for shipping heavy or bulky items internationally, providing specialized packaging and handling to ensure safe delivery.</p>
@@ -62,10 +62,10 @@ $Review_Schema = <<<'REVIEWSCHEMA'
   "image": "https://shipglobal.in/services/croatia/rajkot",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": 4.24,
+    "ratingValue": 4.55,
     "bestRating": 5,
     "worstRating": 1,
-    "ratingCount": 2169
+    "ratingCount": 5628
   }
 }
 </script>

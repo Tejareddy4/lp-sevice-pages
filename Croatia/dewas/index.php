@@ -118,7 +118,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>Whether you are an individual sending a parcel to a loved one abroad or a business looking to expand globally, these international parcel service providers in Dewas offer efficient logistics solutions to meet your needs. Make sure to compare service offerings and prices before choosing the best overseas shipping option for your shipment.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/ludhiana-to-croatia">International Courier Service from Ludhiana To Croatia</a></li><li><a href="https://shipglobal.in/service/amritsar-to-croatia">International Courier Service from Amritsar To Croatia</a></li><li><a href="https://shipglobal.in/service/jalandhar-to-croatia">International Courier Service from Jalandhar To Croatia</a></li><li><a href="https://shipglobal.in/service/mohali-to-croatia">International Courier Service from Mohali To Croatia</a></li></ul><h2>FAQs for International Courier Service from Dewas to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/croatia/dewas/">International Courier Service from Ludhiana To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/dewas/">International Courier Service from Amritsar To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/dewas/">International Courier Service from Jalandhar To Croatia</a></li><li><a href="https://shipglobal.in/services/croatia/dewas/">International Courier Service from Mohali To Croatia</a></li></ul><h2>FAQs for International Courier Service from Dewas to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>What is the fastest way to send a parcel from Dewas to Croatia?</strong><br>Air courier is the fastest way to send a parcel from Dewas to Croatia, with timelines ranging from 3–7 business days. Delivery timelines depend on the service selected and end destination.</p><p><strong>Which international courier service offers the best balance of price and reliability for shipping to Croatia?</strong><br>ShipGlobal.in is known for its competitive pricing and offers end-to-end support to exporters. With real-time tracking, doorstep pickup, and affordable rates starting from just 50 grams, it’s a preferred choice for shipping from Dewas.</p><p><strong>Can I send commercial shipments like textiles or jewellery from Dewas to Croatia?</strong><br>Yes, you can. With the growing global demand for Indian goods, you can easily ship products like textiles or jewellery to Croatia with the right export documents like an invoice, packing list, and KYC proofs.</p><p><strong>What kind of items can’t be shipped from Dewas to Croatia?</strong><br>Items from the restricted category including batteries, sharp objects, or anything prohibited by the law of the destination country can’t be shipped. It’s always wise to double-check the item eligibility with your courier before booking.</p><p><strong>How do I track my courier from Dewas to Croatia?</strong><br>Tracking is seamless with modern courier services. Platforms like ShipGlobal.in and FedEx give you a tracking ID right after dispatch so you can follow the package’s journey in real-time.</p><p><strong>Can I send a personal gift or small parcel to Croatia from Dewas?</strong><br>Absolutely. Whether it’s a Rakhi, clothes, or a surprise gift, international courier services offer economical shipping options for personal use packages under gift categories.</p>
@@ -137,10 +137,10 @@ $Review_Schema = <<<'REVIEWSCHEMA'
   "image": "https://shipglobal.in/services/croatia/dewas",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": 4.24,
+    "ratingValue": 4.47,
     "bestRating": 5,
     "worstRating": 1,
-    "ratingCount": 2169
+    "ratingCount": 4477
   }
 }
 </script>
