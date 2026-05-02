@@ -3,7 +3,7 @@
 $Origin = "Panipat"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-International courier services from Panipat to Croatia provide secure shipping, efficient customs handling, and timely global deliveries for all needs.
+International courier services from Panipat to Croatia ensure smooth shipping with secure handling, timely delivery, and professional customs support.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Panipat, a fast-growing commercial hub, has seen an increasing demand for reliable international courier services. Whether you&rsquo;re a business looking to ship products overseas or an individual sending a parcel to family or friends in the Croatia, choosing the right courier services is essential for a smooth and stress-free experience.&nbsp;</p>
@@ -44,7 +44,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>By choosing a trusted service provider, you can ensure your shipping to the Croatia reaches its destination securely and on time. Whether you&rsquo;re sending documents, gifts, or <a href="https://shipglobal.in/blogs/bulk-shipping-and-consolidation-for-ecommerce-the-key-to-cost-efficiency/">bulk shipments</a>, these international courier services make global shipping simple and hassle-free. With the right planning and courier partner, you can experience smooth and efficient international deliveries from Panipat to anywhere in the United States.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/karnal/">International Courier Service from Karnal To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/sonipat/">International Courier Service from Sonipat To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/kolkata/">International Courier Service from Kolkata To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/howrah/">International Courier Service from Howrah To Croatia</a></li></ul><h2>FAQs for International Courier Service from Panipat to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/karnal-to-croatia">International Courier Service from Karnal To Croatia</a></li><li><a href="https://shipglobal.in/service/sonipat-to-croatia">International Courier Service from Sonipat To Croatia</a></li><li><a href="https://shipglobal.in/service/kolkata-to-croatia">International Courier Service from Kolkata To Croatia</a></li><li><a href="https://shipglobal.in/service/howrah-to-croatia">International Courier Service from Howrah To Croatia</a></li></ul><h2>FAQs for International Courier Service from Panipat to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How do I choose the best international courier service in Panipat?</strong><br>Consider delivery speed, cost, tracking features, coverage, and customer reviews. Pick the one that meets your needs best.</p><p><strong>How can I book a courier service in Panipat?</strong><br>You can book online through the official website of courier service providers or contact their customer support for assistance.</p><p><strong>Are there international courier services in Panipat that provide real-time tracking?</strong><br>Yes, companies like ShipGlobal.in, DHL, FedEx, and Blue Dart offer real-time tracking systems, allowing customers to monitor their shipments throughout the delivery process.​</p><p><strong>What items can I ship internationally?</strong><br>Most items like documents, parcels, and e-commerce products can be shipped internationally. However, some restrictions apply to hazardous or perishable goods—always check before booking.</p><p><strong>Which is the most cost-effective international courier service in Panipat?</strong><br>Cost-effectiveness depends on factors like package weight, destination, and delivery speed. ShipGlobal.in is known for offering budget-friendly international shipping packages with prices starting from 50g worldwide.</p><p><strong>Can I ship heavy or bulky items internationally from Panipat?</strong><br>Yes, many courier services offer solutions for shipping heavy or bulky items internationally, providing specialized packaging and handling to ensure safe delivery.</p>
@@ -54,9 +54,21 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I choose the best international courier service in Panipat?","acceptedAnswer":{"@type":"Answer","text":"Consider delivery speed, cost, tracking features, coverage, and customer reviews. Pick the one that meets your needs best."}},{"@type":"Question","name":"How can I book a courier service in Panipat?","acceptedAnswer":{"@type":"Answer","text":"You can book online through the official website of courier service providers or contact their customer support for assistance."}},{"@type":"Question","name":"Are there international courier services in Panipat that provide real-time tracking?","acceptedAnswer":{"@type":"Answer","text":"Yes, companies like ShipGlobal.in, DHL, FedEx, and Blue Dart offer real-time tracking systems, allowing customers to monitor their shipments throughout the delivery process.​"}},{"@type":"Question","name":"What items can I ship internationally?","acceptedAnswer":{"@type":"Answer","text":"Most items like documents, parcels, and e-commerce products can be shipped internationally. However, some restrictions apply to hazardous or perishable goods—always check before booking."}},{"@type":"Question","name":"Which is the most cost-effective international courier service in Panipat?","acceptedAnswer":{"@type":"Answer","text":"Cost-effectiveness depends on factors like package weight, destination, and delivery speed. ShipGlobal.in is known for offering budget-friendly international shipping packages with prices starting from 50g worldwide."}},{"@type":"Question","name":"Can I ship heavy or bulky items internationally from Panipat?","acceptedAnswer":{"@type":"Answer","text":"Yes, many courier services offer solutions for shipping heavy or bulky items internationally, providing specialized packaging and handling to ensure safe delivery."}}]}</script>
 FAQSCRIPT;
-$reviewSchema = <<<'REVIEWSCHEMA'
+$Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/panipat/","description":"International courier service from Panipat to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Panipat to Croatia",
+  "image": "https://shipglobal.in/services/croatia/panipat",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 

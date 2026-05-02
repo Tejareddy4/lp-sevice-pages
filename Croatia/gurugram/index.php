@@ -3,7 +3,7 @@
 $Origin = "Gurugram"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-Looking to ship from Gurugram to Croatia? Choose reliable international courier services with secure handling, quick transit, and smooth customs clearance.
+International courier services from Gurugram to Croatia ensure smooth shipping with secure handling, timely delivery, and professional customs support.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Gurugram, a rapidly growing commercial hub, has witnessed a surge in demand for dependable international courier services. Whether you're a business looking to ship products to the Croatia or an individual sending a parcel to family and friends, choosing the right courier service is crucial for a seamless experience.&nbsp;</p>
@@ -43,7 +43,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>By choosing a trusted courier partner, you can ensure that your parcel delivery to the Croatia is smooth, timely, and stress-free. Whether sending documents, gifts, or bulk shipments, these courier services simplify global logistics, making international shipping from Gurugram efficient and hassle-free.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/faridabad/">International Courier Service from Faridabad To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/panipat/">International Courier Service from Panipat To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/karnal/">International Courier Service from Karnal To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/sonipat/">International Courier Service from Sonipat To Croatia</a></li></ul><h2>FAQs for Best International Courier Service from Gurugram to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/faridabad-to-croatia">International Courier Service from Faridabad To Croatia</a></li><li><a href="https://shipglobal.in/service/panipat-to-croatia">International Courier Service from Panipat To Croatia</a></li><li><a href="https://shipglobal.in/service/karnal-to-croatia">International Courier Service from Karnal To Croatia</a></li><li><a href="https://shipglobal.in/service/sonipat-to-croatia">International Courier Service from Sonipat To Croatia</a></li></ul><h2>FAQs for Best International Courier Service from Gurugram to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How long does it take to ship a parcel from Gurugram to the Croatia?</strong><br>The delivery time depends on the courier service and shipping option chosen. Express shipping can take 2-5 days, while standard shipping may take 5-10 days.</p><p><strong>What are the charges for international shipping from Gurugram to the Croatia?</strong><br>Shipping costs vary based on parcel weight, dimensions, service type, and courier provider. It’s best to compare rates before selecting a service.</p><p><strong>Can I track my parcel after shipping?</strong><br>Yes, most international courier services provide real-time tracking to monitor the shipment’s progress.</p><p><strong>Are there any restricted items I cannot send to the Croatia?</strong><br>Yes, items such as perishable foods, hazardous materials, explosives, and certain medications may be restricted. Check with your courier provider for a complete list.</p><p><strong>Do courier services provide packaging assistance?</strong><br>Many couriers offer professional packaging services to ensure secure transit of your shipment.</p><p><strong>What happens if my parcel is delayed in customs?</strong><br>Customs delays may occur due to missing documents or restricted items. Choosing a courier with customs support can help avoid such issues.</p><p><strong>Is insurance available for international shipping?</strong><br>Yes, most courier services offer insurance options to protect valuable shipments against damage or loss.</p><p><strong>Can I send food items from Gurugram to the Croatia?</strong><br>Some couriers allow food shipments, but restrictions may apply. Ensure compliance with Croatia food import regulations before shipping.</p>
@@ -55,7 +55,19 @@ $FAQscript = <<<'FAQSCRIPT'
 FAQSCRIPT;
 $Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/gurugram/","description":"International courier service from Gurugram to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Gurugram to Croatia",
+  "image": "https://shipglobal.in/services/croatia/gurugram",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 

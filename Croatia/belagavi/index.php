@@ -3,7 +3,7 @@
 $Origin = "Belagavi"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-International courier services from Belagavi to Croatia provide secure shipping, efficient customs handling, and timely global deliveries for all needs.
+Shipping from Belagavi to Croatia is easy with reliable international courier services offering secure transit, quick delivery, and expert customs handling.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Do you need to send a package abroad from Belagavi but are not sure which courier service to choose? With so many options, picking the right one can feel overwhelming. Whether you are shipping personal parcels, business packages, or e-commerce orders, choosing a reliable courier is crucial. So, let's explore some of the best international courier services in Belagavi and what makes them stand out!</p>
@@ -56,7 +56,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>With all these options, shipping internationally from Belagavi has never been easier! So, which one will you trust for your next shipment?</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/kanpur/">International Courier Service from Kanpur To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/noida/">International Courier Service from Noida To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/moradabad/">International Courier Service from Moradabad To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/varanasi/">International Courier Service from Varanasi To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Belagavi to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/kanpur-to-croatia">International Courier Service from Kanpur To Croatia</a></li><li><a href="https://shipglobal.in/service/noida-to-croatia">International Courier Service from Noida To Croatia</a></li><li><a href="https://shipglobal.in/service/moradabad-to-croatia">International Courier Service from Moradabad To Croatia</a></li><li><a href="https://shipglobal.in/service/varanasi-to-croatia">International Courier Service from Varanasi To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Belagavi to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How long does it take to ship a package from Belagavi to Croatia?</strong><br>Delivery times vary based on the courier and service type. Express shipping can take 2-5 days, while economy options may take 7-15 days.</p><p><strong>What documents are required for international shipping?</strong><br>Common documents include an invoice, shipping label, customs declaration form, and any special permits if required (e.g., for restricted items).</p><p><strong>Can I track my international shipment?</strong><br>Yes, most courier services provide real-time tracking through their website or mobile app.</p><p><strong>Are there any items prohibited from shipping to the Croatia?</strong><br>Yes, restricted items include perishables, hazardous materials, certain electronics, and counterfeit goods. It’s best to check with the courier before shipping.</p><p><strong>How much does it cost to send a parcel from Belagavi to Croatia?</strong><br>Costs depend on the package weight, dimensions, courier service, and shipping speed. Express services are more expensive than economy options.</p><p><strong>Do I need to pay customs duties on my shipment?</strong><br>Yes, the recipient in the Croatia may have to pay customs duties, depending on the package value and category.</p><p><strong>What is the best courier service for urgent deliveries?</strong><br>DHL, FedEx, and UPS offer the fastest delivery options for urgent shipments.</p><p><strong>Can I ship food and medicines to the Croatia?</strong><br>Yes, but certain restrictions apply. Some couriers offer specialized services for food and pharmaceutical shipments.</p>
@@ -66,9 +66,21 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long does it take to ship a package from Belagavi to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Delivery times vary based on the courier and service type. Express shipping can take 2-5 days, while economy options may take 7-15 days."}},{"@type":"Question","name":"What documents are required for international shipping?","acceptedAnswer":{"@type":"Answer","text":"Common documents include an invoice, shipping label, customs declaration form, and any special permits if required (e.g., for restricted items)."}},{"@type":"Question","name":"Can I track my international shipment?","acceptedAnswer":{"@type":"Answer","text":"Yes, most courier services provide real-time tracking through their website or mobile app."}},{"@type":"Question","name":"Are there any items prohibited from shipping to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, restricted items include perishables, hazardous materials, certain electronics, and counterfeit goods. It’s best to check with the courier before shipping."}},{"@type":"Question","name":"How much does it cost to send a parcel from Belagavi to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Costs depend on the package weight, dimensions, courier service, and shipping speed. Express services are more expensive than economy options."}},{"@type":"Question","name":"Do I need to pay customs duties on my shipment?","acceptedAnswer":{"@type":"Answer","text":"Yes, the recipient in the Croatia may have to pay customs duties, depending on the package value and category."}},{"@type":"Question","name":"What is the best courier service for urgent deliveries?","acceptedAnswer":{"@type":"Answer","text":"DHL, FedEx, and UPS offer the fastest delivery options for urgent shipments."}},{"@type":"Question","name":"Can I ship food and medicines to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, but certain restrictions apply. Some couriers offer specialized services for food and pharmaceutical shipments."}}]}</script>
 FAQSCRIPT;
-$reviewSchema = <<<'REVIEWSCHEMA'
+$Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/belagavi/","description":"International courier service from Belagavi to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Belagavi to Croatia",
+  "image": "https://shipglobal.in/services/croatia/belagavi",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 

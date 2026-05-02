@@ -116,7 +116,7 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?php echo $title; ?></title>
 <meta name="description" content="<?php echo $meta_description; ?>">
-<link rel="canonical" href="https://shipglobal.in/services/<?php echo strtolower($origin); ?>-to-<?php echo strtolower($destination); ?>/">
+<link rel="canonical" href="https://shipglobal.in/services/<?php echo slugify_text($destination); ?>/<?php echo slugify_text($origin); ?>/">
 <?php if (trim($featuredImageSeoUrl) !== ''): ?>
 <meta property="og:image" content="<?php echo htmlspecialchars($featuredImageSeoUrl, ENT_QUOTES, 'UTF-8'); ?>">
 <meta property="og:image:alt" content="<?php echo htmlspecialchars($featuredImageAlt, ENT_QUOTES, 'UTF-8'); ?>">

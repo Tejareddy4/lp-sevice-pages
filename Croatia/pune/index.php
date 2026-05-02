@@ -3,7 +3,7 @@
 $Origin = "Pune"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-International courier services from Pune to Croatia ensure smooth shipping with secure handling, timely delivery, and professional customs support.
+Looking to ship from Pune to Croatia? Choose reliable international courier services with secure handling, quick transit, and smooth customs clearance.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Pune, a thriving industrial and commercial hub, has seen a growing demand for reliable international courier services. Whether you send important documents, personal parcels, business consignments, or eCommerce shipments, choosing the right courier services ensures timely and secure delivery. Here&rsquo;s a detailed look at some of the top international courier services in Pune that specialize in overseas shipping and global package delivery.</p>
@@ -118,7 +118,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>Whether you are an individual sending a parcel to a loved one abroad or a business looking to expand globally, these international parcel service providers in Pune offer efficient logistics solutions to meet your needs. Make sure to compare service offerings and prices before choosing the best overseas shipping option for your shipment.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/nagpur/">International Courier Service from Nagpur To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/nashik/">International Courier Service from Nashik To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/aurangabad/">International Courier Service from Aurangabad To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/chennai/">International Courier Service from Chennai To Croatia</a></li></ul><h2>FAQs for Top International Courier Service from Pune to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/nagpur-to-croatia">International Courier Service from Nagpur To Croatia</a></li><li><a href="https://shipglobal.in/service/nashik-to-croatia">International Courier Service from Nashik To Croatia</a></li><li><a href="https://shipglobal.in/service/aurangabad-to-croatia">International Courier Service from Aurangabad To Croatia</a></li><li><a href="https://shipglobal.in/service/chennai-to-croatia">International Courier Service from Chennai To Croatia</a></li></ul><h2>FAQs for Top International Courier Service from Pune to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How long does it take to ship a package from Pune to Croatia?</strong><br>Delivery times vary based on the courier and service type. Express shipping can take 2-5 days, while economy options may take 7-15 days.</p><p><strong>What documents are required for international shipping?</strong><br>Common documents include an invoice, shipping label, customs declaration form, and any special permits if required (e.g., for restricted items).</p><p><strong>Can I track my international shipment?</strong><br>Yes, most courier services provide real-time tracking through their website or mobile app.</p><p><strong>Are there any items prohibited from shipping to the Croatia?</strong><br>Yes, restricted items include perishables, hazardous materials, certain electronics, and counterfeit goods. It’s best to check with the courier before shipping.</p><p><strong>How much does it cost to send a parcel from Pune to Croatia?</strong><br>Costs depend on the package weight, dimensions, courier service, and shipping speed. Express services are more expensive than economy options.</p><p><strong>Do I need to pay customs duties on my shipment?</strong><br>Yes, the recipient in the Croatia may have to pay customs duties, depending on the package value and category.</p><p><strong>What is the best courier service for urgent deliveries?</strong><br>DHL, FedEx, and UPS offer the fastest delivery options for urgent shipments.</p><p><strong>Can I ship food and medicines to the Croatia?</strong><br>Yes, but certain restrictions apply. Some couriers offer specialized services for food and pharmaceutical shipments.</p>
@@ -128,9 +128,21 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long does it take to ship a package from Pune to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Delivery times vary based on the courier and service type. Express shipping can take 2-5 days, while economy options may take 7-15 days."}},{"@type":"Question","name":"What documents are required for international shipping?","acceptedAnswer":{"@type":"Answer","text":"Common documents include an invoice, shipping label, customs declaration form, and any special permits if required (e.g., for restricted items)."}},{"@type":"Question","name":"Can I track my international shipment?","acceptedAnswer":{"@type":"Answer","text":"Yes, most courier services provide real-time tracking through their website or mobile app."}},{"@type":"Question","name":"Are there any items prohibited from shipping to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, restricted items include perishables, hazardous materials, certain electronics, and counterfeit goods. It’s best to check with the courier before shipping."}},{"@type":"Question","name":"How much does it cost to send a parcel from Pune to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Costs depend on the package weight, dimensions, courier service, and shipping speed. Express services are more expensive than economy options."}},{"@type":"Question","name":"Do I need to pay customs duties on my shipment?","acceptedAnswer":{"@type":"Answer","text":"Yes, the recipient in the Croatia may have to pay customs duties, depending on the package value and category."}},{"@type":"Question","name":"What is the best courier service for urgent deliveries?","acceptedAnswer":{"@type":"Answer","text":"DHL, FedEx, and UPS offer the fastest delivery options for urgent shipments."}},{"@type":"Question","name":"Can I ship food and medicines to the Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, but certain restrictions apply. Some couriers offer specialized services for food and pharmaceutical shipments."}}]}</script>
 FAQSCRIPT;
-$reviewSchema = <<<'REVIEWSCHEMA'
+$Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/pune/","description":"International courier service from Pune to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Pune to Croatia",
+  "image": "https://shipglobal.in/services/croatia/pune",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 

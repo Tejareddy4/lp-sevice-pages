@@ -3,7 +3,7 @@
 $Origin = "Dharwad"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-Shipping from Dharwad to Croatia is easy with reliable international courier services offering secure transit, quick delivery, and expert customs handling.
+International courier services from Dharwad to Croatia ensure smooth shipping with secure handling, timely delivery, and professional customs support.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Do you need to send a package abroad from Dharwad but are not sure which courier service to choose? With so many options, picking the right one can feel overwhelming. Whether you are shipping personal parcels, business packages, or e-commerce orders, choosing a reliable courier is crucial. So, let's explore some of the best international courier services in Dharwad and what makes them stand out!</p>
@@ -56,7 +56,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>With all these options, shipping internationally from Dharwad has never been easier! So, which one will you trust for your next shipment?</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/belagavi/">International Courier Service from Belagavi To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/kanpur/">International Courier Service from Kanpur To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/noida/">International Courier Service from Noida To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/moradabad/">International Courier Service from Moradabad To Croatia</a></li></ul><h2>FAQs for Best International Courier Service from Dharwad to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/belagavi-to-croatia">International Courier Service from Belagavi To Croatia</a></li><li><a href="https://shipglobal.in/service/kanpur-to-croatia">International Courier Service from Kanpur To Croatia</a></li><li><a href="https://shipglobal.in/service/noida-to-croatia">International Courier Service from Noida To Croatia</a></li><li><a href="https://shipglobal.in/service/moradabad-to-croatia">International Courier Service from Moradabad To Croatia</a></li></ul><h2>FAQs for Best International Courier Service from Dharwad to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How much does international shipping cost from Dharwad?</strong><br>The cost of international shipping depends on factors such as package weight, destination, shipping speed, and additional services like insurance or express delivery. Most courier companies provide online rate calculators for estimated costs.</p><p><strong>Which courier service is the fastest for overseas shipping from Dharwad?</strong><br>DHL, FedEx, and ShipGlobal offer express shipping options with fast international delivery times. Same-day or next-day delivery is available for select destinations.</p><p><strong>Can I track my international parcel from Dharwad?</strong><br>Yes, all major courier services provide real-time tracking features, allowing customers to monitor their shipments throughout the transit process</p><p><strong>Are there affordable international courier services in Dharwad?</strong><br>Yes, many courier companies, including ShipGlobal and Professional Couriers, offer budget-friendly international shipping options without compromising on service quality.</p><p><strong>Do international couriers from Dharwad handle customs clearance?</strong><br>Yes, courier companies assist with customs clearance and documentation to ensure the smooth delivery of parcels to their destinations</p><p><strong>What items are restricted from international shipping?</strong><br>materials, explosives, perishables, and certain electronics. It is best to check with the courier service before shipping.</p><p><strong>What is the best international courier service in Dharwad?</strong><br>There are several reliable international courier services in Dharwad, including Garudavega, Dutch International Couriers, Oscar Express Worldwide, DHL, FedEx, Blue Dart, and ShipGlobal. The best option depends on your shipping needs, budget, and delivery speed requirements.</p>
@@ -66,9 +66,21 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does international shipping cost from Dharwad?","acceptedAnswer":{"@type":"Answer","text":"The cost of international shipping depends on factors such as package weight, destination, shipping speed, and additional services like insurance or express delivery. Most courier companies provide online rate calculators for estimated costs."}},{"@type":"Question","name":"Which courier service is the fastest for overseas shipping from Dharwad?","acceptedAnswer":{"@type":"Answer","text":"DHL, FedEx, and ShipGlobal offer express shipping options with fast international delivery times. Same-day or next-day delivery is available for select destinations."}},{"@type":"Question","name":"Can I track my international parcel from Dharwad?","acceptedAnswer":{"@type":"Answer","text":"Yes, all major courier services provide real-time tracking features, allowing customers to monitor their shipments throughout the transit process"}},{"@type":"Question","name":"Are there affordable international courier services in Dharwad?","acceptedAnswer":{"@type":"Answer","text":"Yes, many courier companies, including ShipGlobal and Professional Couriers, offer budget-friendly international shipping options without compromising on service quality."}},{"@type":"Question","name":"Do international couriers from Dharwad handle customs clearance?","acceptedAnswer":{"@type":"Answer","text":"Yes, courier companies assist with customs clearance and documentation to ensure the smooth delivery of parcels to their destinations"}},{"@type":"Question","name":"What items are restricted from international shipping?","acceptedAnswer":{"@type":"Answer","text":"materials, explosives, perishables, and certain electronics. It is best to check with the courier service before shipping."}},{"@type":"Question","name":"What is the best international courier service in Dharwad?","acceptedAnswer":{"@type":"Answer","text":"There are several reliable international courier services in Dharwad, including Garudavega, Dutch International Couriers, Oscar Express Worldwide, DHL, FedEx, Blue Dart, and ShipGlobal. The best option depends on your shipping needs, budget, and delivery speed requirements."}}]}</script>
 FAQSCRIPT;
-$reviewSchema = <<<'REVIEWSCHEMA'
+$Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/dharwad/","description":"International courier service from Dharwad to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Dharwad to Croatia",
+  "image": "https://shipglobal.in/services/croatia/dharwad",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 

@@ -3,7 +3,7 @@
 $Origin = "Visakhapatnam"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-International courier services from Visakhapatnam to Croatia ensure smooth shipping with secure handling, timely delivery, and professional customs support.
+International courier services from Visakhapatnam to Croatia provide secure shipping, efficient customs handling, and timely global deliveries for all needs.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Visakhapatnam, a thriving industrial and commercial hub, has seen a growing demand for reliable international courier services. Whether you send important documents, personal parcels, business consignments, or eCommerce shipments, choosing the right courier services ensures timely and secure delivery. Here&rsquo;s a detailed look at some of the top international courier services in Visakhapatnam that specialize in overseas shipping and global package delivery.</p>
@@ -118,7 +118,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>Whether you are an individual sending a parcel to a loved one abroad or a business looking to expand globally, these international parcel service providers in Visakhapatnam offer efficient logistics solutions to meet your needs. Make sure to compare service offerings and prices before choosing the best overseas shipping option for your shipment.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/vijayawada/">International Courier Service from Vijayawada To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/guntur/">International Courier Service from Guntur To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/tirupati/">International Courier Service from Tirupati To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/kakinada/">International Courier Service from Kakinada To Croatia</a></li></ul><h2>FAQs for Top International Courier Service from Visakhapatnam to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/vijayawada-to-croatia">International Courier Service from Vijayawada To Croatia</a></li><li><a href="https://shipglobal.in/service/guntur-to-croatia">International Courier Service from Guntur To Croatia</a></li><li><a href="https://shipglobal.in/service/tirupati-to-croatia">International Courier Service from Tirupati To Croatia</a></li><li><a href="https://shipglobal.in/service/kakinada-to-croatia">International Courier Service from Kakinada To Croatia</a></li></ul><h2>FAQs for Top International Courier Service from Visakhapatnam to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How much does international shipping cost from Visakhapatnam?</strong><br>The cost of international shipping depends on factors such as package weight, destination, shipping speed, and additional services like insurance or express delivery. Most courier companies provide online rate calculators for estimated costs.</p><p><strong>Which courier service is the fastest for overseas shipping from Visakhapatnam?</strong><br>DHL, FedEx, and ShipGlobal offer express shipping options with fast international delivery times. Same-day or next-day delivery is available for select destinations.</p><p><strong>Can I track my international parcel from Visakhapatnam?</strong><br>Yes, all major courier services provide real-time tracking features, allowing customers to monitor their shipments throughout the transit process</p><p><strong>Are there affordable international courier services in Visakhapatnam?</strong><br>Yes, many courier companies, including ShipGlobal and Professional Couriers, offer budget-friendly international shipping options without compromising on service quality.</p><p><strong>Do international couriers from Visakhapatnam handle customs clearance?</strong><br>Yes, courier companies assist with customs clearance and documentation to ensure the smooth delivery of parcels to their destinations</p><p><strong>What items are restricted from international shipping?</strong><br>materials, explosives, perishables, and certain electronics. It is best to check with the courier service before shipping.</p><p><strong>What is the best international courier service in Visakhapatnam?</strong><br>There are several reliable international courier services in Visakhapatnam, including Garudavega, Dutch International Couriers, Oscar Express Worldwide, DHL, FedEx, Blue Dart, and ShipGlobal. The best option depends on your shipping needs, budget, and delivery speed requirements.</p>
@@ -128,9 +128,21 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does international shipping cost from Visakhapatnam?","acceptedAnswer":{"@type":"Answer","text":"The cost of international shipping depends on factors such as package weight, destination, shipping speed, and additional services like insurance or express delivery. Most courier companies provide online rate calculators for estimated costs."}},{"@type":"Question","name":"Which courier service is the fastest for overseas shipping from Visakhapatnam?","acceptedAnswer":{"@type":"Answer","text":"DHL, FedEx, and ShipGlobal offer express shipping options with fast international delivery times. Same-day or next-day delivery is available for select destinations."}},{"@type":"Question","name":"Can I track my international parcel from Visakhapatnam?","acceptedAnswer":{"@type":"Answer","text":"Yes, all major courier services provide real-time tracking features, allowing customers to monitor their shipments throughout the transit process"}},{"@type":"Question","name":"Are there affordable international courier services in Visakhapatnam?","acceptedAnswer":{"@type":"Answer","text":"Yes, many courier companies, including ShipGlobal and Professional Couriers, offer budget-friendly international shipping options without compromising on service quality."}},{"@type":"Question","name":"Do international couriers from Visakhapatnam handle customs clearance?","acceptedAnswer":{"@type":"Answer","text":"Yes, courier companies assist with customs clearance and documentation to ensure the smooth delivery of parcels to their destinations"}},{"@type":"Question","name":"What items are restricted from international shipping?","acceptedAnswer":{"@type":"Answer","text":"materials, explosives, perishables, and certain electronics. It is best to check with the courier service before shipping."}},{"@type":"Question","name":"What is the best international courier service in Visakhapatnam?","acceptedAnswer":{"@type":"Answer","text":"There are several reliable international courier services in Visakhapatnam, including Garudavega, Dutch International Couriers, Oscar Express Worldwide, DHL, FedEx, Blue Dart, and ShipGlobal. The best option depends on your shipping needs, budget, and delivery speed requirements."}}]}</script>
 FAQSCRIPT;
-$reviewSchema = <<<'REVIEWSCHEMA'
+$Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/visakhapatnam/","description":"International courier service from Visakhapatnam to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Visakhapatnam to Croatia",
+  "image": "https://shipglobal.in/services/croatia/visakhapatnam",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 

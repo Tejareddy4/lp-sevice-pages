@@ -3,7 +3,7 @@
 $Origin = "Varanasi"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-Reliable international courier services from Varanasi to Croatia ensure smooth customs clearance, secure packaging, and timely global deliveries.
+Shipping from Varanasi to Croatia is easy with reliable international courier services offering secure transit, quick delivery, and expert customs handling.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Varanasi, a thriving industrial and commercial hub, has seen a growing demand for reliable international courier services. Whether you send important documents, personal parcels, business consignments, or eCommerce shipments, choosing the right courier services ensures timely and secure delivery. Here&rsquo;s a detailed look at some of the top international courier services in Varanasi that specialize in overseas shipping and global package delivery.</p>
@@ -118,7 +118,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>Whether you are an individual sending a parcel to a loved one abroad or a business looking to expand globally, these international parcel service providers in Varanasi offer efficient logistics solutions to meet your needs. Make sure to compare service offerings and prices before choosing the best overseas shipping option for your shipment.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/agra/">International Courier Service from Agra To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/visakhapatnam/">International Courier Service from Visakhapatnam To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/vijayawada/">International Courier Service from Vijayawada To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/guntur/">International Courier Service from Guntur To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Varanasi to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/agra-to-croatia">International Courier Service from Agra To Croatia</a></li><li><a href="https://shipglobal.in/service/visakhapatnam-to-croatia">International Courier Service from Visakhapatnam To Croatia</a></li><li><a href="https://shipglobal.in/service/vijayawada-to-croatia">International Courier Service from Vijayawada To Croatia</a></li><li><a href="https://shipglobal.in/service/guntur-to-croatia">International Courier Service from Guntur To Croatia</a></li></ul><h2>FAQs for Reliable International Courier Service from Varanasi to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>What is the fastest way to send a parcel from Varanasi to Croatia?</strong><br>Air courier is the fastest way to send a parcel from Varanasi to Croatia, with timelines ranging from 3–7 business days. Delivery timelines depend on the service selected and end destination.</p><p><strong>Which international courier service offers the best balance of price and reliability for shipping to Croatia?</strong><br>ShipGlobal.in is known for its competitive pricing and offers end-to-end support to exporters. With real-time tracking, doorstep pickup, and affordable rates starting from just 50 grams, it’s a preferred choice for shipping from Varanasi.</p><p><strong>Can I send commercial shipments like textiles or jewellery from Varanasi to Croatia?</strong><br>Yes, you can. With the growing global demand for Indian goods, you can easily ship products like textiles or jewellery to Croatia with the right export documents like an invoice, packing list, and KYC proofs.</p><p><strong>What kind of items can’t be shipped from Varanasi to Croatia?</strong><br>Items from the restricted category including batteries, sharp objects, or anything prohibited by the law of the destination country can’t be shipped. It’s always wise to double-check the item eligibility with your courier before booking.</p><p><strong>How do I track my courier from Varanasi to Croatia?</strong><br>Tracking is seamless with modern courier services. Platforms like ShipGlobal.in and FedEx give you a tracking ID right after dispatch so you can follow the package’s journey in real-time.</p><p><strong>Can I send a personal gift or small parcel to Croatia from Varanasi?</strong><br>Absolutely. Whether it’s a Rakhi, clothes, or a surprise gift, international courier services offer economical shipping options for personal use packages under gift categories.</p>
@@ -128,9 +128,21 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the fastest way to send a parcel from Varanasi to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Air courier is the fastest way to send a parcel from Varanasi to Croatia, with timelines ranging from 3–7 business days. Delivery timelines depend on the service selected and end destination."}},{"@type":"Question","name":"Which international courier service offers the best balance of price and reliability for shipping to Croatia?","acceptedAnswer":{"@type":"Answer","text":"ShipGlobal.in is known for its competitive pricing and offers end-to-end support to exporters. With real-time tracking, doorstep pickup, and affordable rates starting from just 50 grams, it’s a preferred choice for shipping from Varanasi."}},{"@type":"Question","name":"Can I send commercial shipments like textiles or jewellery from Varanasi to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Yes, you can. With the growing global demand for Indian goods, you can easily ship products like textiles or jewellery to Croatia with the right export documents like an invoice, packing list, and KYC proofs."}},{"@type":"Question","name":"What kind of items can’t be shipped from Varanasi to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Items from the restricted category including batteries, sharp objects, or anything prohibited by the law of the destination country can’t be shipped. It’s always wise to double-check the item eligibility with your courier before booking."}},{"@type":"Question","name":"How do I track my courier from Varanasi to Croatia?","acceptedAnswer":{"@type":"Answer","text":"Tracking is seamless with modern courier services. Platforms like ShipGlobal.in and FedEx give you a tracking ID right after dispatch so you can follow the package’s journey in real-time."}},{"@type":"Question","name":"Can I send a personal gift or small parcel to Croatia from Varanasi?","acceptedAnswer":{"@type":"Answer","text":"Absolutely. Whether it’s a Rakhi, clothes, or a surprise gift, international courier services offer economical shipping options for personal use packages under gift categories."}}]}</script>
 FAQSCRIPT;
-$reviewSchema = <<<'REVIEWSCHEMA'
+$Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/varanasi/","description":"International courier service from Varanasi to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Varanasi to Croatia",
+  "image": "https://shipglobal.in/services/croatia/varanasi",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 

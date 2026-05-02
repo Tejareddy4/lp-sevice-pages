@@ -3,7 +3,7 @@
 $Origin = "Chennai"; //city name
 $Destination = "Croatia"; //country name
 $Excerpt = <<<'EXCERPT'
-Shipping from Chennai to Croatia is easy with reliable international courier services offering secure transit, quick delivery, and expert customs handling.
+Reliable international courier services from Chennai to Croatia ensure smooth customs clearance, secure packaging, and timely global deliveries.
 EXCERPT;
 $Updatedhtml = <<<'UPDATEDHTML'
 <p>Chennai, a thriving industrial and commercial hub, has seen a growing demand for reliable international courier services. Whether you send important documents, personal parcels, business consignments, or eCommerce shipments, choosing the right courier services ensures timely and secure delivery. Here&rsquo;s a detailed look at some of the top international courier services in Chennai that specialize in overseas shipping and global package delivery.</p>
@@ -118,7 +118,7 @@ $Updatedhtml = <<<'UPDATEDHTML'
 <p>Whether you are an individual sending a parcel to a loved one abroad or a business looking to expand globally, these international parcel service providers in Chennai offer efficient logistics solutions to meet your needs. Make sure to compare service offerings and prices before choosing the best overseas shipping option for your shipment.</p>
 UPDATEDHTML;
 $Relposts = <<<'RELPOSTS'
-<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/services/Croatia/coimbatore/">International Courier Service from Coimbatore To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/tiruppur/">International Courier Service from Tiruppur To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/madurai/">International Courier Service from Madurai To Croatia</a></li><li><a href="https://shipglobal.in/services/Croatia/erode/">International Courier Service from Erode To Croatia</a></li></ul><h2>FAQs for Top International Courier Service from Chennai to Croatia</h2>
+<h4>Explore more delivery options from your city</h4><ul><li><a href="https://shipglobal.in/service/coimbatore-to-croatia">International Courier Service from Coimbatore To Croatia</a></li><li><a href="https://shipglobal.in/service/tiruppur-to-croatia">International Courier Service from Tiruppur To Croatia</a></li><li><a href="https://shipglobal.in/service/madurai-to-croatia">International Courier Service from Madurai To Croatia</a></li><li><a href="https://shipglobal.in/service/erode-to-croatia">International Courier Service from Erode To Croatia</a></li></ul><h2>FAQs for Top International Courier Service from Chennai to Croatia</h2>
 RELPOSTS;
 $FAQ = <<<'FAQ'
 <p><strong>How much does international shipping cost from Chennai?</strong><br>The cost of international shipping depends on factors such as package weight, destination, shipping speed, and additional services like insurance or express delivery. Most courier companies provide online rate calculators for estimated costs.</p><p><strong>Which courier service is the fastest for overseas shipping from Chennai?</strong><br>DHL, FedEx, and ShipGlobal offer express shipping options with fast international delivery times. Same-day or next-day delivery is available for select destinations.</p><p><strong>Can I track my international parcel from Chennai?</strong><br>Yes, all major courier services provide real-time tracking features, allowing customers to monitor their shipments throughout the transit process</p><p><strong>Are there affordable international courier services in Chennai?</strong><br>Yes, many courier companies, including ShipGlobal and Professional Couriers, offer budget-friendly international shipping options without compromising on service quality.</p><p><strong>Do international couriers from Chennai handle customs clearance?</strong><br>Yes, courier companies assist with customs clearance and documentation to ensure the smooth delivery of parcels to their destinations</p><p><strong>What items are restricted from international shipping?</strong><br>materials, explosives, perishables, and certain electronics. It is best to check with the courier service before shipping.</p><p><strong>What is the best international courier service in Chennai?</strong><br>There are several reliable international courier services in Chennai, including Garudavega, Dutch International Couriers, Oscar Express Worldwide, DHL, FedEx, Blue Dart, and ShipGlobal. The best option depends on your shipping needs, budget, and delivery speed requirements.</p>
@@ -128,9 +128,21 @@ FAQ;
 $FAQscript = <<<'FAQSCRIPT'
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does international shipping cost from Chennai?","acceptedAnswer":{"@type":"Answer","text":"The cost of international shipping depends on factors such as package weight, destination, shipping speed, and additional services like insurance or express delivery. Most courier companies provide online rate calculators for estimated costs."}},{"@type":"Question","name":"Which courier service is the fastest for overseas shipping from Chennai?","acceptedAnswer":{"@type":"Answer","text":"DHL, FedEx, and ShipGlobal offer express shipping options with fast international delivery times. Same-day or next-day delivery is available for select destinations."}},{"@type":"Question","name":"Can I track my international parcel from Chennai?","acceptedAnswer":{"@type":"Answer","text":"Yes, all major courier services provide real-time tracking features, allowing customers to monitor their shipments throughout the transit process"}},{"@type":"Question","name":"Are there affordable international courier services in Chennai?","acceptedAnswer":{"@type":"Answer","text":"Yes, many courier companies, including ShipGlobal and Professional Couriers, offer budget-friendly international shipping options without compromising on service quality."}},{"@type":"Question","name":"Do international couriers from Chennai handle customs clearance?","acceptedAnswer":{"@type":"Answer","text":"Yes, courier companies assist with customs clearance and documentation to ensure the smooth delivery of parcels to their destinations"}},{"@type":"Question","name":"What items are restricted from international shipping?","acceptedAnswer":{"@type":"Answer","text":"materials, explosives, perishables, and certain electronics. It is best to check with the courier service before shipping."}},{"@type":"Question","name":"What is the best international courier service in Chennai?","acceptedAnswer":{"@type":"Answer","text":"There are several reliable international courier services in Chennai, including Garudavega, Dutch International Couriers, Oscar Express Worldwide, DHL, FedEx, Blue Dart, and ShipGlobal. The best option depends on your shipping needs, budget, and delivery speed requirements."}}]}</script>
 FAQSCRIPT;
-$reviewSchema = <<<'REVIEWSCHEMA'
+$Review_Schema = <<<'REVIEWSCHEMA'
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"ShipGlobal","url":"https://shipglobal.in/services/Croatia/chennai/","description":"International courier service from Chennai to Croatia","areaServed":{"@type":"Country","name":"Croatia"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"189"}}
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Best International Courier Service from Chennai to Croatia",
+  "image": "https://shipglobal.in/services/croatia/chennai",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.24,
+    "bestRating": 5,
+    "worstRating": 1,
+    "ratingCount": 2169
+  }
+}
 </script>
 REVIEWSCHEMA;
 
