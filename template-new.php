@@ -829,7 +829,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     name='form' id='form' method='POST' target='zohoWebhookFrame' accept-charset='UTF-8' enctype='multipart/form-data'>
 
   <input type="hidden" name="zf_referrer_name" value="">
-  <input type="hidden" name="zf_redirect_url" value="">
+  <input type="hidden" name="zf_redirect_url" value="">a
   <input type="hidden" name="zc_gad" value="">
 
   <div class="form-grid">
@@ -1222,10 +1222,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 </form>
 
-  <div id="form-success" style="display:none; text-align:center; padding:40px 20px;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2D52CC" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-    <h3 style="font-size:22px;font-weight:800;margin:0 0 10px;">Thank you!</h3>
-    <p style="color:#4B5563;font-size:16px;margin:0;">Your request has been received.<br>Our team will get in touch with you shortly.</p>
+  <div id="form-success" style="display:none; text-align:center; padding:14px 18px; margin-top:16px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px;">
+    <p style="color:#1D4ED8; font-size:15px; font-weight:600; margin:0;">Your form has been submitted! Someone will get in touch with you shortly.</p>
+  </div>
+  <div id="form-error" style="display:none; text-align:center; padding:14px 18px; margin-top:16px; background:#FEF2F2; border:1px solid #FECACA; border-radius:8px;">
+    <p style="color:#DC2626; font-size:15px; font-weight:600; margin:0;">Something went wrong. Please try again.</p>
   </div>
 
     </div>
@@ -1455,11 +1456,15 @@ document.getElementById('form').addEventListener('submit', function(e) {
     body: new FormData(form),
     mode: 'no-cors'
   }).then(function() {
-    form.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = 'Submit';
     document.getElementById('form-success').style.display = 'block';
+    document.getElementById('form-error').style.display = 'none';
   }).catch(function() {
-    form.style.display = 'none';
-    document.getElementById('form-success').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+    document.getElementById('form-error').style.display = 'block';
+    document.getElementById('form-success').style.display = 'none';
   });
 });
 </script>
