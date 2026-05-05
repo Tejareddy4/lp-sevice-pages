@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zoho Webhook Test Form</title>
+<style>
+:root{--blue:#2D52CC;--dark:#111827;--muted:#6B7280;--light:#F9FAFB;--border:#CBD5E0}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#fff;color:var(--dark)}
+.hero{max-width:1100px;margin:0 auto;padding:40px 20px 60px;display:flex;justify-content:center}
+.card{width:100%;max-width:760px;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.08)}
+.card h1{margin:0 0 8px;font-size:34px;line-height:1.1}
+.card p{margin:0 0 24px;color:var(--muted);line-height:1.6}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}
+.field{display:flex;flex-direction:column;width:100%}
+.field.full{grid-column:1/-1}
+.field label{font-size:13px;margin-bottom:5px;color:#374151;font-weight:700}
+.field input,.field select{height:42px;padding:0 14px;border:1px solid var(--border);border-radius:6px;font-size:13px;width:100%;background:#fff}
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}
+.btn-wrapper{margin-top:30px;display:flex;justify-content:center}
+.submit-btn{background:var(--blue);color:#fff;border:none;border-radius:28px;padding:12px 50px;font-weight:700;font-size:15px;cursor:pointer}
+@media(max-width:700px){.form-grid,.name-grid{grid-template-columns:1fr}.card h1{font-size:28px}}
+</style>
+<script type="text/javascript" src="https://crm.zoho.in/crm/javascript/zcga.js"></script>
+</head>
+<body>
+<main class="hero">
+  <section class="card">
+    <h1>Zoho Webhook Test</h1>
+    <p>Submit this form to test the Zoho incoming webhook using the same field names as the live template.</p>
+
+    <form action="https://flow.zoho.in/60030990815/flow/webhook/incoming?zapikey=1001.13056985b9392ffd01f82ea7b29ecd8c.274c0a48499a6dfba88a38d975d9ad65&isdebug=false" name="form" id="form" method="POST" target="zohoWebhookFrame" accept-charset="UTF-8" enctype="multipart/form-data">
+      <input type="hidden" name="zf_referrer_name" value="">
+      <input type="hidden" name="zf_redirect_url" value="">
+      <input type="hidden" name="zc_gad" value="">
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="singleLine1">From</label>
+          <input id="singleLine1" type="text" name="SingleLine1" maxlength="255" placeholder="Pickup City" required>
+        </div>
+
+        <div class="field">
+          <label for="dropdown3">To</label>
+          <select id="dropdown3" name="Dropdown3" required>
+            <option value="">Destination Country</option>
+            <option value="India">India</option>
+            <option value="Croatia">Croatia</option>
+            <option value="United States">United States</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Canada">Canada</option>
+            <option value="Australia">Australia</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="dropdown1">Packet Weight</label>
+          <select id="dropdown1" name="Dropdown1" required>
+            <option value="">-Select-</option>
+            <option value="50-100 gms">50-100 gms</option>
+            <option value="100-250 gms">100-250 gms</option>
+            <option value="250-500 gms">250-500 gms</option>
+            <option value="500-1000 gms">500-1000 gms</option>
+            <option value="1-2 Kg">1-2 Kg</option>
+            <option value="2-5 Kg">2-5 Kg</option>
+            <option value="5-10 Kg">5-10 Kg</option>
+            <option value="10Kg+">10Kg+</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="number">Shipment Frequency</label>
+          <input id="number" type="text" name="Number" maxlength="18" placeholder="No. Of Shipments Per Month" required>
+        </div>
+
+        <div class="field">
+          <label for="dropdown2">Product Type</label>
+          <select id="dropdown2" name="Dropdown2" required>
+            <option value="">-Select-</option>
+            <option value="Documents">Documents</option>
+            <option value="Books">Books</option>
+            <option value="Clothes">Clothes</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Food products">Food products</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="shipmentType">Shipment Type</label>
+          <select id="shipmentType" name="Dropdown" required>
+            <option value="">-Select-</option>
+            <option value="eCommerce">eCommerce</option>
+            <option value="D2C">D2C</option>
+            <option value="Courier Aggregator">Courier Aggregator</option>
+            <option value="Personal">Personal</option>
+            <option value="B2B">B2B</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" name="Email" maxlength="255" required>
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" type="text" name="PhoneNumber_countrycode" maxlength="20" required>
+        </div>
+
+        <div class="field full">
+          <label>Name</label>
+          <div class="name-grid">
+            <input type="text" name="Name_First" maxlength="255" placeholder="First Name" required>
+            <input type="text" name="Name_Last" maxlength="255" placeholder="Last Name" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-wrapper">
+        <button type="submit" class="submit-btn">Submit</button>
+      </div>
+    </form>
+
+    <iframe name="zohoWebhookFrame" id="zohoWebhookFrame" style="display:none;width:0;height:0;border:0;" aria-hidden="true" tabindex="-1"></iframe>
+  </section>
+</main>
+</body>
+</html>
