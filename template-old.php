@@ -829,7 +829,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     name='form' id='form' method='POST' target='zohoWebhookFrame' accept-charset='UTF-8' enctype='multipart/form-data'>
 
   <input type="hidden" name="zf_referrer_name" value="">
-  <input type="hidden" name="zf_redirect_url" value="">a
+  <input type="hidden" name="zf_redirect_url" value="">
   <input type="hidden" name="zc_gad" value="">
 
   <div class="form-grid">
@@ -1222,13 +1222,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 </form>
 
-  <div id="form-success" style="display:none; text-align:center; padding:14px 18px; margin-top:16px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px;">
-    <p style="color:#1D4ED8; font-size:15px; font-weight:600; margin:0;">Your form has been submitted! Someone will get in touch with you shortly.</p>
-  </div>
-  <div id="form-error" style="display:none; text-align:center; padding:14px 18px; margin-top:16px; background:#FEF2F2; border:1px solid #FECACA; border-radius:8px;">
-    <p style="color:#DC2626; font-size:15px; font-weight:600; margin:0;">Something went wrong. Please try again.</p>
-  </div>
-
+  <iframe name="zohoWebhookFrame" id="zohoWebhookFrame" style="display:none; width:0; height:0; border:0;" aria-hidden="true" tabindex="-1"></iframe>
+	  
+	  
+	  
+	  
     </div>
   </aside>
 </main>
@@ -1442,31 +1440,6 @@ function toggleReadMore(btn) {
   content.style.display = isHidden ? 'inline' : 'none';
   btn.textContent = isHidden ? 'Read Less' : 'Read More';
 }
-
-document.getElementById('form').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  var form = e.target;
-  var btn = form.querySelector('.submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-
-  fetch(form.action, {
-    method: 'POST',
-    body: new FormData(form),
-    mode: 'no-cors'
-  }).then(function() {
-    btn.disabled = false;
-    btn.textContent = 'Submit';
-    document.getElementById('form-success').style.display = 'block';
-    document.getElementById('form-error').style.display = 'none';
-  }).catch(function() {
-    btn.disabled = false;
-    btn.textContent = 'Submit';
-    document.getElementById('form-error').style.display = 'block';
-    document.getElementById('form-success').style.display = 'none';
-  });
-});
 </script>
 
 
