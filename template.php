@@ -837,12 +837,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Row 1 -->
     <div class="field">
       <label>From <em>*</em></label>
-      <input type="text" name="SingleLine1" maxlength="255" fieldType="1" placeholder="Pickup City" required>
+      <input type="text" name="From" maxlength="255" fieldType="1" placeholder="Pickup City" required>
     </div>
 
     <div class="field">
       <label>To <em>*</em></label>
-      <select name="Dropdown3" required>
+      <select name="To" required>
         <option value="-Select-">Destination Country</option>
         <option value="Åland Islands">Åland Islands</option>
     <option value="Afghanistan">Afghanistan</option>
@@ -1118,7 +1118,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Row 2 -->
     <div class="field">
       <label>Packet Weight <em>*</em></label>
-      <select name="Dropdown1" required>
+      <select name="Packet_Weight" required>
         <option value="-Select-">-Select-</option>
         <option value="50-100 gms">50-100 gms</option>
         <option value="100-250 gms">100-250 gms</option>
@@ -1133,13 +1133,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="field">
       <label>Shipment Frequency <em>*</em></label>
-      <input type="text" name="Number" maxlength="18" placeholder="No. Of Shipments Per Month" required>
+      <input type="text" name="Shipment_Frequency" maxlength="18" placeholder="No. Of Shipments Per Month" required>
     </div>
 
     <!-- Row 3 -->
     <div class="field">
       <label>Product Type <em>*</em></label>
-      <select name="Dropdown2" required>
+      <select name="Product_Type" required>
         <option value="-Select-">-Select-</option>
         <option value="Agricultural Item">Agricultural Item</option>
         <option value="Automotive Parts">Automotive Parts</option>
@@ -1176,7 +1176,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="field">
       <label>Shipment Type <em>*</em></label>
-      <select name="Dropdown" required>
+      <select name="Shipment_Type" required>
         <option value="-Select-">-Select-</option>
         <option value="eCommerce">eCommerce</option>
         <option value="D2C">D2C</option>
@@ -1196,7 +1196,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <label>Phone <em>*</em></label>
       <input type="text"
         compname="PhoneNumber"
-        name="PhoneNumber_countrycode"
+        name="Phone"
         phoneFormat="1"
         isCountryCodeEnabled="false"
         maxlength="20"
@@ -1209,8 +1209,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="field full">
       <label>Name <em>*</em></label>
       <div class="name-grid">
-        <input type="text" name="Name_First" maxlength="255" fieldType="7" placeholder="First Name" required>
-        <input type="text" name="Name_Last" maxlength="255" fieldType="7" placeholder="Last Name" required>
+        <input type="text" name="First_Name" maxlength="255" fieldType="7" placeholder="First Name" required>
+        <input type="text" name="Last_Name" maxlength="255" fieldType="7" placeholder="Last Name" required>
       </div>
     </div>
 
