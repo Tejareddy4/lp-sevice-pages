@@ -829,7 +829,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     name='form' id='form' method='POST' target='zohoWebhookFrame' accept-charset='UTF-8' enctype='multipart/form-data'>
 
   <input type="hidden" name="zf_referrer_name" value="">
-  <input type="hidden" name="zf_redirect_url" value="">a
+  <input type="hidden" name="zf_redirect_url" value="">
   <input type="hidden" name="zc_gad" value="">
 
   <div class="form-grid">
