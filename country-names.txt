@@ -1,6 +1,7 @@
 # List of countries to generate pages for (one per line)
 # Lines starting with # are ignored
 Croatia
+Australia
 Austria
 Italy
 France
