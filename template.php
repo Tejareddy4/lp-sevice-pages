@@ -126,7 +126,7 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <?php endif; ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&family=Montserrat:wght@600;700&family=Roboto:wght@400&display=swap" rel="stylesheet">
 
 <?php if (trim($reviewSchema) !== ''): ?>
 <?php echo $reviewSchema; ?>
@@ -144,19 +144,135 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <style>
 
-.topbar{
-  height:70px;                 /* reduced from 100px */
+/* ===== Announcement Bar ===== */
+.announcement-bar{
+  background:linear-gradient(90deg,#8434E4 0%,#2765D0 100%);
+  padding:5px 0;
+  position:relative;
+  z-index:30;
+}
+.announcement-bar-inner{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:10px 0;              /* reduced padding */
-  background:#ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  gap:10px;
+}
+.announcement-bar a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+}
+.announcement-bar-icon{
+  width:25px;
+  height:25px;
+  flex-shrink:0;
+}
+.announcement-bar-text{
+  color:#fff;
+  font-family:'Roboto',sans-serif;
+  font-size:14px;
+  font-weight:400;
+}
+@media(max-width:768px){
+  .announcement-bar-text{ font-size:10px; }
+  .announcement-bar-icon{ width:15px; height:15px; }
 }
 
-.logo{
-  height:32px;                 /* smaller logo */
-  object-fit:contain;
+/* ===== Site Header ===== */
+.site-header{
+  background:#fff;
+  box-shadow:0 0 5px rgba(0,0,0,0.5);
+  position:sticky;
+  top:0;
+  z-index:10;
+  padding:5px 0;
+}
+.site-header-inner{
+  max-width:1300px;
+  margin:0 auto;
+  padding:0 20px;
+  display:flex;
+  align-items:center;
+}
+.header-logo-wrap{
+  width:20%;
+  display:flex;
+  align-items:center;
+}
+.header-logo{
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+.header-nav-wrap{
+  width:60%;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+}
+.header-nav{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  align-items:center;
+  gap:32px;
+}
+.header-nav a{
+  font-family:'Montserrat',sans-serif;
+  font-size:18px;
+  font-weight:600;
+  color:#111827;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.header-nav a:hover{ color:#2765D0; }
+.header-cta-wrap{
+  width:20%;
+  display:flex;
+  justify-content:space-around;
+  align-items:flex-end;
+}
+.header-ship-btn{
+  font-family:'Montserrat',sans-serif;
+  font-weight:700;
+  font-size:15px;
+  color:#fff;
+  background:linear-gradient(120deg,#000 0%,#2765D0 100%);
+  border:none;
+  border-radius:8px;
+  padding:10px 24px;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-block;
+  transition:background 0.2s;
+}
+.header-ship-btn:hover{
+  background:linear-gradient(120deg,#2765D0 0%,#2765D0 100%);
+}
+
+/* Floating bulk-order icon */
+.bulk-order-float{
+  position:fixed;
+  bottom:0;
+  right:0;
+  z-index:20;
+  width:70px;
+}
+.bulk-order-float img{ width:100%; display:block; }
+
+@media(max-width:1024px){
+  .header-logo-wrap{ width:50%; }
+  .header-nav-wrap{ width:50%; justify-content:flex-start; }
+  .header-cta-wrap{ display:none; }
+  .header-nav a{ font-size:15px; }
+  .header-nav{ gap:20px; }
+}
+@media(max-width:768px){
+  .header-nav-wrap{ display:none; }
+  .header-logo-wrap{ width:50%; }
+  .bulk-order-float{ width:50px; }
 }
 
 /* ===== Press Highlights ===== */
@@ -788,9 +904,51 @@ h2{
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
-<header class="topbar">
-  <img src="https://shipglobal.in/wp-content/uploads/2025/02/2200X2200.png" alt="ShipGlobal.in" class="logo">
+<!-- Announcement Bar -->
+<div class="announcement-bar">
+  <div class="announcement-bar-inner">
+    <a href="#form">
+      <img class="announcement-bar-icon" src="https://shipglobal.in/wp-content/uploads/2025/05/Layer_1.svg" alt="">
+      <span class="announcement-bar-text">Save Up to 15% on Your First Order | Limited-Time Offer*</span>
+    </a>
+  </div>
+</div>
+
+<!-- Sticky Site Header -->
+<header class="site-header">
+  <div class="site-header-inner">
+
+    <!-- Logo -->
+    <div class="header-logo-wrap">
+      <a href="https://shipglobal.in/">
+        <img class="header-logo" src="https://shipglobal.in/wp-content/uploads/2025/05/blue-logo-1.webp" alt="ShipGlobal.in">
+      </a>
+    </div>
+
+    <!-- Nav Menu -->
+    <nav class="header-nav-wrap">
+      <ul class="header-nav">
+        <li><a href="https://shipglobal.in/services/">Services</a></li>
+        <li><a href="https://shipglobal.in/track/">Track</a></li>
+        <li><a href="https://shipglobal.in/blog/">Blog</a></li>
+        <li><a href="https://shipglobal.in/about-us/">About</a></li>
+      </ul>
+    </nav>
+
+    <!-- CTA Button -->
+    <div class="header-cta-wrap">
+      <a class="header-ship-btn" href="https://v2.app.shipglobal.in/auth/signup" target="_blank" rel="noopener">Ship Now</a>
+    </div>
+
+  </div>
 </header>
+
+<!-- Floating Bulk Order Icon -->
+<div class="bulk-order-float">
+  <a href="#form">
+    <img src="https://shipglobal.in/wp-content/uploads/2025/05/Bulk-order-icon.webp" alt="Bulk Order">
+  </a>
+</div>
 
 <!-- HERO -->
 <main class="hero">
