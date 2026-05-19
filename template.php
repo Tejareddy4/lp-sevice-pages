@@ -126,7 +126,8 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <?php endif; ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&family=Montserrat:wght@600;700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Montserrat:wght@600;700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <?php if (trim($reviewSchema) !== ''): ?>
 <?php echo $reviewSchema; ?>
@@ -262,16 +263,88 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 }
 .bulk-order-float img{ width:100%; display:block; }
 
+/* Hamburger button */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:6px;
+  margin-left:auto;
+}
+.hamburger span{
+  display:block;
+  width:24px;
+  height:2px;
+  background:#111827;
+  border-radius:2px;
+  transition:transform 0.25s, opacity 0.25s;
+}
+.hamburger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2){ opacity:0; }
+.hamburger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+/* Mobile nav drawer */
+.mobile-nav{
+  display:none;
+  flex-direction:column;
+  background:#fff;
+  border-top:1px solid #e5e7eb;
+  padding:0;
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.3s ease, padding 0.3s ease;
+}
+.mobile-nav.open{
+  max-height:400px;
+  padding:12px 0;
+}
+.mobile-nav a{
+  font-family:'Montserrat',sans-serif;
+  font-size:16px;
+  font-weight:600;
+  color:#111827;
+  text-decoration:none;
+  padding:12px 24px;
+  display:block;
+  border-bottom:1px solid #f3f4f6;
+}
+.mobile-nav a:last-child{ border-bottom:none; }
+.mobile-nav a:hover{ color:#2765D0; background:#f9fafb; }
+.mobile-nav .mobile-ship-btn{
+  margin:12px 24px 4px;
+  display:inline-block;
+  font-family:'Montserrat',sans-serif;
+  font-weight:700;
+  font-size:15px;
+  color:#fff;
+  background:linear-gradient(120deg,#000 0%,#2765D0 100%);
+  border-radius:8px;
+  padding:10px 24px;
+  text-align:center;
+  text-decoration:none;
+  border-bottom:none;
+}
+.mobile-nav .mobile-ship-btn:hover{
+  background:linear-gradient(120deg,#2765D0 0%,#2765D0 100%);
+  color:#fff;
+}
+
 @media(max-width:1024px){
-  .header-logo-wrap{ width:50%; }
-  .header-nav-wrap{ width:50%; justify-content:flex-start; }
+  .header-logo-wrap{ width:auto; flex:1; }
+  .header-nav-wrap{ width:auto; justify-content:flex-start; flex:1; }
   .header-cta-wrap{ display:none; }
   .header-nav a{ font-size:15px; }
   .header-nav{ gap:20px; }
 }
 @media(max-width:768px){
   .header-nav-wrap{ display:none; }
-  .header-logo-wrap{ width:50%; }
+  .header-logo-wrap{ flex:1; width:auto; }
+  .hamburger{ display:flex; }
+  .mobile-nav{ display:flex; }
   .bulk-order-float{ width:50px; }
 }
 
@@ -333,13 +406,224 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   to{ transform: translateX(-50%); }
 }
 
-/* ===== Footer ===== */
-.footer{
-  background:#0B2C5F;
-  padding:25px 20px;
+/* ===== WhatsApp Community Bar ===== */
+.wa-bar{
+  background:#fff;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+  padding:16px 20px;
+}
+.wa-bar-inner{
+  max-width:1300px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+}
+.wa-logo-col{
+  width:20%;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  flex-shrink:0;
+}
+.wa-logo-col img{
+  width:60%;
+  max-width:130px;
+  height:auto;
+}
+.wa-text-col{
+  width:60%;
+  padding:0 24px;
+  border-left:2px solid #D8DDE5;
+}
+.wa-text-col p{
+  font-family:'Poppins',sans-serif;
+  font-size:26px;
+  font-weight:500;
+  margin:0;
+  text-transform:capitalize;
+  line-height:1.2;
   text-align:center;
-  color:#ffffff;
-  font-size:14px;
+  color:#111827;
+}
+.wa-btn-col{
+  width:20%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.wa-join-btn{
+  font-family:'Poppins',sans-serif;
+  font-size:20px;
+  font-weight:600;
+  color:#fff;
+  background:linear-gradient(120deg,#25D366 0%,#46AF55 70%);
+  border-radius:10px;
+  padding:12px 28px;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+  transition:box-shadow 0.2s,transform 0.2s;
+  white-space:nowrap;
+}
+.wa-join-btn:hover{
+  box-shadow:1px 1px 5px 1px rgba(0,0,0,0.4);
+  transform:scale(1.02);
+  color:#fff;
+}
+
+/* ===== Main Footer ===== */
+.site-footer{
+  background:linear-gradient(90deg,#000002 0%,#001B51 100%);
+  padding:60px 8%;
+  color:#fff;
+}
+.footer-inner{
+  max-width:1300px;
+  margin:0 auto;
+  display:flex;
+  gap:40px;
+  align-items:flex-start;
+}
+.footer-brand{
+  width:40%;
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+}
+.footer-logo{
+  width:60%;
+  max-width:200px;
+  height:auto;
+}
+.footer-offices{
+  font-family:'Poppins',sans-serif;
+  font-size:16px;
+  font-weight:400;
+  line-height:1.5;
+  color:rgba(255,255,255,0.75);
+  text-align:justify;
+  margin:0;
+}
+.footer-social{
+  display:flex;
+  gap:20px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.footer-social a{
+  color:rgba(255,255,255,0.75);
+  font-size:22px;
+  text-decoration:none;
+  transition:color 0.2s;
+}
+.footer-social a:hover{ color:#C8D5DC; }
+.footer-col{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  min-width:0;
+}
+.footer-col-title{
+  font-family:'Poppins',sans-serif;
+  font-size:20px;
+  font-weight:600;
+  color:rgba(255,255,255,0.95);
+  text-transform:capitalize;
+  margin:0;
+  line-height:1.2;
+}
+.footer-links{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.footer-links li{
+  font-family:'Poppins',sans-serif;
+  font-size:15px;
+  font-weight:400;
+  color:rgba(255,255,255,0.7);
+  line-height:1.5;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.footer-links a{
+  color:rgba(255,255,255,0.7);
+  text-decoration:none;
+  font-size:15px;
+  font-family:'Poppins',sans-serif;
+  line-height:1.5;
+  transition:color 0.2s;
+}
+.footer-links a:hover{ color:#4d8ef7; }
+.contact-icon{
+  color:#4d8ef7;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+/* Plane animation strip */
+.footer-plane-strip{
+  background:url('https://shipglobal.in/wp-content/uploads/2025/05/footer-line-scaled.png') center/auto no-repeat,
+             linear-gradient(90deg,#000002 0%,#001B51 100%);
+  height:80px;
+  position:relative;
+  overflow:hidden;
+}
+.footer-plane-track{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  animation:planeScroll 15s linear infinite;
+}
+.footer-plane-track img{ height:70px; }
+@keyframes planeScroll{
+  0%  { left:-150px; }
+  100%{ left:100%; }
+}
+
+/* Copyright bar */
+.footer-copyright{
+  background:linear-gradient(90deg,#000002 0%,#001B51 100%);
+  padding:20px;
+  text-align:center;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.footer-copyright p{
+  font-family:'Poppins',sans-serif;
+  font-size:15px;
+  font-weight:300;
+  color:rgba(255,255,255,0.8);
+  margin:0;
+  line-height:1.5;
+}
+
+/* Footer responsive */
+@media(max-width:1024px){
+  .wa-text-col p{ font-size:18px; }
+  .wa-join-btn{ font-size:17px; padding:10px 20px; }
+  .footer-inner{ flex-wrap:wrap; gap:40px; }
+  .footer-brand{ width:100%; }
+  .footer-col{ width:calc(33% - 28px); flex:none; }
+}
+@media(max-width:768px){
+  .wa-bar-inner{ flex-wrap:wrap; gap:16px; }
+  .wa-logo-col{ width:30%; justify-content:center; }
+  .wa-text-col{ width:65%; }
+  .wa-text-col p{ font-size:13px; }
+  .wa-btn-col{ width:100%; }
+  .wa-join-btn{ width:100%; justify-content:center; font-size:20px; }
+  .footer-inner{ gap:32px; }
+  .footer-col{ width:calc(50% - 16px); flex:none; }
+  .footer-contact-col{ width:100%; }
+  .footer-col-title{ font-size:18px; }
+  .footer-links{ gap:12px; }
+  .footer-links li,.footer-links a{ font-size:12px; }
 }
 
 
@@ -935,12 +1219,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </ul>
     </nav>
 
-    <!-- CTA Button -->
+    <!-- CTA Button (desktop only) -->
     <div class="header-cta-wrap">
       <a class="header-ship-btn" href="https://v2.app.shipglobal.in/auth/signup" target="_blank" rel="noopener">Ship Now</a>
     </div>
 
+    <!-- Hamburger (mobile only) -->
+    <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
   </div>
+
+  <!-- Mobile Nav Drawer -->
+  <nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
+    <a href="https://shipglobal.in/services/">Services</a>
+    <a href="https://shipglobal.in/track/">Track</a>
+    <a href="https://shipglobal.in/blog/">Blog</a>
+    <a href="https://shipglobal.in/about-us/">About</a>
+    <a class="mobile-ship-btn" href="https://v2.app.shipglobal.in/auth/signup" target="_blank" rel="noopener">Ship Now</a>
+  </nav>
+
 </header>
 
 <!-- Floating Bulk Order Icon -->
@@ -1581,12 +1882,102 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
-<!-- ===== Footer ===== -->
-<footer class="footer">
-  ©2026 Ship Global Express Private Limited | All Rights Reserved
+<!-- ===== WhatsApp Community Bar ===== -->
+<div class="wa-bar">
+  <div class="wa-bar-inner">
+    <div class="wa-logo-col">
+      <img src="https://shipglobal.in/wp-content/uploads/2025/05/Export-Expert-Logo.webp" alt="Export Expert">
+    </div>
+    <div class="wa-text-col">
+      <p>Join India's leading WhatsApp community for exporters!</p>
+    </div>
+    <div class="wa-btn-col">
+      <a class="wa-join-btn" href="https://zfrmz.in/QRONFYXImG3HoY3p4iz3" target="_blank" rel="noopener">
+        <i class="fab fa-whatsapp"></i> Join Now
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Main Footer ===== -->
+<footer class="site-footer">
+  <div class="footer-inner">
+
+    <!-- Brand + Social -->
+    <div class="footer-brand">
+      <img class="footer-logo" src="https://shipglobal.in/wp-content/uploads/2025/05/white-logo-1.webp" alt="ShipGlobal">
+      <p class="footer-offices">
+        <b>Regional Offices:</b> Delhi | Jaipur | Bhopal | Surat | Ahmedabad | Chennai | Agra | Moradabad | Mumbai | Kanpur | Lucknow | Udaipur | Meerut | Roorkee | Jalandhar | Ludhiana<br><br>
+        PAN India Pickup
+      </p>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/shipglobalindia/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.youtube.com/@ShipGlobal_in" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://x.com/shipglobal_in?lang=en" target="_blank" rel="noopener" aria-label="X / Twitter"><i class="fab fa-x-twitter"></i></a>
+        <a href="https://www.instagram.com/shipglobal.in/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://in.linkedin.com/company/shipglobalin" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+
+    <!-- Useful Links -->
+    <div class="footer-col">
+      <h6 class="footer-col-title">Useful Links</h6>
+      <ul class="footer-links">
+        <li><a href="https://shipglobal.in/">Home</a></li>
+        <li><a href="https://shipglobal.in/about/">About</a></li>
+        <li><a href="https://shipglobal.in/tracking/">Tracking</a></li>
+        <li><a href="https://shipglobal.in/contact/">Contact</a></li>
+      </ul>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="footer-col">
+      <h6 class="footer-col-title">Quick Links</h6>
+      <ul class="footer-links">
+        <li><a href="https://shipglobal.in/privacy-policy/">Privacy Policy</a></li>
+        <li><a href="https://shipglobal.in/terms-and-conditions/">Terms &amp; Conditions</a></li>
+        <li><a href="https://shipglobal.in/refunds-cancellation-policy/">Refunds &amp; Cancellation Policy</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div class="footer-col footer-contact-col">
+      <h6 class="footer-col-title">Contact</h6>
+      <ul class="footer-links">
+        <li><i class="fas fa-phone-square-alt contact-icon"></i> +91 99065 99065</li>
+        <li><i class="fas fa-envelope-open contact-icon"></i> support@shipglobal.in</li>
+      </ul>
+    </div>
+
+  </div>
 </footer>
 
+<!-- Plane Animation Strip -->
+<div class="footer-plane-strip">
+  <div class="footer-plane-track">
+    <img src="https://shipglobal.in/wp-content/uploads/2025/05/plane.png" alt="">
+  </div>
+</div>
+
+<!-- Copyright -->
+<div class="footer-copyright">
+  <p>©<?php echo date('Y'); ?> Ship Global Express Private Limited | All Rights Reserved</p>
+</div>
+
 <script>
+// Mobile nav toggle
+(function(){
+  var btn = document.getElementById('hamburger');
+  var nav = document.getElementById('mobile-nav');
+  if(!btn || !nav) return;
+  btn.addEventListener('click', function(){
+    var open = nav.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open);
+    nav.setAttribute('aria-hidden', !open);
+  });
+})();
+
 function scrollToForm() {
   const form = document.getElementById("form");
   if (form) {

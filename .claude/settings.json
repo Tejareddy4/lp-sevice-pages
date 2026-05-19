@@ -4,7 +4,9 @@
       "Bash(python -c ' *)",
       "Bash(python Python-scripts/generate_country_pages.py --country Australia)",
       "Bash(python Python-scripts/generate_country_pages.py --country Australia --csv \"Python-scripts/CSV/Service_2-working - Sheet1.csv\")",
-      "Bash(git -C c:/xampp/htdocs/lp branch --show-current)"
+      "Bash(git -C c:/xampp/htdocs/lp branch --show-current)",
+      "Bash(git -C c:/xampp/htdocs/lp status)",
+      "WebFetch(domain:shipglobal.in)"
     ]
   }
 }
