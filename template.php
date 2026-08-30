@@ -23,7 +23,7 @@ function add_read_more_shortcode(string $html): string
 {
   $trimmed_html = trim($html);
 
-  if ($trimmed_html === '' || str_contains($trimmed_html, '[read more]') || str_ends_with($trimmed_html, '[/read]')) {
+  if ($trimmed_html === '' || strpos($trimmed_html, '[read more]') !== false || substr($trimmed_html, -7) === '[/read]') {
     return $html;
   }
 
@@ -55,58 +55,52 @@ function add_read_more_shortcode(string $html): string
   return rtrim($with_read_more) . '[/read]';
 }
 
+function render_read_more_shortcode(string $html): string
+{
+  if (strpos($html, '[read more]') === false) {
+    return $html;
+  }
+
+  $result = preg_replace_callback(
+    '/(<([a-z0-9]+)[^>]*>)([\s\S]*?) <!--\.\.\.-->\[read more\] ([\s\S]*?)(<\/\2>)\[\/read\]/i',
+    static function (array $m): string {
+      return $m[1] . $m[3] . $m[5]
+        . '<div class="rmwr-wrapper">'
+        . '<button type="button" class="read-link" onclick="toggleReadMore(this)">Read More</button>'
+        . '<div class="read-more-content" style="display:none;">'
+        . $m[1] . $m[4] . $m[5]
+        . '</div></div>';
+    },
+    $html
+  );
+
+  return $result ?? $html;
+}
+
 $Updatedhtml = add_read_more_shortcode($Updatedhtml);
+$Updatedhtml = render_read_more_shortcode($Updatedhtml);
 
 if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !== '') {
-  $destination_slug = slugify_text($destination);
-  $origin_slug = slugify_text($origin);
-  $page_slug = $origin_slug . '-to-' . $destination_slug;
-  $image_root = __DIR__ . DIRECTORY_SEPARATOR . 'Images';
+  // Build slug via regex: lowercase, collapse non-alphanumeric runs to hyphens.
+  $page_slug = preg_replace('/[^a-z0-9]+/', '-', strtolower(trim("$origin to $destination")));
+  $page_slug = trim($page_slug ?? '', '-');
 
-  if (is_dir($image_root)) {
-    $destination_directories = glob($image_root . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
-
-    foreach ($destination_directories as $destination_dir) {
-      if (slugify_text(basename($destination_dir)) !== $destination_slug) {
-        continue;
-      }
-
-      // Prefer WebP first, then fall back to legacy formats.
-      $extensions = ['webp', 'png', 'jpg', 'jpeg'];
-      foreach ($extensions as $extension) {
-        $file_name = $page_slug . '.' . $extension;
-        $absolute_file = $destination_dir . DIRECTORY_SEPARATOR . $file_name;
-
-        if (!is_file($absolute_file)) {
-          continue;
-        }
-
-        $destination_folder_name = basename($destination_dir);
-        $featuredImage = '/Services/Images/' . rawurlencode($destination_folder_name) . '/' . rawurlencode($file_name);
-        break 2;
-      }
-    }
-  }
+  // Production path: http://shipglobal.in/services/images/{Destination}/{origin-slug}-to-{destination-slug}.webp
+  // Destination folder uses the original $destination casing (e.g. "Croatia").
+  $featuredImage = '/services/images/' . rawurlencode($destination) . '/' . rawurlencode($page_slug) . '.webp';
 }
 
 if (trim($featuredImageAlt) === '') {
   $featuredImageAlt = $origin . ' to ' . $destination . ' courier featured image';
 }
 
-if (trim($featuredImage) !== '') {
-  // If a PNG URL/path is provided, switch to WebP variant.
-  $webpImage = preg_replace('/\.png(\?.*)?$/i', '.webp$1', $featuredImage);
-  if (is_string($webpImage) && $webpImage !== $featuredImage) {
-    $featuredImage = $webpImage;
-  }
-}
 
 $featuredImageSeoUrl = '';
 if (trim($featuredImage) !== '') {
   if (preg_match('/^https?:\/\//i', $featuredImage) === 1) {
     $featuredImageSeoUrl = $featuredImage;
   } else {
-    $featuredImageSeoUrl = 'https://shipglobal.in' . (str_starts_with($featuredImage, '/') ? '' : '/') . $featuredImage;
+    $featuredImageSeoUrl = 'https://shipglobal.in' . (strpos($featuredImage, '/') === 0 ? '' : '/') . $featuredImage;
   }
 }
 
@@ -122,7 +116,7 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?php echo $title; ?></title>
 <meta name="description" content="<?php echo $meta_description; ?>">
-<link rel="canonical" href="https://shipglobal.in/lp/<?php echo strtolower($origin); ?>-to-<?php echo strtolower($destination); ?>-courier">
+<link rel="canonical" href="https://shipglobal.in/services/<?php echo slugify_text($destination); ?>/<?php echo slugify_text($origin); ?>/">
 <?php if (trim($featuredImageSeoUrl) !== ''): ?>
 <meta property="og:image" content="<?php echo htmlspecialchars($featuredImageSeoUrl, ENT_QUOTES, 'UTF-8'); ?>">
 <meta property="og:image:alt" content="<?php echo htmlspecialchars($featuredImageAlt, ENT_QUOTES, 'UTF-8'); ?>">
@@ -137,6 +131,16 @@ $meta_description = "Ship internationally from $origin to $destination with tran
 <?php if (trim($reviewSchema) !== ''): ?>
 <?php echo $reviewSchema; ?>
 <?php endif; ?>
+
+<script type="text/javascript" src="https://crm.zoho.in/crm/javascript/zcga.js"> </script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WMNT29VQ');</script>
+<!-- End Google Tag Manager -->
 
 <style>
 
@@ -607,6 +611,116 @@ h2{
   padding:14px 70px;
 }
 
+/* ===== Simple Vertical Testimonial Slider ===== */
+
+.testimonials-section{
+  padding:85px 20px;
+  background:#fff;
+}
+
+.testimonials-wrap{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  gap:60px;
+  align-items:flex-start;
+}
+
+.testimonials-left{
+  flex:1;
+}
+
+.testimonials-kicker{
+  color:#2D52CC;
+  font-size:22px;
+  font-weight:800;
+  margin-bottom:10px;
+  position:relative;
+}
+
+.testimonials-kicker:after{
+  content:"";
+  display:block;
+  width:120px;
+  height:4px;
+  background:#F59E0B;
+  margin-top:10px;
+  border-radius:4px;
+}
+
+.testimonials-title{
+  font-size:34px;
+  font-weight:900;
+  margin:20px 0 16px;
+}
+
+.testimonials-desc{
+  color:#4B5563;
+  line-height:1.7;
+  max-width:500px;
+}
+
+/* Right vertical slider */
+
+.testimonials-right{
+  width:45%;
+  min-width:380px;
+  overflow:hidden;
+  height:500px;        /* visible height */
+  position:relative;
+}
+
+.testimonial-track{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  animation: verticalScroll 18s linear infinite;
+}
+
+.testimonial-track img{
+  width:100%;
+  border-radius:16px;
+  box-shadow:0 12px 28px rgba(0,0,0,0.08);
+}
+
+/* Animation */
+
+@keyframes verticalScroll{
+  0%{ transform: translateY(0); }
+  100%{ transform: translateY(-50%); }
+}
+
+/* Responsive */
+
+@media(max-width:1100px){
+  .testimonials-wrap{
+    flex-direction:column;
+    gap:40px;
+  }
+  .testimonials-right{
+    width:100%;
+    min-width:unset;
+    height:420px;
+  }
+}
+
+/* Read More toggle */
+.rmwr-wrapper { display: inline; }
+.read-link {
+  background: none;
+  border: none;
+  color: #012366;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  text-decoration: underline;
+  display: inline;
+}
+.read-link:hover { color: #ff5c1a; }
+.read-more-content { display: inline; }
+
 /* Responsive */
 @media(max-width:1100px){
   .hero{flex-direction:column; padding:30px 20px 60px;}
@@ -668,6 +782,11 @@ h2{
 </head>
 
 <body>
+    
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMNT29VQ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <header class="topbar">
   <img src="https://shipglobal.in/wp-content/uploads/2025/02/2200X2200.png" alt="ShipGlobal.in" class="logo">
@@ -683,8 +802,20 @@ h2{
     <p class="desc">
       Affordable, reliable, and built for <span>Indian businesses &amp; consumers</span>
     </p>
-    <div class="excerpt">
-      <?php echo $excerpt; ?>
+
+    <div class="stats">
+      <div>
+        <div class="stat-num">25,000+</div>
+        <div class="stat-label">Exporters</div>
+      </div>
+      <div>
+        <div class="stat-num">1 Crore+</div>
+        <div class="stat-label">Orders Shipped</div>
+      </div>
+      <div>
+        <div class="stat-num">220+</div>
+        <div class="stat-label">Countries</div>
+      </div>
     </div>
   </section>
 
@@ -692,9 +823,9 @@ h2{
     <div class="card">
       <h3>Explore ShipGlobal <span>Pricing</span></h3>
 
-      <!-- ZOHO LEAD FORM (single page) -->
+      <!-- ZOHO LEAD FORM (organic) -->
       
-	  <form action='https://forms.zohopublic.in/shipglobalexpresspvtltd/form/Leadform/formperma/auI2cpbJtQiUi2YF-COSZ8pukhi69BhG2qeJBiD01xE/htmlRecords/submit'
+	  <form action='https://forms.zohopublic.in/shipglobalexpresspvtltd/form/Leadformorganic/formperma/6TvZU9PPZSZNm31wmBqr2uXNKZGxtija9K4-ZuYCJTA/htmlRecords/submit'
       name='form' id='form' method='POST' accept-charset='UTF-8' enctype='multipart/form-data'>
 
   <input type="hidden" name="zf_referrer_name" value="">
@@ -703,50 +834,17 @@ h2{
 
   <div class="form-grid">
 
-    <!-- Name -->
-    <div class="field full">
-      <label>Name <em>*</em></label>
-      <div class="name-grid">
-        <input type="text" maxlength="255" name="Name_First" fieldType="7" placeholder="First Name" required>
-        <input type="text" maxlength="255" name="Name_Last" fieldType="7" placeholder="Last Name" required>
-      </div>
-    </div>
-
-    <!-- Email -->
+    <!-- Row 1 -->
     <div class="field">
-      <label>Email <em>*</em></label>
-      <input type="email" maxlength="255" name="Email" fieldType="9" placeholder="Enter email" required>
+      <label>From <em>*</em></label>
+      <input type="text" name="SingleLine1" maxlength="255" fieldType="1" placeholder="Pickup City" required>
     </div>
 
-    <!-- Phone -->
     <div class="field">
-      <label>Phone <em>*</em></label>
-      <input type="text"
-             compname="PhoneNumber"
-             name="PhoneNumber_countrycode"
-             phoneFormat="1"
-             isCountryCodeEnabled="false"
-             maxlength="20"
-             fieldType="11"
-             id="international_PhoneNumber_countrycode"
-             placeholder="Enter phone number"
-             required>
-    </div>
-
-    <!-- Origin City -->
-    <div class="field">
-      <label>Origin City <em>*</em></label>
-      <input type="text" name="SingleLine1" fieldType="1" maxlength="255" placeholder="Enter origin city" required>
-    </div>
-	
-	
-	<!-- Destination Country -->
-<div class="field">
-  <label>Destination Country <em>*</em></label>
-  <select name="Dropdown3" required>
-    <option value="-Select-">-Select-</option>
-
-    <option value="Åland Islands">Åland Islands</option>
+      <label>To <em>*</em></label>
+      <select name="Dropdown3" required>
+        <option value="-Select-">Destination Country</option>
+        <option value="Åland Islands">Åland Islands</option>
     <option value="Afghanistan">Afghanistan</option>
     <option value="Akrotiri">Akrotiri</option>
     <option value="Albania">Albania</option>
@@ -1013,84 +1111,107 @@ h2{
     <option value="Western Sahara">Western Sahara</option>
     <option value="Yemen">Yemen</option>
     <option value="Zambia">Zambia</option>
-    <option value="Zimbabwe">Zimbabwe</option>
-
-  </select>
-</div>
-
-    <!-- Monthly Volume -->
-    <div class="field">
-      <label>Average monthly volume? <em>*</em></label>
-      <select name="Dropdown1" required>
-        <option value="-Select-">-Select-</option>
-        <option value="10kg - 50kg">10kg - 50kg</option>
-        <option value="50kg - 200kg">50kg - 200kg</option>
-        <option value="200kg - 500kg">200kg - 500kg</option>
-        <option value="500kg+">500kg+</option>
+      <option value="Zimbabwe">Zimbabwe</option>
       </select>
     </div>
 
-
-<!-- Shipment Category -->
+    <!-- Row 2 -->
     <div class="field">
-      <label>Shipment Category <em>*</em></label>
+      <label>Packet Weight <em>*</em></label>
+      <select name="Dropdown1" required>
+        <option value="-Select-">-Select-</option>
+        <option value="50-100 gms">50-100 gms</option>
+        <option value="100-250 gms">100-250 gms</option>
+        <option value="250-500 gms">250-500 gms</option>
+        <option value="500-1000 gms">500-1000 gms</option>
+        <option value="1-2 Kg">1-2 Kg</option>
+        <option value="2-5 Kg">2-5 Kg</option>
+        <option value="5-10 Kg">5-10 Kg</option>
+        <option value="10Kg+">10Kg+</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Shipment Frequency <em>*</em></label>
+      <input type="text" name="Number" maxlength="18" placeholder="No. Of Shipments Per Month" required>
+    </div>
+
+    <!-- Row 3 -->
+    <div class="field">
+      <label>Product Type <em>*</em></label>
+      <select name="Dropdown2" required>
+        <option value="-Select-">-Select-</option>
+        <option value="Agricultural Item">Agricultural Item</option>
+        <option value="Automotive Parts">Automotive Parts</option>
+        <option value="Books">Books</option>
+        <option value="Capsules">Capsules</option>
+        <option value="Clothes">Clothes</option>
+        <option value="Documents">Documents</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Fashion Accessories">Fashion Accessories</option>
+        <option value="Flammable Item">Flammable Item</option>
+        <option value="Food products">Food products</option>
+        <option value="Groceries">Groceries</option>
+        <option value="Hair &amp; Skin Care">Hair &amp; Skin Care</option>
+        <option value="Handicraft">Handicraft</option>
+        <option value="Herbal Powder">Herbal Powder</option>
+        <option value="Herbal Products">Herbal Products</option>
+        <option value="Imitation Jewellery">Imitation Jewellery</option>
+        <option value="Leather products">Leather products</option>
+        <option value="Medical Equipment">Medical Equipment</option>
+        <option value="Oil">Oil</option>
+        <option value="Paper product">Paper product</option>
+        <option value="Perfumes">Perfumes</option>
+        <option value="Photographs &amp; Prints">Photographs &amp; Prints</option>
+        <option value="Powder">Powder</option>
+        <option value="Shoes">Shoes</option>
+        <option value="Spices">Spices</option>
+        <option value="Sports Goods">Sports Goods</option>
+        <option value="Tea">Tea</option>
+        <option value="Textiles">Textiles</option>
+        <option value="Utensils">Utensils</option>
+        <option value="Others">Others</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Shipment Type <em>*</em></label>
       <select name="Dropdown" required>
         <option value="-Select-">-Select-</option>
         <option value="eCommerce">eCommerce</option>
         <option value="D2C">D2C</option>
-        <option value="Exporter">Exporter</option>
-        <option value="Courier or Aggregator">Courier or Aggregator</option>
-        <option value="Wants Franchise">Wants Franchise</option>
+        <option value="Courier Aggregator">Courier Aggregator</option>
         <option value="Personal">Personal</option>
         <option value="B2B">B2B</option>
       </select>
     </div>
-    
 
-    <!-- Product Type -->
-<div class="field">
-  <label>Product Type <em>*</em></label>
-  <select name="Dropdown2" required>
-    <option value="-Select-">-Select-</option>
-
-    <option value="Agricultural Item">Agricultural Item</option>
-    <option value="Automotive Parts">Automotive Parts</option>
-    <option value="Books">Books</option>
-    <option value="Capsules">Capsules</option>
-    <option value="Clothes">Clothes</option>
-    <option value="Documents">Documents</option>
-    <option value="Electronics">Electronics</option>
-    <option value="Fashion Accessories">Fashion Accessories</option>
-    <option value="Flammable Item">Flammable Item</option>
-    <option value="Food products">Food products</option>
-    <option value="Groceries">Groceries</option>
-    <option value="Hair &amp; Skin Care">Hair &amp; Skin Care</option>
-    <option value="Handicraft">Handicraft</option>
-    <option value="Herbal Powder">Herbal Powder</option>
-    <option value="Herbal Products">Herbal Products</option>
-    <option value="Imitation Jewellery">Imitation Jewellery</option>
-    <option value="Leather products">Leather products</option>
-    <option value="Medical Equipment">Medical Equipment</option>
-    <option value="Oil">Oil</option>
-    <option value="Paper product">Paper product</option>
-    <option value="Perfumes">Perfumes</option>
-    <option value="Photographs &amp; Prints">Photographs &amp; Prints</option>
-    <option value="Powder">Powder</option>
-    <option value="Shoes">Shoes</option>
-    <option value="Spices">Spices</option>
-    <option value="Sports Goods">Sports Goods</option>
-    <option value="Tea">Tea</option>
-    <option value="Textiles">Textiles</option>
-    <option value="Utensils">Utensils</option>
-    <option value="Others">Others</option>
-
-  </select>
-</div>
-
-    <!-- Number of Shipments -->
+    <!-- Row 4 -->
     <div class="field">
-      <label>Number Of Shipments <em>*</em></label>
-      <input type="text" name="Number" maxlength="18" placeholder="Enter number of shipments" required>
+      <label>Email <em>*</em></label>
+      <input type="email" name="Email" maxlength="255" fieldType="9" required>
+    </div>
+
+    <div class="field">
+      <label>Phone <em>*</em></label>
+      <input type="text"
+        compname="PhoneNumber"
+        name="PhoneNumber_countrycode"
+        phoneFormat="1"
+        isCountryCodeEnabled="false"
+        maxlength="20"
+        fieldType="11"
+        id="international_PhoneNumber_countrycode"
+        required>
+    </div>
+
+    <!-- Row 5 -->
+    <div class="field full">
+      <label>Name <em>*</em></label>
+      <div class="name-grid">
+        <input type="text" name="Name_First" maxlength="255" fieldType="7" placeholder="First Name" required>
+        <input type="text" name="Name_Last" maxlength="255" fieldType="7" placeholder="Last Name" required>
+      </div>
     </div>
 
   </div>
@@ -1228,6 +1349,42 @@ h2{
 </section>
 
 
+<section class="testimonials-section">
+  <div class="testimonials-wrap">
+
+    <!-- LEFT TEXT -->
+    <div class="testimonials-left">
+      <div class="testimonials-kicker">Customer Testimonials</div>
+      <div class="testimonials-title">1 Crore+ Successful Shipments</div>
+      <p class="testimonials-desc">
+        From mothers sending love abroad to new sellers starting their journey,
+        ShipGlobal is for everyone.
+      </p>
+    </div>
+
+    <!-- RIGHT VERTICAL IMAGE SLIDER -->
+    <div class="testimonials-right">
+      <div class="testimonial-track">
+
+        <!-- 4 images -->
+        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Mayak.webp" alt="Testimonial">
+        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-3-1.png" alt="Testimonial">
+        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-2-1.png" alt="Testimonial">
+        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Seema-ji.webp" alt="Testimonial">
+
+        <!-- duplicate for smooth loop -->
+        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Mayak.webp" alt="Testimonial">
+        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-3-1.png" alt="Testimonial">
+        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-2-1.png" alt="Testimonial">
+        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Seema-ji.webp" alt="Testimonial">
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
 <!-- ===== Press Highlights Section ===== -->
 <section class="press-section">
   <div class="press-container">
@@ -1273,6 +1430,13 @@ function scrollToForm() {
   if (form) {
     form.scrollIntoView({ behavior: "smooth" });
   }
+}
+
+function toggleReadMore(btn) {
+  const content = btn.nextElementSibling;
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'inline' : 'none';
+  btn.textContent = isHidden ? 'Read Less' : 'Read More';
 }
 </script>
 

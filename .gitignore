@@ -1,3 +1,5 @@
-# Ignore image assets
-Images/
-images/
+
+# Folders to ignore
+Python-scripts/
+# Files to ignore
+*.pyc
