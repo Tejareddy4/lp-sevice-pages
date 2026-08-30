@@ -1,6 +1,7 @@
 # List of countries to generate pages for (one per line)
 # Lines starting with # are ignored
 Croatia
+Australia
 Austria
 Italy
 France
@@ -13,3 +14,21 @@ UAE
 US
 UK
 Germany
+
+
+I am using the these template-new.php . i HAVE ONLY one work to do that is : i have to use the zoho crm web hook for the data submission . but when i am click on submit on these form it is redirecting to thank you page . instead of these i want the user should stay there and if they submit the form .it should show the from has been submited or record or someone will get in touch .
+
+webhook url :"https://flow.zoho.in/60030990815/flow/webhook/incoming?zapikey=1001.13056985b9392ffd01f82ea7b29ecd8c.274c0a48499a6dfba88a38d975d9ad65&isdebug=false"
+
+make changes in only template-new.php
+
+
+working
+The form was redirecting users to a thank-you page after submission instead of staying on the same page.
+
+Root Cause:
+The form was using a standard HTML POST action which navigates the page on submit. The hidden iframe target (zohoWebhookFrame) was not reliably preventing the redirect.
+
+Fix:
+Intercepted the form submission using JavaScript (preventDefault()), then sent the data to the Zoho webhook via fetch API with no-cors mode in the background. The page no longer navigates — instead, a success message appears below the form confirming submission. Data continues to reach Zoho CRM correctly.
+success
