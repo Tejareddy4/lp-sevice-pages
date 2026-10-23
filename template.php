@@ -108,6 +108,158 @@ $title = "$origin to $destination Courier Shipment";
 
 $meta_description = "Ship internationally from $origin to $destination with transparent pricing, fast delivery, and customs support.";
 
+// Instant price: the same rate card the public shipping rate calculator reads.
+// Same origin as /services/, so the page fetches it directly. Destinations that
+// are not a column in the sheet (e.g. Australia) fall back to "expert will call".
+$rateSheetUrl = '/wp-content/uploads/2025/04/rate_ship.csv';
+
+$phoneTel = '+919906599065';
+$phoneText = '+91 99065 99065';
+$signupUrl = 'https://v2.app.shipglobal.in/auth/signup';
+$leadWebhook = 'https://flow.zoho.in/60030990815/flow/webhook/incoming?zapikey=1001.13056985b9392ffd01f82ea7b29ecd8c.274c0a48499a6dfba88a38d975d9ad65&isdebug=false';
+
+// $FAQ arrives as <p><strong>Question</strong><br>Answer</p> blocks; split them for the accordion.
+$faqItems = [];
+if (preg_match_all('/<p>\s*<strong>(.*?)<\/strong>\s*(?:<br\s*\/?>)?(.*?)<\/p>/is', $FAQ, $faqMatches, PREG_SET_ORDER)) {
+  foreach ($faqMatches as $faqMatch) {
+    $faqItems[] = ['q' => trim(strip_tags($faqMatch[1])), 'a' => trim($faqMatch[2])];
+  }
+}
+
+// $Relposts ends with the FAQ section's <h2>; move it onto the FAQ section.
+$faqHeading = "Questions about shipping to $destination";
+if (preg_match('/<h2>(.*?)<\/h2>\s*$/is', $Relposts, $faqHeadingMatch)) {
+  $faqHeading = $faqHeadingMatch[1];
+  $Relposts = substr($Relposts, 0, -strlen($faqHeadingMatch[0]));
+}
+
+// Quote form: value = existing Zoho CRM Product_Type picklist value.
+$quoteItems = [
+  'Clothes' => ['Clothes', 'fa-shirt'],
+  'Documents' => ['Documents', 'fa-file-lines'],
+  'Food products' => ['Food items', 'fa-bowl-food'],
+  'Spices' => ['Spices', 'fa-pepper-hot'],
+  'Handicraft' => ['Handicrafts', 'fa-palette'],
+  'Imitation Jewellery' => ['Jewellery', 'fa-gem'],
+  'Hair & Skin Care' => ['Hair &amp; skin care', 'fa-pump-soap'],
+  'Herbal Products' => ['Herbal products', 'fa-leaf'],
+  'Others' => ['Something else', 'fa-box-open'],
+];
+
+function render_quote_wizard(string $id, string $origin, string $destination): void
+{
+  global $quoteItems, $leadWebhook, $phoneTel, $phoneText, $signupUrl;
+  $o = htmlspecialchars($origin, ENT_QUOTES, 'UTF-8');
+  $d = htmlspecialchars($destination, ENT_QUOTES, 'UTF-8');
+  ?>
+  <div class="qw" data-qw="<?php echo $id; ?>" data-step="1">
+    <div class="qw-head">
+      <div class="qw-head-top">
+        <h2 class="qw-title">Get your <span>price</span> in 30 seconds</h2>
+        <span class="qw-count">Step <b data-qw-num>1</b> of 3</span>
+      </div>
+      <div class="qw-progress" role="progressbar" aria-label="Quote progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1"><i></i></div>
+    </div>
+
+    <form class="qw-form" method="POST" accept-charset="UTF-8" enctype="multipart/form-data" novalidate
+      action='<?php echo $leadWebhook; ?>'>
+      <input type="hidden" name="zf_referrer_name" value="">
+      <input type="hidden" name="zf_redirect_url" value="">
+      <input type="hidden" name="zc_gad" value="">
+      <input type="hidden" name="From" value="<?php echo $o; ?>">
+      <input type="hidden" name="To" value="<?php echo $d; ?>">
+      <input type="hidden" name="First_Name" value="">
+      <input type="hidden" name="Last_Name" value="">
+      <input type="hidden" name="Packet_Weight" value="">
+      <input class="qw-hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="qw-step" data-qw-step="1" role="group" aria-labelledby="qw-<?php echo $id; ?>-q1">
+        <p class="qw-q" id="qw-<?php echo $id; ?>-q1">What are you sending?</p>
+        <div class="qw-group" data-qw-check="item">
+          <div class="qw-tiles" role="radiogroup" aria-labelledby="qw-<?php echo $id; ?>-q1">
+<?php foreach ($quoteItems as $value => [$label, $icon]): ?>
+            <label class="qw-tile"><input type="radio" name="Product_Type" value="<?php echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); ?>"><span><i class="fas <?php echo $icon; ?>"></i><?php echo $label; ?></span></label>
+<?php endforeach; ?>
+          </div>
+          <p class="qw-err">Choose what you're sending</p>
+        </div>
+        <button type="button" class="qw-btn" data-qw-next>Continue <i class="fas fa-arrow-right"></i></button>
+      </div>
+
+      <div class="qw-step" data-qw-step="2" role="group" aria-labelledby="qw-<?php echo $id; ?>-q2" hidden>
+        <p class="qw-q" id="qw-<?php echo $id; ?>-q2">How heavy is your parcel?</p>
+        <div class="qw-group" data-qw-check="weight">
+          <div class="qw-weight">
+            <button type="button" class="qw-stepper" data-qw-dec aria-label="Decrease weight"><i class="fas fa-minus"></i></button>
+            <label class="qw-weight-field">
+              <input type="number" inputmode="decimal" min="0.05" max="100" step="any" value="1" data-qw-weight aria-label="Parcel weight in kg">
+              <span>kg</span>
+            </label>
+            <button type="button" class="qw-stepper" data-qw-inc aria-label="Increase weight"><i class="fas fa-plus"></i></button>
+          </div>
+          <div class="qw-chips">
+            <button type="button" data-qw-w="0.5">500 g</button>
+            <button type="button" data-qw-w="1">1 kg</button>
+            <button type="button" data-qw-w="2">2 kg</button>
+            <button type="button" data-qw-w="5">5 kg</button>
+            <button type="button" data-qw-w="10">10 kg</button>
+          </div>
+          <p class="qw-err">Enter a weight between 50 g and 100 kg</p>
+        </div>
+        <p class="qw-hint" data-qw-hint aria-live="polite"><i class="fas fa-circle-info"></i><span>Not sure? A rough estimate is fine.</span></p>
+        <button type="button" class="qw-btn" data-qw-next>Continue <i class="fas fa-arrow-right"></i></button>
+      </div>
+
+      <div class="qw-step" data-qw-step="3" role="group" aria-labelledby="qw-<?php echo $id; ?>-q3" hidden>
+        <p class="qw-q" id="qw-<?php echo $id; ?>-q3">Where should we send your price?</p>
+        <div class="qw-summary"><span data-qw-summary></span><button type="button" data-qw-edit>Edit</button></div>
+        <div class="qw-field qw-group" data-qw-check="name">
+          <label for="qw-<?php echo $id; ?>-name">Your name</label>
+          <input class="qw-input" id="qw-<?php echo $id; ?>-name" type="text" autocomplete="name" maxlength="80" placeholder="e.g. Rahul Sharma">
+          <p class="qw-err">Please enter your name</p>
+        </div>
+        <div class="qw-field qw-group" data-qw-check="phone">
+          <label for="qw-<?php echo $id; ?>-phone">Mobile number</label>
+          <div class="qw-phone"><span>+91</span><input class="qw-input" id="qw-<?php echo $id; ?>-phone" type="tel" name="Phone" inputmode="numeric" autocomplete="tel-national" maxlength="14" placeholder="10-digit number"></div>
+          <p class="qw-err">Enter a valid 10-digit mobile number</p>
+        </div>
+        <button type="submit" class="qw-btn qw-btn-cta" data-qw-submit><span data-qw-submit-label>Get my price</span> <i class="fas fa-arrow-right"></i></button>
+        <p class="qw-legal">By continuing, you agree to be contacted by ShipGlobal about this shipment.</p>
+      </div>
+    </form>
+
+    <div class="qw-foot">
+      <button type="button" class="qw-back" data-qw-back><i class="fas fa-arrow-left"></i> Back</button>
+      <span><i class="fas fa-lock"></i> Free, no-obligation quote</span>
+    </div>
+    <p class="qw-fail" role="alert">We couldn't send your request. Please call us on <a href="tel:<?php echo $phoneTel; ?>"><?php echo $phoneText; ?></a>.</p>
+
+    <div class="qw-done" role="status">
+      <div class="qw-done-icon"><i class="fas fa-check"></i></div>
+      <h3 tabindex="-1" data-qw-done-title>Thanks, <span data-qw-name></span>!</h3>
+      <div class="qw-price" data-qw-price hidden>
+        <small>Estimated price for <b data-qw-price-weight></b> to <?php echo $d; ?></small>
+        <strong>₹<span data-qw-price-value></span></strong>
+        <small>All-inclusive estimate from our rate card, fuel surcharge included.</small>
+      </div>
+      <p data-qw-done-msg></p>
+      <div class="qw-next">
+        <p class="qw-next-title">What happens next</p>
+        <ol>
+          <li><i class="fas fa-phone-volume"></i><span><b>Expert call</b>We confirm your price and paperwork</span></li>
+          <li><i class="fas fa-truck-fast"></i><span><b>Doorstep pickup</b>From your address in <?php echo $o; ?></span></li>
+          <li><i class="fas fa-location-crosshairs"></i><span><b>Tracked delivery</b>All the way to <?php echo $d; ?></span></li>
+        </ol>
+      </div>
+      <div class="qw-done-actions">
+        <a class="qw-btn qw-btn-cta" href="<?php echo $signupUrl; ?>" target="_blank" rel="noopener">Book my shipment <i class="fas fa-arrow-right"></i></a>
+        <a class="qw-btn qw-btn-ghost" href="tel:<?php echo $phoneTel; ?>"><i class="fas fa-phone"></i> Call <?php echo $phoneText; ?></a>
+      </div>
+    </div>
+  </div>
+  <?php
+}
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -348,64 +500,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .bulk-order-float{ width:50px; }
 }
 
-/* ===== Press Highlights ===== */
-.press-section{
-  background:#EEF2F7;
-  padding:80px 20px;
-  text-align:left;
-}
-
-.press-container{
-  max-width:1100px;
-  margin:auto;
-}
-
-.press-title{
-  color:#2D52CC;
-  font-size:22px;
-  font-weight:800;
-  margin-bottom:8px;
-}
-
-.press-heading{
-  font-size:28px;
-  font-weight:900;
-  margin-bottom:15px;
-}
-
-.press-desc{
-  max-width:700px;
-  color:#4B5563;
-  margin-bottom:40px;
-  line-height:1.6;
-}
-
-.press-slider{
-  overflow:hidden;
-  position:relative;
-}
-
-.press-track{
-  display:flex;
-  gap:24px;
-  animation: pressScroll 20s linear infinite;
-  width:max-content;
-}
-
-.press-track img{
-  width:260px;
-  height:auto;
-  border-radius:12px;
-  background:#fff;
-  padding:10px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.05);
-}
-
-@keyframes pressScroll{
-  from{ transform: translateX(0); }
-  to{ transform: translateX(-50%); }
-}
-
 /* ===== WhatsApp Community Bar ===== */
 .wa-bar{
   background:#fff;
@@ -626,557 +720,1021 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .footer-links li,.footer-links a{ font-size:12px; }
 }
 
-
-
-
+/* ===== Design tokens ===== */
 :root{
-  --blue:#2D52CC;
-  --dark:#111827;
-  --muted:#6B7280;
-  --light:#F9FAFB;
-  --border:#CBD5E0;
+  --sg-navy:#0B1F5C;
+  --sg-blue:#2D52CC;
+  --sg-blue-dark:#2442A8;
+  --sg-sky:#EEF3FF;
+  --sg-sky-2:#DCE6FF;
+  --sg-amber:#F59E0B;
+  --sg-amber-light:#FBBF24;
+  --sg-ink:#0F172A;
+  --sg-text:#334155;
+  --sg-muted:#64748B;
+  --sg-line:#E2E8F0;
+  --sg-bg:#F8FAFC;
+  --sg-ok:#16A34A;
+  --sg-err:#DC2626;
+  --sg-radius:14px;
+  --sg-radius-lg:20px;
+  --sg-shadow-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.08);
+  --sg-shadow:0 14px 34px -12px rgba(15,23,42,.2);
+  --sg-shadow-lg:0 30px 60px -20px rgba(8,22,68,.45);
+  --sg-head:'Montserrat',system-ui,sans-serif;
+  --sg-body:'Poppins',system-ui,sans-serif;
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  font-family:var(--sg-body);
+  color:var(--sg-ink);
   background:#fff;
-  color:var(--dark);
+  -webkit-font-smoothing:antialiased;
 }
 
-/* Hero layout */
-.hero{
-  max-width:1300px;
-  margin:0 auto;
-  display:flex;
-  gap:60px;
-  padding:40px 40px 80px;
-  align-items:flex-start;
-}
+.sg-wrap{max-width:1200px;margin:0 auto;padding:0 24px}
 
-.left{flex:1}
-.right{
-  width:40%;
-  min-width:420px;
-}
-
-/* Headings */
-h1{
-  font-size:64px;
-  font-weight:900;
-  margin:0;
-  line-height:1;
-  letter-spacing:-1px;
-}
-h1 span{color:var(--blue)}
-
-h2{
-  font-size:64px;
-  font-weight:900;
-  margin:0 0 30px 0;
-  letter-spacing:-1px;
-}
-
-.subhead{
-  font-size:22px;
-  font-weight:700;
-  margin:28px 0 8px;
-}
-
-.desc{
-  font-size:18px;
-  margin:0;
+/* Header: quote button next to Ship Now */
+.header-nav-wrap{width:auto;flex:1}
+.header-cta-wrap{width:auto;flex:none;gap:10px;justify-content:flex-end;align-items:center}
+.header-quote-btn{
+  padding:10px 20px;
+  border:0;
+  border-radius:8px;
+  background:var(--sg-amber);
   color:#111827;
+  font:700 15px var(--sg-head);
+  cursor:pointer;
+  transition:background .15s;
 }
-.desc span{
-  color:#F59E0B;
-  font-weight:700;
+.header-quote-btn:hover{background:var(--sg-amber-light)}
+@media(max-width:1024px){
+  .header-cta-wrap{display:flex}
+  .header-ship-btn{display:none}
 }
-
-/* Excerpt */
-.excerpt{
-  font-family: 'Poppins', sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  color: rgb(19, 19, 19);
-  font-size: 18px;
-  line-height: 35px;
-  margin-top: 16px;
+@media(max-width:768px){
+  .header-cta-wrap{display:none}
 }
 
-/* Updated HTML */
-.updatedhtml-section{
-  padding: 60px 20px;
+/* ===== Hero ===== */
+.sg-hero{
+  position:relative;
+  overflow:hidden;
+  color:#fff;
+  background:
+    radial-gradient(900px 480px at 88% -10%,rgba(91,124,250,.45),transparent 60%),
+    radial-gradient(700px 400px at -10% 110%,rgba(245,158,11,.14),transparent 60%),
+    linear-gradient(160deg,#071540 0%,#0B1F5C 48%,#1B3CA3 100%);
 }
-.updatedhtml-container{
-  max-width: 1100px;
-  margin: 0 auto;
-  font-family: 'Poppins', sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  color: rgb(0, 0, 2);
-  font-size: 16px;
-  line-height: 28px;
+.sg-hero-grid-bg{
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(ellipse at 25% 35%,#000 15%,transparent 70%);
+  mask-image:radial-gradient(ellipse at 25% 35%,#000 15%,transparent 70%);
+  pointer-events:none;
 }
-.updatedhtml-container h1,
-.updatedhtml-container h2,
-.updatedhtml-container h3,
-.updatedhtml-container h4,
-.updatedhtml-container h5,
-.updatedhtml-container h6{
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  color: rgb(0, 0, 2);
-  line-height: 1.3;
-  margin: 24px 0 12px;
-  letter-spacing: normal;
-}
-.updatedhtml-container h1{ font-size: 32px; }
-.updatedhtml-container h2{ font-size: 28px; }
-.updatedhtml-container h3{ font-size: 22px; }
-.updatedhtml-container h4{ font-size: 18px; }
-.updatedhtml-container h5{ font-size: 16px; }
-.updatedhtml-container h6{ font-size: 14px; }
-.updatedhtml-container p{
-  margin: 0 0 16px;
-  font-size: 16px;
-  line-height: 28px;
-  color: rgb(0, 0, 2);
-}
-.Updatedhtml{
-  font-family: 'Poppins', sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  color: rgb(0, 0, 2);
-  font-size: 16px;
-  line-height: 28px;
-}
-
-.Relposts-section{
-  padding: 0 20px 60px;
-}
-.Relposts-container{
-  max-width: 1100px;
-  margin: 0 auto;
-  font-family: 'Poppins', sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  color: rgb(0, 0, 2);
-  font-size: 16px;
-  line-height: 28px;
-}
-.Relposts-container h1,
-.Relposts-container h2,
-.Relposts-container h3,
-.Relposts-container h4,
-.Relposts-container h5,
-.Relposts-container h6{
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  color: rgb(0, 0, 2);
-  line-height: 1.3;
-  margin: 24px 0 12px;
-  letter-spacing: normal;
-}
-.Relposts-container h1{ font-size: 32px; }
-.Relposts-container h2{ font-size: 28px; }
-.Relposts-container h3{ font-size: 22px; }
-.Relposts-container h4{ font-size: 18px; }
-.Relposts-container h5{ font-size: 16px; }
-.Relposts-container h6{ font-size: 14px; }
-.Relposts-container p{
-  margin: 0 0 16px;
-  font-size: 16px;
-  line-height: 28px;
-  color: rgb(0, 0, 2);
-}
-.Relposts-container ul,
-.Relposts-container ol{
-  margin: 0 0 24px;
-  padding-left: 20px;
-}
-.Relposts-container li + li{
-  margin-top: 6px;
-}
-
-/* Stats */
-.stats{
-  display:flex;
-  gap:60px;
-  margin-top:50px;
-  flex-wrap:wrap;
-}
-.stat-num{
-  font-size:36px;
-  font-weight:900;
-}
-.stat-label{
-  margin-top:6px;
-  color:var(--muted);
-}
-
-/* Card */
-.card{
-  background:#fff;
-  padding:22px 24px;
-  border-radius:14px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.08);
-  width:100%;
-}
-.card h3{
-  font-size:26px;
-  font-weight:900;
-  margin:0 0 22px;
-  text-align: center;
-}
-.card h3 span{color:#F59E0B}
-
-/* Form */
-.form-grid{
+.sg-hero-grid{
+  position:relative;
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-  width:100%;
+  grid-template-columns:minmax(0,1fr) minmax(380px,460px);
+  grid-template-areas:"head form" "proof form";
+  column-gap:64px;
+  padding-top:64px;
+  padding-bottom:72px;
 }
+.sg-hero-head{grid-area:head;align-self:end}
+.sg-hero-form{grid-area:form;scroll-margin-top:96px}
+.sg-hero-proof{grid-area:proof}
+.sg-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 20px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  color:#C7D5FF;
+  font:600 13px/1 var(--sg-body);
+}
+.sg-eyebrow i{color:var(--sg-amber-light)}
+.sg-hero h1{
+  font:800 56px/1.06 var(--sg-head);
+  letter-spacing:-.02em;
+  margin:0 0 18px;
+  color:#fff;
+}
+.sg-hero h1 span{display:block;color:var(--sg-amber-light)}
+.sg-hero-lead{
+  font-size:18px;
+  line-height:1.6;
+  color:#C9D4F2;
+  margin:0;
+  max-width:560px;
+}
+.sg-from{
+  display:inline-flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px 8px;
+  margin:22px 0 0;
+  padding:10px 16px;
+  border-radius:12px;
+  background:rgba(251,191,36,.12);
+  border:1px solid rgba(251,191,36,.35);
+  color:#FDE68A;
+  font-size:15px;
+}
+.sg-from[hidden]{display:none}
+.sg-from b{color:#fff;font:800 19px var(--sg-head)}
+.sg-from-note{font-size:12.5px;color:#C9D4F2}
+.sg-hero-quote{
+  max-width:560px;
+  margin:30px 0 0;
+  padding:18px 20px;
+  border-left:3px solid var(--sg-amber-light);
+  border-radius:0 var(--sg-radius) var(--sg-radius) 0;
+  background:rgba(255,255,255,.05);
+}
+.sg-hero-quote blockquote{margin:0 0 12px;font-size:15px;line-height:1.6;font-style:italic;color:#E2E8FF}
+.sg-hero-quote figcaption{display:flex;align-items:center;gap:12px;font-size:13px;line-height:1.4;color:#93A5D8}
+.sg-hero-quote b{color:#fff;font-weight:600}
+.sg-hero-quote-avatar{
+  display:grid;
+  place-items:center;
+  flex:none;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:var(--sg-amber-light);
+  color:var(--sg-navy);
+  font:800 12px var(--sg-head);
+}
+.sg-route{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  max-width:560px;
+  margin:34px 0 28px;
+  padding:18px 22px;
+  border-radius:var(--sg-radius);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+}
+.sg-route-end{display:flex;flex-direction:column;min-width:0}
+.sg-route-end b{
+  font:700 17px/1.3 var(--sg-head);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sg-route-end small{font-size:12px;color:#93A5D8}
+.sg-route-to{align-items:flex-end;text-align:right}
+.sg-route-line{position:relative;flex:1;min-width:60px;height:24px}
+.sg-route-line::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:50%;
+  border-top:2px dashed rgba(255,255,255,.35);
+}
+.sg-route-line i{
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translate(-50%,-50%);
+  color:var(--sg-amber-light);
+  font-size:16px;
+  animation:sgFly 4.5s ease-in-out infinite;
+}
+@keyframes sgFly{
+  0%{left:0;opacity:0}
+  12%{opacity:1}
+  88%{opacity:1}
+  100%{left:100%;opacity:0}
+}
+.sg-hero-points{
+  list-style:none;
+  margin:0 0 30px;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px 24px;
+  font-size:15px;
+  font-weight:500;
+  color:#E2E8FF;
+}
+.sg-hero-points i{color:var(--sg-amber-light);margin-right:8px}
+.sg-hero-stats{display:flex;flex-wrap:wrap;gap:44px}
+.sg-hero-stats b{display:block;font:800 30px/1.1 var(--sg-head)}
+.sg-hero-stats span{font-size:13px;color:#93A5D8}
 
-.field{
+/* ===== Quote wizard ===== */
+.qw{
+  position:relative;
+  padding:26px;
+  border-radius:var(--sg-radius-lg);
+  background:#fff;
+  color:var(--sg-ink);
+  box-shadow:var(--sg-shadow-lg);
+}
+.qw-head-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.qw-title{font:800 21px/1.25 var(--sg-head);margin:0;color:var(--sg-ink)}
+.qw-title span{color:var(--sg-blue)}
+.qw-count{font-size:12px;font-weight:600;color:var(--sg-muted);white-space:nowrap}
+.qw-progress{height:6px;margin:14px 0 22px;border-radius:99px;background:#EEF2F7;overflow:hidden}
+.qw-progress i{
+  display:block;
+  width:33.33%;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--sg-blue),#5B7CFA);
+  transition:width .35s ease;
+}
+.qw[data-step="2"] .qw-progress i{width:66.66%}
+.qw[data-step="3"] .qw-progress i{width:100%}
+.qw-step{display:grid;gap:16px}
+.qw-step[hidden]{display:none}
+.qw-step.qw-in{animation:qwIn .3s ease}
+@keyframes qwIn{
+  from{opacity:0;transform:translateX(14px)}
+  to{opacity:1;transform:none}
+}
+.qw-q{font:700 16px/1.3 var(--sg-head);margin:0;color:var(--sg-ink)}
+.qw-group{display:grid;gap:10px}
+.qw-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.qw-tile{position:relative;margin:0}
+.qw-tile input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.qw-tile span{
   display:flex;
   flex-direction:column;
-  width:100%;
-}
-
-.field label{
-  font-size:13px;
-  margin-bottom:5px;
-  color:#374151;
-}
-
-.field input,
-.field select{
-  height:42px;
-  padding:0 14px;
-  border:1px solid var(--border);
-  border-radius:6px;
-  font-size:13px;
-  width:100%;
-  background:#fff;
-}
-
-.name-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-  width:100%;
-}
-
-.full{grid-column:1/-1}
-
-.btn-wrapper{
-  margin-top:30px;
-  display:flex;
+  align-items:center;
   justify-content:center;
+  gap:8px;
+  min-height:84px;
+  padding:12px 6px;
+  border:1.5px solid var(--sg-line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--sg-text);
+  font:600 13px/1.25 var(--sg-body);
+  text-align:center;
+  transition:border-color .15s,background .15s,box-shadow .15s,transform .15s;
 }
-
-.submit-btn{
-  background:var(--blue);
-  color:#fff;
-  border:none;
-  border-radius:28px;
-  padding:12px 50px;
-  font-weight:700;
-  font-size:15px;
+.qw-tile i{font-size:20px;color:var(--sg-blue)}
+.qw-tile:hover span{border-color:#A5B8F0;transform:translateY(-1px);box-shadow:var(--sg-shadow-sm)}
+.qw-tile input:checked + span{
+  border-color:var(--sg-blue);
+  background:var(--sg-sky);
+  color:var(--sg-navy);
+  box-shadow:0 0 0 3px rgba(45,82,204,.15);
+}
+.qw-tile input:focus-visible + span{outline:3px solid rgba(45,82,204,.45);outline-offset:2px}
+.qw-weight{display:grid;grid-template-columns:56px minmax(0,1fr) 56px;gap:10px}
+.qw-stepper{
+  height:58px;
+  border:1.5px solid var(--sg-line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--sg-blue);
+  font-size:16px;
+  cursor:pointer;
+  transition:border-color .15s,background .15s;
+}
+.qw-stepper:hover{border-color:var(--sg-blue);background:var(--sg-sky)}
+.qw-weight-field{position:relative;display:block}
+.qw-weight-field input{
+  width:100%;
+  height:58px;
+  padding:0 46px 0 16px;
+  border:1.5px solid var(--sg-line);
+  border-radius:12px;
+  font:800 26px var(--sg-head);
+  color:var(--sg-ink);
+  text-align:center;
+  -moz-appearance:textfield;
+}
+.qw-weight-field input::-webkit-outer-spin-button,
+.qw-weight-field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.qw-weight-field span{
+  position:absolute;
+  right:16px;
+  top:50%;
+  transform:translateY(-50%);
+  font-weight:600;
+  color:var(--sg-muted);
+}
+.qw-chips{display:flex;flex-wrap:wrap;gap:8px}
+.qw-chips button{
+  height:36px;
+  padding:0 14px;
+  border-radius:99px;
+  border:1.5px solid var(--sg-line);
+  background:#fff;
+  color:var(--sg-text);
+  font:600 13px var(--sg-body);
   cursor:pointer;
 }
-
-/* Marketplace slider */
-.marketplaces{
-  background:var(--light);
-  padding:70px 0;
-  text-align:center;
-  overflow:hidden;
-}
-.marketplaces h3{
-  font-size:28px;
-  font-weight:800;
-  margin:0 0 38px;
-}
-.logo-slider{
-  width:100%;
-  overflow:hidden;
-  position:relative;
-}
-.logo-track{
-  display:flex;
-  width:max-content;
-  gap:60px;
-  align-items:center;
-  animation:scroll 25s linear infinite;
-}
-.logo-track img{
-  height:55px;
-  object-fit:contain;
-}
-@keyframes scroll{
-  from{ transform: translateX(0); }
-  to{ transform: translateX(-50%); }
-}
-
-/* Feature sections */
-.section{
-  padding:80px 20px;
-}
-.section.alt{
-  background:var(--light);
-}
-
-.feature{
-  max-width:1100px;
-  margin:0 auto;
+.qw-chips button:hover{border-color:var(--sg-blue)}
+.qw-chips button[aria-pressed="true"]{background:var(--sg-blue);border-color:var(--sg-blue);color:#fff}
+.qw-hint{display:flex;gap:8px;margin:0;font-size:13px;line-height:1.5;color:var(--sg-muted)}
+.qw-hint i{margin-top:3px}
+.qw-hint.is-ok{color:#047857}
+.qw-summary{
   display:flex;
   align-items:center;
-  gap:60px;
-}
-
-.feature-text{flex:1}
-.feature-text h3{
-  font-size:32px;
-  font-weight:900;
-  margin:0 0 14px;
-}
-.feature-text p{
-  margin:0 0 14px;
-  color:#4B5563;
-  line-height:1.6;
-  font-size:16px;
-}
-.feature-text a{
-  color:#1D4ED8;
-  font-weight:800;
-  text-decoration:none;
-}
-.feature-text a:hover{ text-decoration:underline; }
-
-.feature-img{flex:1; text-align:center;}
-.feature-img img{
-  width:100%;
-  max-width:460px;
+  gap:10px;
+  padding:10px 14px;
+  border:1px solid var(--sg-line);
   border-radius:12px;
+  background:var(--sg-bg);
+  font-size:13px;
+  color:var(--sg-text);
 }
-
-/* Steps section */
-.steps{
-  padding:85px 20px;
-  text-align:center;
+.qw-summary b{color:var(--sg-ink)}
+.qw-summary button{
+  margin-left:auto;
+  padding:0;
+  border:0;
+  background:none;
+  color:var(--sg-blue);
+  font:600 13px var(--sg-body);
+  cursor:pointer;
 }
-.steps h3{
-  font-size:30px;
-  font-weight:900;
-  margin:0 0 14px;
+.qw-field{gap:6px}
+.qw-field label{font-size:13px;font-weight:600;color:var(--sg-text)}
+.qw-input{
+  width:100%;
+  height:52px;
+  padding:0 14px;
+  border:1.5px solid var(--sg-line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--sg-ink);
+  font:500 16px var(--sg-body);
+  transition:border-color .15s,box-shadow .15s;
 }
-.steps p{
-  max-width:820px;
-  margin:0 auto 44px;
-  color:#4B5563;
-  line-height:1.6;
+.qw-input:focus,
+.qw-weight-field input:focus{outline:none;border-color:var(--sg-blue);box-shadow:0 0 0 4px rgba(45,82,204,.15)}
+.qw-phone{position:relative}
+.qw-phone span{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  padding-right:10px;
+  border-right:1px solid var(--sg-line);
+  font-weight:600;
+  color:var(--sg-text);
 }
-.step-grid{
-  display:flex;
-  gap:24px;
+.qw-phone .qw-input{padding-left:64px}
+.qw-err{display:none;margin:0;font-size:12.5px;color:var(--sg-err)}
+.qw-bad .qw-err{display:block}
+.qw-bad .qw-input,
+.qw-bad .qw-weight-field input{border-color:var(--sg-err)}
+.qw-bad .qw-tile span{border-color:#FCA5A5}
+.qw-hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+.qw-btn{
+  display:inline-flex;
+  align-items:center;
   justify-content:center;
-  flex-wrap:wrap;
-}
-.step-card{
-  width:260px;
-  background:#F3F4F6;
+  gap:10px;
+  width:100%;
+  height:54px;
+  border:0;
   border-radius:12px;
-  padding:22px;
+  background:var(--sg-blue);
+  color:#fff;
+  font:700 16px var(--sg-body);
+  text-decoration:none;
+  cursor:pointer;
+  box-shadow:0 10px 20px -10px rgba(45,82,204,.8);
+  transition:background .15s,transform .15s;
+}
+.qw-btn:hover{background:var(--sg-blue-dark)}
+.qw-btn:active{transform:translateY(1px)}
+.qw-btn-cta{background:var(--sg-amber);color:#111827;box-shadow:0 10px 20px -10px rgba(245,158,11,.9)}
+.qw-btn-cta:hover{background:var(--sg-amber-light)}
+.qw-btn-ghost{background:#fff;color:var(--sg-blue);border:1.5px solid var(--sg-line);box-shadow:none}
+.qw-btn-ghost:hover{background:var(--sg-sky)}
+.qw-btn[disabled]{opacity:.75;cursor:progress}
+.qw-spin{
+  width:18px;
+  height:18px;
+  border:2.5px solid rgba(17,24,39,.25);
+  border-top-color:#111827;
+  border-radius:50%;
+  animation:qwSpin .7s linear infinite;
+}
+@keyframes qwSpin{to{transform:rotate(360deg)}}
+.qw-legal{margin:-4px 0 0;font-size:11.5px;line-height:1.5;color:var(--sg-muted);text-align:center}
+.qw-foot{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-top:16px;
+  font-size:12.5px;
+  color:var(--sg-muted);
+}
+.qw-foot i{margin-right:4px}
+.qw-back{
+  padding:6px 0;
+  border:0;
+  background:none;
+  color:var(--sg-muted);
+  font:600 13px var(--sg-body);
+  cursor:pointer;
+}
+.qw-back:hover{color:var(--sg-blue)}
+.qw[data-step="1"] .qw-back{visibility:hidden}
+.qw-fail{display:none;margin:12px 0 0;font-size:13.5px;color:var(--sg-err);text-align:center}
+.qw-fail a{color:inherit;font-weight:600}
+.qw.is-failed .qw-fail{display:block}
+.qw-done{display:none;text-align:center}
+.qw.is-done .qw-head,
+.qw.is-done .qw-form,
+.qw.is-done .qw-foot,
+.qw.is-done .qw-fail{display:none}
+.qw.is-done .qw-done{display:block;animation:qwIn .35s ease}
+.qw-done-icon{
+  display:grid;
+  place-items:center;
+  width:64px;
+  height:64px;
+  margin:4px auto 14px;
+  border-radius:50%;
+  background:#DCFCE7;
+  color:var(--sg-ok);
+  font-size:28px;
+  animation:qwPop .5s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes qwPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.qw-done h3{font:800 22px/1.3 var(--sg-head);margin:0 0 14px;outline:none}
+.qw-price{
+  margin:0 0 14px;
+  padding:18px 16px;
+  border:1px solid var(--sg-sky-2);
+  border-radius:var(--sg-radius);
+  background:linear-gradient(135deg,var(--sg-sky),#fff);
+}
+.qw-price[hidden]{display:none}
+.qw-price small{display:block;font-size:12.5px;line-height:1.5;color:var(--sg-muted)}
+.qw-price strong{display:block;margin:4px 0;font:800 38px/1.15 var(--sg-head);color:var(--sg-navy)}
+.qw-done p{margin:0 0 18px;font-size:14.5px;line-height:1.6;color:var(--sg-text)}
+.qw-done-actions{display:grid;gap:10px}
+.qw-next{
+  margin:0 0 18px;
+  padding:14px 16px;
+  border:1px solid var(--sg-line);
+  border-radius:var(--sg-radius);
+  background:var(--sg-bg);
   text-align:left;
 }
-.step-card h4{
-  font-size:14px;
-  font-weight:900;
-  margin:0 0 10px;
-}
-.step-card p{
-  margin:0;
-  color:#4B5563;
-  font-size:14px;
-}
-.steps .cta{
-  margin-top:36px;
-}
-.steps .cta .submit-btn{
-  padding:14px 70px;
-}
-
-/* ===== Simple Vertical Testimonial Slider ===== */
-
-.testimonials-section{
-  padding:85px 20px;
+.qw-next-title{margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sg-muted)}
+.qw-next ol{list-style:none;display:grid;gap:12px;margin:0;padding:0}
+.qw-next li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;align-items:center}
+.qw-next i{
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  border-radius:50%;
   background:#fff;
+  color:var(--sg-blue);
+  font-size:13px;
+  box-shadow:var(--sg-shadow-sm);
+}
+.qw-next span{font-size:13px;line-height:1.4;color:var(--sg-muted)}
+.qw-next b{display:block;font-size:14px;color:var(--sg-ink)}
+.qw-pulse{animation:qwPulse 1.2s ease-out}
+@keyframes qwPulse{
+  0%{box-shadow:0 0 0 0 rgba(251,191,36,.75),var(--sg-shadow-lg)}
+  100%{box-shadow:0 0 0 22px rgba(251,191,36,0),var(--sg-shadow-lg)}
 }
 
-.testimonials-wrap{
-  max-width:1100px;
-  margin:auto;
-  display:flex;
-  gap:60px;
-  align-items:flex-start;
+/* ===== Sections ===== */
+.sg-section{padding:96px 0}
+.sg-section-alt{background:var(--sg-bg)}
+.sg-section-head{max-width:740px;margin:0 auto 52px;text-align:center}
+.sg-section-head p{margin:0;font-size:17px;line-height:1.65;color:var(--sg-muted)}
+.sg-kicker{
+  margin:0 0 12px;
+  font-size:12.5px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--sg-blue);
 }
-
-.testimonials-left{
-  flex:1;
+.sg-h2{
+  margin:0 0 14px;
+  font:800 40px/1.15 var(--sg-head);
+  letter-spacing:-.02em;
+  color:var(--sg-ink);
 }
-
-.testimonials-kicker{
-  color:#2D52CC;
-  font-size:22px;
-  font-weight:800;
-  margin-bottom:10px;
-  position:relative;
+.sg-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  height:52px;
+  padding:0 26px;
+  border:0;
+  border-radius:12px;
+  font:700 16px var(--sg-body);
+  text-decoration:none;
+  cursor:pointer;
+  transition:background .15s,transform .15s,border-color .15s;
 }
+.sg-btn-primary{background:var(--sg-amber);color:#111827;box-shadow:0 10px 20px -10px rgba(245,158,11,.9)}
+.sg-btn-primary:hover{background:var(--sg-amber-light);transform:translateY(-1px)}
+.sg-btn-outline{background:#fff;color:var(--sg-blue);border:1.5px solid #C7D2FE}
+.sg-btn-outline:hover{border-color:var(--sg-blue)}
+.sg-btn-light{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.3)}
+.sg-btn-light:hover{background:rgba(255,255,255,.18)}
+.sg-cta-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:48px}
 
-.testimonials-kicker:after{
-  content:"";
-  display:block;
-  width:120px;
-  height:4px;
-  background:#F59E0B;
-  margin-top:10px;
-  border-radius:4px;
+/* Marketplaces + press marquee */
+.sg-logos{padding:36px 0;border-bottom:1px solid var(--sg-line)}
+.sg-logos > p{
+  margin:0 0 22px;
+  font-size:12.5px;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--sg-muted);
+  text-align:center;
 }
-
-.testimonials-title{
-  font-size:34px;
-  font-weight:900;
-  margin:20px 0 16px;
-}
-
-.testimonials-desc{
-  color:#4B5563;
-  line-height:1.7;
-  max-width:500px;
-}
-
-/* Right vertical slider */
-
-.testimonials-right{
-  width:45%;
-  min-width:380px;
+.sg-marquee{
   overflow:hidden;
-  height:500px;        /* visible height */
-  position:relative;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
 }
+.sg-marquee-track{
+  display:flex;
+  align-items:center;
+  gap:64px;
+  width:max-content;
+  animation:sgMarquee 40s linear infinite;
+}
+.sg-marquee:hover .sg-marquee-track{animation-play-state:paused}
+.sg-logos img{height:40px;width:auto;filter:grayscale(1);opacity:.65;transition:filter .2s,opacity .2s}
+.sg-logos img:hover{filter:none;opacity:1}
+@keyframes sgMarquee{to{transform:translateX(-50%)}}
 
-.testimonial-track{
+/* Features */
+.sg-features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.sg-feature{
   display:flex;
   flex-direction:column;
+  overflow:hidden;
+  border:1px solid var(--sg-line);
+  border-radius:var(--sg-radius-lg);
+  background:#fff;
+  transition:transform .2s,box-shadow .2s;
+}
+.sg-feature:hover{transform:translateY(-4px);box-shadow:var(--sg-shadow)}
+.sg-feature-img{
+  aspect-ratio:4/3;
+  padding:20px;
+  background:linear-gradient(160deg,var(--sg-sky),#F8FAFF);
+}
+.sg-feature-img img{width:100%;height:100%;object-fit:contain;display:block}
+.sg-feature-body{display:flex;flex-direction:column;gap:10px;flex:1;padding:24px}
+.sg-feature h3{margin:0;font:700 20px/1.3 var(--sg-head);color:var(--sg-ink)}
+.sg-feature p{margin:0;font-size:15px;line-height:1.65;color:var(--sg-text)}
+.sg-link{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:auto;
+  padding:8px 0 0;
+  border:0;
+  background:none;
+  color:var(--sg-blue);
+  font:600 15px var(--sg-body);
+  text-align:left;
+  cursor:pointer;
+}
+.sg-link i{transition:transform .2s}
+.sg-link:hover i{transform:translateX(4px)}
+.sg-caps{
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px;
+  margin:28px 0 0;
+  padding:0;
+}
+.sg-caps li{
+  display:grid;
+  grid-template-columns:44px 1fr;
+  grid-template-rows:auto auto;
+  column-gap:14px;
+  align-items:center;
+  padding:18px;
+  border:1px solid var(--sg-line);
+  border-radius:var(--sg-radius);
+}
+.sg-caps i{
+  grid-row:1/3;
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  background:var(--sg-sky);
+  color:var(--sg-blue);
+  font-size:18px;
+}
+.sg-caps b{font:700 15px var(--sg-head);color:var(--sg-ink)}
+.sg-caps span{font-size:13px;color:var(--sg-muted)}
+
+/* Steps */
+.sg-steps{
+  list-style:none;
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:24px;
+  margin:0;
+  padding:0;
+}
+.sg-steps::before{
+  content:"";
+  position:absolute;
+  top:28px;
+  left:17%;
+  right:17%;
+  border-top:2px dashed #C7D2FE;
+}
+.sg-step{position:relative;padding:0 16px;text-align:center}
+.sg-step-num{
+  display:grid;
+  place-items:center;
+  width:56px;
+  height:56px;
+  margin:0 auto 20px;
+  border-radius:50%;
+  background:var(--sg-blue);
+  color:#fff;
+  font:800 20px var(--sg-head);
+  box-shadow:0 0 0 8px var(--sg-bg),0 12px 24px -8px rgba(45,82,204,.6);
+}
+.sg-step h3{margin:0 0 8px;font:700 19px var(--sg-head)}
+.sg-step p{margin:0;font-size:15px;line-height:1.6;color:var(--sg-muted)}
+
+/* Reviews */
+.sg-reviews-grid{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:56px;align-items:center}
+.sg-reviews-copy p:not(.sg-kicker){margin:0;font-size:17px;line-height:1.65;color:var(--sg-muted)}
+.sg-reviews-nav{display:flex;gap:10px;margin-top:28px}
+.sg-reviews-nav button{
+  width:48px;
+  height:48px;
+  border:1.5px solid var(--sg-line);
+  border-radius:50%;
+  background:#fff;
+  color:var(--sg-ink);
+  cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.sg-reviews-nav button:hover{border-color:var(--sg-blue);color:var(--sg-blue)}
+.sg-reviews-track{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:min(520px,85%);
   gap:20px;
-  animation: verticalScroll 18s linear infinite;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  padding:6px 4px 18px;
+  scrollbar-width:none;
 }
+.sg-reviews-track::-webkit-scrollbar{display:none}
+.sg-reviews-track:focus-visible{outline:3px solid rgba(45,82,204,.35);border-radius:12px}
+.sg-reviews-track figure{
+  margin:0;
+  padding:22px;
+  scroll-snap-align:start;
+  border:1px solid var(--sg-line);
+  border-radius:var(--sg-radius-lg);
+  background:#fff;
+  box-shadow:var(--sg-shadow-sm);
+}
+.sg-reviews-track img{display:block;width:100%;height:auto}
 
-.testimonial-track img{
+/* Guide */
+.sg-guide-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:56px;align-items:start}
+.sg-prose{font-size:16px;line-height:1.8;color:var(--sg-text)}
+.sg-prose h2,.sg-prose h3,.sg-prose h4,.sg-prose h5{
+  margin:32px 0 12px;
+  font-family:var(--sg-head);
+  font-weight:700;
+  line-height:1.3;
+  color:var(--sg-ink);
+}
+.sg-prose h2{font-size:26px}
+.sg-prose h3{font-size:21px}
+.sg-prose h4{font-size:18px}
+.sg-prose p{margin:0 0 16px}
+.sg-prose ul,.sg-prose ol{margin:0 0 20px;padding-left:22px}
+.sg-prose li + li{margin-top:6px}
+.sg-prose a{color:var(--sg-blue)}
+.sg-prose table{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:15px}
+.sg-prose th,.sg-prose td{padding:10px 12px;border:1px solid var(--sg-line);text-align:left}
+.sg-prose th{background:var(--sg-sky)}
+.rmwr-wrapper{display:inline}
+.read-link{
+  display:inline;
+  padding:0;
+  border:none;
+  background:none;
+  color:var(--sg-blue);
+  font:inherit;
+  font-weight:600;
+  text-decoration:underline;
+  cursor:pointer;
+}
+.read-link:hover{color:var(--sg-navy)}
+.read-more-content{display:inline}
+.sg-guide-aside{position:sticky;top:110px}
+.sg-aside-card{
+  display:grid;
+  gap:14px;
+  padding:28px;
+  border-radius:var(--sg-radius-lg);
+  background:linear-gradient(160deg,#0B1F5C,#1B3CA3);
+  color:#fff;
+  box-shadow:var(--sg-shadow);
+}
+.sg-aside-icon{
+  display:grid;
+  place-items:center;
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  background:rgba(255,255,255,.12);
+  color:var(--sg-amber-light);
+  font-size:20px;
+}
+.sg-aside-card h3{margin:0;font:800 21px/1.3 var(--sg-head)}
+.sg-aside-card p{margin:0;font-size:14.5px;line-height:1.6;color:#C9D4F2}
+.sg-aside-card .sg-aside-from{color:#FDE68A}
+.sg-aside-from b{color:#fff;font:800 18px var(--sg-head)}
+.sg-aside-call{color:#C9D4F2;font-size:14px;text-align:center;text-decoration:none}
+.sg-aside-call:hover{color:#fff}
+
+/* FAQ */
+.sg-faq-grid{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:56px;align-items:start}
+.sg-faq-intro{position:sticky;top:110px}
+.sg-faq-intro .sg-h2{font-size:32px}
+.sg-faq-intro p:not(.sg-kicker){margin:0 0 24px;font-size:17px;line-height:1.65;color:var(--sg-muted)}
+.sg-faq-list{display:grid;gap:12px}
+.sg-faq-item{
+  border:1px solid var(--sg-line);
+  border-radius:var(--sg-radius);
+  background:#fff;
+  transition:border-color .15s,box-shadow .15s;
+}
+.sg-faq-item[open]{border-color:#C7D2FE;box-shadow:var(--sg-shadow-sm)}
+.sg-faq-item summary{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  padding:18px 20px;
+  font:600 16px/1.45 var(--sg-head);
+  color:var(--sg-ink);
+  list-style:none;
+  cursor:pointer;
+}
+.sg-faq-item summary::-webkit-details-marker{display:none}
+.sg-faq-item summary i{flex:none;color:var(--sg-blue);transition:transform .2s}
+.sg-faq-item[open] summary i{transform:rotate(45deg)}
+.sg-faq-a{padding:0 20px 18px;font-size:15px;line-height:1.7;color:var(--sg-text)}
+
+/* Related routes ($Relposts: h4 + ul of links) */
+.sg-related{padding:0 0 96px}
+.sg-related h4{margin:0 0 18px;font:700 20px var(--sg-head);color:var(--sg-ink)}
+.sg-related ul{
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+  margin:0;
+  padding:0;
+}
+.sg-related li a{
+  display:flex;
+  align-items:center;
+  height:100%;
+  padding:14px 16px;
+  border:1px solid var(--sg-line);
+  border-radius:12px;
+  color:var(--sg-text);
+  font-size:14.5px;
+  line-height:1.45;
+  text-decoration:none;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.sg-related li a::before{
+  content:"\f072";
+  margin-right:12px;
+  font:900 13px 'Font Awesome 6 Free';
+  color:var(--sg-blue);
+}
+.sg-related li a:hover{border-color:var(--sg-blue);background:var(--sg-sky);color:var(--sg-navy)}
+
+/* Press */
+.sg-press{background:var(--sg-bg)}
+.sg-press .sg-section-head{margin-bottom:40px}
+.sg-press img{width:240px;height:auto;padding:12px;border-radius:var(--sg-radius);background:#fff;box-shadow:var(--sg-shadow-sm)}
+.sg-press-marquee .sg-marquee-track{gap:24px}
+
+/* Final CTA */
+.sg-final{
+  padding:72px 0;
+  color:#fff;
+  background:
+    radial-gradient(700px 300px at 90% 0%,rgba(91,124,250,.4),transparent 60%),
+    linear-gradient(135deg,#071540,#1B3CA3);
+}
+.sg-final-inner{display:flex;justify-content:space-between;align-items:center;gap:32px}
+.sg-final h2{margin:0 0 10px;font:800 34px/1.2 var(--sg-head);letter-spacing:-.01em}
+.sg-final p{margin:0;font-size:17px;color:#C9D4F2}
+.sg-final-actions{display:flex;flex-wrap:wrap;gap:12px;flex:none}
+
+/* ===== Quote modal ===== */
+.sg-modal{
   width:100%;
-  border-radius:16px;
-  box-shadow:0 12px 28px rgba(0,0,0,0.08);
+  max-width:480px;
+  padding:0;
+  border:0;
+  background:transparent;
+  overflow:visible;
+}
+.sg-modal::backdrop{background:rgba(7,21,64,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.sg-modal[open]{animation:sgModalIn .25s ease}
+@keyframes sgModalIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+.sg-modal .qw{box-shadow:0 40px 80px -20px rgba(7,21,64,.6)}
+.sg-modal-close{
+  position:absolute;
+  top:-14px;
+  right:-14px;
+  z-index:2;
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:#fff;
+  color:var(--sg-ink);
+  font-size:16px;
+  cursor:pointer;
+  box-shadow:var(--sg-shadow);
+}
+body.sg-modal-open{overflow:hidden}
+
+/* ===== Sticky mobile CTA ===== */
+.sg-sticky{display:none}
+
+/* ===== Motion preferences ===== */
+@media (prefers-reduced-motion:reduce){
+  .sg-marquee-track,.sg-route-line i{animation:none}
+  .qw-step.qw-in,.qw.is-done .qw-done,.sg-modal[open]{animation:none}
 }
 
-/* Animation */
-
-@keyframes verticalScroll{
-  0%{ transform: translateY(0); }
-  100%{ transform: translateY(-50%); }
-}
-
-/* Responsive */
-
+/* ===== Responsive ===== */
 @media(max-width:1100px){
-  .testimonials-wrap{
-    flex-direction:column;
-    gap:40px;
+  .sg-hero-grid{grid-template-columns:minmax(0,1fr) minmax(340px,420px);column-gap:40px}
+  .sg-hero h1{font-size:46px}
+  .sg-caps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sg-guide-grid{grid-template-columns:minmax(0,1fr) 300px;gap:40px}
+}
+@media(max-width:900px){
+  .sg-hero-grid{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"head" "form" "proof";
+    row-gap:24px;
+    padding-top:32px;
+    padding-bottom:44px;
   }
-  .testimonials-right{
-    width:100%;
-    min-width:unset;
-    height:420px;
-  }
-}
+  .sg-hero h1{font-size:38px}
+  .sg-route{margin:8px 0 22px}
+  .sg-section{padding:64px 0}
+  .sg-h2{font-size:30px}
+  .sg-features{grid-template-columns:minmax(0,1fr);gap:18px}
+  .sg-feature{display:grid;grid-template-columns:200px minmax(0,1fr)}
+  .sg-feature-img{aspect-ratio:auto;height:100%}
+  .sg-reviews-grid,.sg-faq-grid,.sg-guide-grid{grid-template-columns:minmax(0,1fr);gap:32px}
+  .sg-guide-aside,.sg-faq-intro{position:static}
+  .sg-final-inner{flex-direction:column;align-items:flex-start}
+  .sg-related{padding-bottom:64px}
 
-/* Read More toggle */
-.rmwr-wrapper { display: inline; }
-.read-link {
-  background: none;
-  border: none;
-  color: #012366;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  font-size: inherit;
-  font-family: inherit;
-  text-decoration: underline;
-  display: inline;
-}
-.read-link:hover { color: #ff5c1a; }
-.read-more-content { display: inline; }
-
-/* Responsive */
-@media(max-width:1100px){
-  .hero{flex-direction:column; padding:30px 20px 60px;}
-  .right{width:100%; min-width:unset;}
-  .form-grid{grid-template-columns:1fr;}
-  .name-grid{grid-template-columns:1fr;}
-  h1,h2{font-size:40px;}
-  .feature{flex-direction:column;}
-}
-
-@media(max-width:768px){
-
-  .stats{
+  body{padding-bottom:76px}
+  .sg-sticky{
     display:flex;
-    flex-direction:row;
-    justify-content:space-between;
     gap:10px;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:30;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+    background:#fff;
+    box-shadow:0 -8px 24px rgba(15,23,42,.12);
+    transition:transform .25s ease;
   }
-
-  .stats > div{
+  .sg-sticky.is-hidden{transform:translateY(110%)}
+  .sg-sticky-quote{
     flex:1;
-    text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    height:52px;
+    border:0;
+    border-radius:12px;
+    background:var(--sg-amber);
+    color:#111827;
+    font:700 16px var(--sg-body);
+    cursor:pointer;
   }
-
-  .stat-num{
-    font-size:22px;
+  .sg-sticky-quote small{margin-left:-4px;font-size:13.5px;font-weight:600}
+  .sg-sticky-call{
+    display:grid;
+    place-items:center;
+    width:52px;
+    height:52px;
+    border:1.5px solid #C7D2FE;
+    border-radius:12px;
+    color:var(--sg-blue);
+    font-size:18px;
   }
-
-  .stat-label{
-    font-size:12px;
-  }
-
-
-   .feature{
-    flex-direction:column;
-  }
-
-  .supply-chain{
-    flex-direction:column-reverse;
-  }
-
-  .feature-img{
-    margin-bottom:20px;
-  }
-
-   .supply-section .feature {
-    display: flex;
-    flex-direction: column-reverse;
-  }
-
-  .supply-section .feature-img {
-    margin-bottom: 20px;
-  }
-
+  .bulk-order-float{display:none}
 }
+@media(max-width:600px){
+  .sg-wrap{padding:0 16px}
+  .sg-hero-grid{padding-top:22px;padding-bottom:36px;row-gap:20px}
+  .sg-eyebrow{margin-bottom:14px;padding:7px 12px;font-size:12px}
+  .sg-hero h1{font-size:30px;margin-bottom:10px}
+  .sg-hero-lead{font-size:15px}
+  .sg-from{margin-top:14px;padding:8px 12px;font-size:13.5px}
+  .sg-from b{font-size:16px}
+  .sg-hero-quote{margin-top:24px;padding:14px 16px}
+  .sg-hero-quote blockquote{font-size:14px}
+  .sg-route{padding:14px 16px;gap:12px}
+  .sg-route-end b{font-size:15px}
+  .sg-hero-points{gap:10px 18px;font-size:14px}
+  .sg-hero-stats{gap:20px;justify-content:space-between}
+  .sg-hero-stats b{font-size:22px}
+  .qw{padding:20px 16px;border-radius:18px}
+  .qw-title{font-size:18px}
+  .qw-tiles{gap:8px}
+  .qw-tile span{min-height:76px;padding:10px 4px;font-size:12.5px}
+  .sg-section{padding:52px 0}
+  .sg-section-head{margin-bottom:32px}
+  .sg-section-head p{font-size:15.5px}
+  .sg-h2{font-size:26px}
+  .sg-feature{grid-template-columns:minmax(0,1fr)}
+  .sg-feature-img{aspect-ratio:16/10;height:auto}
+  .sg-feature-body{padding:20px}
+  .sg-caps{gap:10px}
+  .sg-caps li{grid-template-columns:minmax(0,1fr);row-gap:6px;padding:14px}
+  .sg-caps i{grid-row:auto;width:38px;height:38px;font-size:16px}
+  .sg-steps{grid-template-columns:minmax(0,1fr);gap:22px}
+  .sg-steps::before{top:28px;bottom:28px;left:28px;right:auto;border-top:0;border-left:2px dashed #C7D2FE}
+  .sg-step{display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:16px;padding:0;text-align:left}
+  .sg-step-num{grid-row:1/3;margin:0}
+  .sg-step h3{align-self:end;margin-bottom:4px}
+  .sg-cta-row{flex-direction:column;margin-top:32px}
+  .sg-cta-row .sg-btn{width:100%}
+  .sg-reviews-track{grid-auto-columns:88%}
+  .sg-reviews-track figure{padding:16px}
+  .sg-aside-card{padding:22px}
+  .sg-faq-intro .sg-h2{font-size:24px}
+  .sg-faq-item summary{padding:16px;font-size:15px}
+  .sg-faq-a{padding:0 16px 16px}
+  .sg-final{padding:52px 0}
+  .sg-final h2{font-size:26px}
+  .sg-final-actions{width:100%;flex-direction:column}
+  .sg-final-actions .sg-btn{width:100%}
+  .sg-logos img{height:32px}
+  .sg-marquee-track{gap:40px}
+  .sg-press img{width:200px}
 
+  .sg-modal{max-width:100%;margin:auto 0 0}
+  .sg-modal .qw{border-radius:20px 20px 0 0;max-height:92vh;overflow:auto;padding-top:24px}
+  .sg-modal-close{top:12px;right:12px;box-shadow:none;background:var(--sg-bg)}
+  .sg-modal .qw-head-top{padding-right:40px}
+}
 
 </style>
 </head>
@@ -1212,15 +1770,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Nav Menu -->
     <nav class="header-nav-wrap">
       <ul class="header-nav">
-        <li><a href="https://shipglobal.in/services/">Services</a></li>
-        <li><a href="https://shipglobal.in/track/">Track</a></li>
-        <li><a href="https://shipglobal.in/blog/">Blog</a></li>
-        <li><a href="https://shipglobal.in/about-us/">About</a></li>
+        <li><a href="https://shipglobal.in/">Home</a></li>
+        <li><a href="https://shipglobal.in/tracking/">Tracking</a></li>
+        <li><a href="https://shipglobal.in/about/">About</a></li>
+        <li><a href="https://shipglobal.in/contact/">Contact</a></li>
       </ul>
     </nav>
 
     <!-- CTA Button (desktop only) -->
     <div class="header-cta-wrap">
+      <button type="button" class="header-quote-btn" data-quote-open="header">Get my price</button>
       <a class="header-ship-btn" href="https://v2.app.shipglobal.in/auth/signup" target="_blank" rel="noopener">Ship Now</a>
     </div>
 
@@ -1235,10 +1794,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <!-- Mobile Nav Drawer -->
   <nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
-    <a href="https://shipglobal.in/services/">Services</a>
-    <a href="https://shipglobal.in/track/">Track</a>
-    <a href="https://shipglobal.in/blog/">Blog</a>
-    <a href="https://shipglobal.in/about-us/">About</a>
+    <a href="https://shipglobal.in/">Home</a>
+    <a href="https://shipglobal.in/tracking/">Tracking</a>
+    <a href="https://shipglobal.in/about/">About</a>
+    <a href="https://shipglobal.in/contact/">Contact</a>
     <a class="mobile-ship-btn" href="https://v2.app.shipglobal.in/auth/signup" target="_blank" rel="noopener">Ship Now</a>
   </nav>
 
@@ -1251,636 +1810,271 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </a>
 </div>
 
+<main>
+
 <!-- HERO -->
-<main class="hero">
-  <section class="left">
-    <h1><span><?php echo $origin; ?></span> to <span><?php echo $destination; ?></span></h1>
-    <h2>Courier Shipment</h2>
+<section class="sg-hero">
+  <div class="sg-hero-grid-bg" aria-hidden="true"></div>
+  <div class="sg-wrap sg-hero-grid">
+    <div class="sg-hero-head">
+      <p class="sg-eyebrow"><i class="fas fa-plane-departure"></i> International courier from <?php echo $origin; ?></p>
+      <h1><?php echo $origin; ?> to <?php echo $destination; ?> <span>Courier Shipment</span></h1>
+      <p class="sg-hero-lead">Doorstep pickup in <?php echo $origin; ?>, export paperwork support and tracked delivery to <?php echo $destination; ?>. Ship packets from just 50 g, no bulk needed.</p>
+      <p class="sg-from" data-sg-from hidden><i class="fas fa-tag"></i> Rates to <?php echo $destination; ?> from <b>₹<span data-sg-from-price></span></b> <span class="sg-from-note">all-inclusive</span></p>
+    </div>
 
-    <div class="subhead">Start shipping as low as 50 gram packets</div>
-    <p class="desc">
-      Affordable, reliable, and built for <span>Indian businesses &amp; consumers</span>
-    </p>
+    <div class="sg-hero-form" id="form">
+      <?php render_quote_wizard('hero', $origin, $destination); ?>
+    </div>
 
-    <div class="stats">
-      <div>
-        <div class="stat-num">25,000+</div>
-        <div class="stat-label">Exporters</div>
+    <div class="sg-hero-proof">
+      <div class="sg-route" aria-hidden="true">
+        <div class="sg-route-end"><b><?php echo $origin; ?></b><small>India</small></div>
+        <div class="sg-route-line"><i class="fas fa-plane"></i></div>
+        <div class="sg-route-end sg-route-to"><b><?php echo $destination; ?></b><small>Destination</small></div>
       </div>
-      <div>
-        <div class="stat-num">1 Crore+</div>
-        <div class="stat-label">Orders Shipped</div>
+      <ul class="sg-hero-points">
+        <li><i class="fas fa-truck-fast"></i> Doorstep pickup</li>
+        <li><i class="fas fa-file-shield"></i> Customs &amp; documentation support</li>
+        <li><i class="fas fa-location-crosshairs"></i> Shipment tracking</li>
+      </ul>
+      <div class="sg-hero-stats">
+        <div><b>25,000+</b><span>Exporters</span></div>
+        <div><b>1 Crore+</b><span>Orders shipped</span></div>
+        <div><b>220+</b><span>Countries</span></div>
       </div>
-      <div>
-        <div class="stat-num">220+</div>
-        <div class="stat-label">Countries</div>
-      </div>
-    </div>
-  </section>
-
-  <aside class="right">
-    <div class="card">
-      <h3>Explore ShipGlobal <span>Pricing</span></h3>
-
-      <!-- ZOHO LEAD FORM (organic) -->
-      
-	  <form action='https://flow.zoho.in/60030990815/flow/webhook/incoming?zapikey=1001.13056985b9392ffd01f82ea7b29ecd8c.274c0a48499a6dfba88a38d975d9ad65&isdebug=false'
-    name='form' id='form' method='POST' target='zohoWebhookFrame' accept-charset='UTF-8' enctype='multipart/form-data'>
-
-  <input type="hidden" name="zf_referrer_name" value="">
-  <input type="hidden" name="zf_redirect_url" value="">
-  <input type="hidden" name="zc_gad" value="">
-
-  <div class="form-grid">
-
-    <!-- Row 1 -->
-    <div class="field">
-      <label>From <em>*</em></label>
-      <input type="text" name="From" maxlength="255" fieldType="1" placeholder="Pickup City" required>
-    </div>
-
-    <div class="field">
-      <label>To <em>*</em></label>
-      <select name="To" required>
-        <option value="-Select-">Destination Country</option>
-        <option value="Åland Islands">Åland Islands</option>
-    <option value="Afghanistan">Afghanistan</option>
-    <option value="Akrotiri">Akrotiri</option>
-    <option value="Albania">Albania</option>
-    <option value="Algeria">Algeria</option>
-    <option value="American Samoa">American Samoa</option>
-    <option value="Andorra">Andorra</option>
-    <option value="Angola">Angola</option>
-    <option value="Anguilla">Anguilla</option>
-    <option value="Antarctica">Antarctica</option>
-    <option value="Antigua and Barbuda">Antigua and Barbuda</option>
-    <option value="Argentina">Argentina</option>
-    <option value="Armenia">Armenia</option>
-    <option value="Aruba">Aruba</option>
-    <option value="Ashmore and Cartier Islands">Ashmore and Cartier Islands</option>
-    <option value="Australia">Australia</option>
-    <option value="Austria">Austria</option>
-    <option value="Azerbaijan">Azerbaijan</option>
-    <option value="Bahrain">Bahrain</option>
-    <option value="Bangladesh">Bangladesh</option>
-    <option value="Barbados">Barbados</option>
-    <option value="Bassas Da India">Bassas Da India</option>
-    <option value="Belarus">Belarus</option>
-    <option value="Belgium">Belgium</option>
-    <option value="Belize">Belize</option>
-    <option value="Benin">Benin</option>
-    <option value="Bermuda">Bermuda</option>
-    <option value="Bhutan">Bhutan</option>
-    <option value="Bolivia">Bolivia</option>
-    <option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
-    <option value="Botswana">Botswana</option>
-    <option value="Bouvet Island">Bouvet Island</option>
-    <option value="Brazil">Brazil</option>
-    <option value="British Indian Ocean Territory">British Indian Ocean Territory</option>
-    <option value="British Virgin Islands">British Virgin Islands</option>
-    <option value="Brunei">Brunei</option>
-    <option value="Bulgaria">Bulgaria</option>
-    <option value="Burkina Faso">Burkina Faso</option>
-    <option value="Burma">Burma</option>
-    <option value="Burundi">Burundi</option>
-    <option value="Cambodia">Cambodia</option>
-    <option value="Cameroon">Cameroon</option>
-    <option value="Canada">Canada</option>
-    <option value="Cape Verde">Cape Verde</option>
-    <option value="Caribbean Netherlands">Caribbean Netherlands</option>
-    <option value="Cayman Islands">Cayman Islands</option>
-    <option value="Central African Republic">Central African Republic</option>
-    <option value="Chad">Chad</option>
-    <option value="Chile">Chile</option>
-    <option value="China">China</option>
-    <option value="Christmas Island">Christmas Island</option>
-    <option value="Clipperton Island">Clipperton Island</option>
-    <option value="Cocos (Keeling) Islands">Cocos (Keeling) Islands</option>
-    <option value="Colombia">Colombia</option>
-    <option value="Comoros">Comoros</option>
-    <option value="Cook Islands">Cook Islands</option>
-    <option value="Coral Sea Islands">Coral Sea Islands</option>
-    <option value="Costa Rica">Costa Rica</option>
-    <option value="Cote D&#39;Ivoire">Cote D'Ivoire</option>
-    <option value="Croatia">Croatia</option>
-    <option value="Cuba">Cuba</option>
-    <option value="Curaçao">Curaçao</option>
-    <option value="Cyprus">Cyprus</option>
-    <option value="Czech Republic">Czech Republic</option>
-    <option value="Democratic Republic of the Congo">Democratic Republic of the Congo</option>
-    <option value="Denmark">Denmark</option>
-    <option value="Dhekelia">Dhekelia</option>
-    <option value="Djibouti">Djibouti</option>
-    <option value="Dominica">Dominica</option>
-    <option value="Dominican Republic">Dominican Republic</option>
-    <option value="Ecuador">Ecuador</option>
-    <option value="Egypt">Egypt</option>
-    <option value="El Salvador">El Salvador</option>
-    <option value="Equatorial Guinea">Equatorial Guinea</option>
-    <option value="Eritrea">Eritrea</option>
-    <option value="Estonia">Estonia</option>
-    <option value="Ethiopia">Ethiopia</option>
-    <option value="Europa Island">Europa Island</option>
-    <option value="Falkland Islands (Islas Malvinas)">Falkland Islands (Islas Malvinas)</option>
-    <option value="Faroe Islands">Faroe Islands</option>
-    <option value="Federated States of Micronesia">Federated States of Micronesia</option>
-    <option value="Fiji">Fiji</option>
-    <option value="Finland">Finland</option>
-    <option value="France">France</option>
-    <option value="French Guiana">French Guiana</option>
-    <option value="French Polynesia">French Polynesia</option>
-    <option value="French Southern and Antarctic Lands">French Southern and Antarctic Lands</option>
-    <option value="Gabon">Gabon</option>
-    <option value="Gaza Strip">Gaza Strip</option>
-    <option value="Georgia">Georgia</option>
-    <option value="Germany">Germany</option>
-    <option value="Ghana">Ghana</option>
-    <option value="Gibraltar">Gibraltar</option>
-    <option value="Glorioso Islands">Glorioso Islands</option>
-    <option value="Greece">Greece</option>
-    <option value="Greenland">Greenland</option>
-    <option value="Grenada">Grenada</option>
-    <option value="Guadeloupe">Guadeloupe</option>
-    <option value="Guam">Guam</option>
-    <option value="Guatemala">Guatemala</option>
-    <option value="Guernsey">Guernsey</option>
-    <option value="Guinea">Guinea</option>
-    <option value="Guinea-bissau">Guinea-bissau</option>
-    <option value="Guyana">Guyana</option>
-    <option value="Haiti">Haiti</option>
-    <option value="Heard Island and Mcdonald Islands">Heard Island and Mcdonald Islands</option>
-    <option value="Holy See (Vatican City)">Holy See (Vatican City)</option>
-    <option value="Honduras">Honduras</option>
-    <option value="Hong Kong">Hong Kong</option>
-    <option value="Hungary">Hungary</option>
-    <option value="Iceland">Iceland</option>
-    <option value="India">India</option>
-    <option value="Indonesia">Indonesia</option>
-    <option value="Iran">Iran</option>
-    <option value="Iraq">Iraq</option>
-    <option value="Ireland">Ireland</option>
-    <option value="Isle of Man">Isle of Man</option>
-    <option value="Israel">Israel</option>
-    <option value="Italy">Italy</option>
-    <option value="Jamaica">Jamaica</option>
-    <option value="Jan Mayen">Jan Mayen</option>
-    <option value="Japan">Japan</option>
-    <option value="Jersey">Jersey</option>
-    <option value="Jordan">Jordan</option>
-    <option value="Juan De Nova Island">Juan De Nova Island</option>
-    <option value="Kazakhstan">Kazakhstan</option>
-    <option value="Kenya">Kenya</option>
-    <option value="Kiribati">Kiribati</option>
-    <option value="Kosovo">Kosovo</option>
-    <option value="Kuwait">Kuwait</option>
-    <option value="Kyrgyzstan">Kyrgyzstan</option>
-    <option value="Laos">Laos</option>
-    <option value="Latvia">Latvia</option>
-    <option value="Lebanon">Lebanon</option>
-    <option value="Lesotho">Lesotho</option>
-    <option value="Liberia">Liberia</option>
-    <option value="Libya">Libya</option>
-    <option value="Liechtenstein">Liechtenstein</option>
-    <option value="Lithuania">Lithuania</option>
-    <option value="Luxembourg">Luxembourg</option>
-    <option value="Macau">Macau</option>
-    <option value="Macedonia">Macedonia</option>
-    <option value="Madagascar">Madagascar</option>
-    <option value="Malawi">Malawi</option>
-    <option value="Malaysia">Malaysia</option>
-    <option value="Maldives">Maldives</option>
-    <option value="Mali">Mali</option>
-    <option value="Malta">Malta</option>
-    <option value="Marshall Islands">Marshall Islands</option>
-    <option value="Martinique">Martinique</option>
-    <option value="Mauritania">Mauritania</option>
-    <option value="Mauritius">Mauritius</option>
-    <option value="Mayotte">Mayotte</option>
-    <option value="Mexico">Mexico</option>
-    <option value="Moldova">Moldova</option>
-    <option value="Monaco">Monaco</option>
-    <option value="Mongolia">Mongolia</option>
-    <option value="Montenegro">Montenegro</option>
-    <option value="Montserrat">Montserrat</option>
-    <option value="Morocco">Morocco</option>
-    <option value="Mozambique">Mozambique</option>
-    <option value="Myanmar">Myanmar</option>
-    <option value="Namibia">Namibia</option>
-    <option value="Nauru">Nauru</option>
-    <option value="Navassa Island">Navassa Island</option>
-    <option value="Nepal">Nepal</option>
-    <option value="Netherlands">Netherlands</option>
-    <option value="Netherlands Antilles">Netherlands Antilles</option>
-    <option value="New Caledonia">New Caledonia</option>
-    <option value="New Zealand">New Zealand</option>
-    <option value="Nicaragua">Nicaragua</option>
-    <option value="Niger">Niger</option>
-    <option value="Nigeria">Nigeria</option>
-    <option value="Niue">Niue</option>
-    <option value="Norfolk Island">Norfolk Island</option>
-    <option value="North Korea">North Korea</option>
-    <option value="Northern Mariana Islands">Northern Mariana Islands</option>
-    <option value="Norway">Norway</option>
-    <option value="Oman">Oman</option>
-    <option value="Pakistan">Pakistan</option>
-    <option value="Palau">Palau</option>
-    <option value="Palestine">Palestine</option>
-    <option value="Panama">Panama</option>
-    <option value="Papua New Guinea">Papua New Guinea</option>
-    <option value="Paracel Islands">Paracel Islands</option>
-    <option value="Paraguay">Paraguay</option>
-    <option value="Peru">Peru</option>
-    <option value="Philippines">Philippines</option>
-    <option value="Pitcairn Islands">Pitcairn Islands</option>
-    <option value="Poland">Poland</option>
-    <option value="Portugal">Portugal</option>
-    <option value="Puerto Rico">Puerto Rico</option>
-    <option value="Qatar">Qatar</option>
-    <option value="Republic of the Congo">Republic of the Congo</option>
-    <option value="Reunion">Reunion</option>
-    <option value="Romania">Romania</option>
-    <option value="Russia">Russia</option>
-    <option value="Rwanda">Rwanda</option>
-    <option value="Saint Barthélemy">Saint Barthélemy</option>
-    <option value="Saint Helena">Saint Helena</option>
-    <option value="Saint Kitts and Nevis">Saint Kitts and Nevis</option>
-    <option value="Saint Lucia">Saint Lucia</option>
-    <option value="Saint Martin">Saint Martin</option>
-    <option value="Saint Pierre and Miquelon">Saint Pierre and Miquelon</option>
-    <option value="Saint Vincent and the Grenadines">Saint Vincent and the Grenadines</option>
-    <option value="Samoa">Samoa</option>
-    <option value="San Marino">San Marino</option>
-    <option value="Sao Tome and Principe">Sao Tome and Principe</option>
-    <option value="Saudi Arabia">Saudi Arabia</option>
-    <option value="Senegal">Senegal</option>
-    <option value="Serbia">Serbia</option>
-    <option value="Seychelles">Seychelles</option>
-    <option value="Sierra Leone">Sierra Leone</option>
-    <option value="Singapore">Singapore</option>
-    <option value="Sint Maarten">Sint Maarten</option>
-    <option value="Slovakia">Slovakia</option>
-    <option value="Slovenia">Slovenia</option>
-    <option value="Solomon Islands">Solomon Islands</option>
-    <option value="Somalia">Somalia</option>
-    <option value="South Africa">South Africa</option>
-    <option value="South Georgia and the South Sandwich Islands">South Georgia and the South Sandwich Islands</option>
-    <option value="South Korea">South Korea</option>
-    <option value="South Sudan">South Sudan</option>
-    <option value="Spain">Spain</option>
-    <option value="Spratly Islands">Spratly Islands</option>
-    <option value="Sri Lanka">Sri Lanka</option>
-    <option value="Sudan">Sudan</option>
-    <option value="Suriname">Suriname</option>
-    <option value="Svalbard">Svalbard</option>
-    <option value="Swaziland">Swaziland</option>
-    <option value="Sweden">Sweden</option>
-    <option value="Switzerland">Switzerland</option>
-    <option value="Syria">Syria</option>
-    <option value="Taiwan">Taiwan</option>
-    <option value="Tajikistan">Tajikistan</option>
-    <option value="Tanzania">Tanzania</option>
-    <option value="Thailand">Thailand</option>
-    <option value="The Bahamas">The Bahamas</option>
-    <option value="The Gambia">The Gambia</option>
-    <option value="Timor-leste">Timor-leste</option>
-    <option value="Togo">Togo</option>
-    <option value="Tokelau">Tokelau</option>
-    <option value="Tonga">Tonga</option>
-    <option value="Trinidad and Tobago">Trinidad and Tobago</option>
-    <option value="Tromelin Island">Tromelin Island</option>
-    <option value="Tunisia">Tunisia</option>
-    <option value="Turkey">Turkey</option>
-    <option value="Turkmenistan">Turkmenistan</option>
-    <option value="Turks and Caicos Islands">Turks and Caicos Islands</option>
-    <option value="Tuvalu">Tuvalu</option>
-    <option value="Uganda">Uganda</option>
-    <option value="Ukraine">Ukraine</option>
-    <option value="United Arab Emirates">United Arab Emirates</option>
-    <option value="United Kingdom">United Kingdom</option>
-    <option value="United States">United States</option>
-    <option value="Uruguay">Uruguay</option>
-    <option value="Uzbekistan">Uzbekistan</option>
-    <option value="Vanuatu">Vanuatu</option>
-    <option value="Venezuela">Venezuela</option>
-    <option value="Vietnam">Vietnam</option>
-    <option value="Virgin Islands">Virgin Islands</option>
-    <option value="Wake Island">Wake Island</option>
-    <option value="Wallis and Futuna">Wallis and Futuna</option>
-    <option value="West Bank">West Bank</option>
-    <option value="Western Sahara">Western Sahara</option>
-    <option value="Yemen">Yemen</option>
-    <option value="Zambia">Zambia</option>
-      <option value="Zimbabwe">Zimbabwe</option>
-      </select>
-    </div>
-
-    <!-- Row 2 -->
-    <div class="field">
-      <label>Packet Weight <em>*</em></label>
-      <select name="Packet_Weight" required>
-        <option value="-Select-">-Select-</option>
-        <option value="50-100 gms">50-100 gms</option>
-        <option value="100-250 gms">100-250 gms</option>
-        <option value="250-500 gms">250-500 gms</option>
-        <option value="500-1000 gms">500-1000 gms</option>
-        <option value="1-2 Kg">1-2 Kg</option>
-        <option value="2-5 Kg">2-5 Kg</option>
-        <option value="5-10 Kg">5-10 Kg</option>
-        <option value="10Kg+">10Kg+</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Shipment Frequency <em>*</em></label>
-      <input type="text" name="Shipment_Frequency" maxlength="18" placeholder="No. Of Shipments Per Month" required>
-    </div>
-
-    <!-- Row 3 -->
-    <div class="field">
-      <label>Product Type <em>*</em></label>
-      <select name="Product_Type" required>
-        <option value="-Select-">-Select-</option>
-        <option value="Agricultural Item">Agricultural Item</option>
-        <option value="Automotive Parts">Automotive Parts</option>
-        <option value="Books">Books</option>
-        <option value="Capsules">Capsules</option>
-        <option value="Clothes">Clothes</option>
-        <option value="Documents">Documents</option>
-        <option value="Electronics">Electronics</option>
-        <option value="Fashion Accessories">Fashion Accessories</option>
-        <option value="Flammable Item">Flammable Item</option>
-        <option value="Food products">Food products</option>
-        <option value="Groceries">Groceries</option>
-        <option value="Hair &amp; Skin Care">Hair &amp; Skin Care</option>
-        <option value="Handicraft">Handicraft</option>
-        <option value="Herbal Powder">Herbal Powder</option>
-        <option value="Herbal Products">Herbal Products</option>
-        <option value="Imitation Jewellery">Imitation Jewellery</option>
-        <option value="Leather products">Leather products</option>
-        <option value="Medical Equipment">Medical Equipment</option>
-        <option value="Oil">Oil</option>
-        <option value="Paper product">Paper product</option>
-        <option value="Perfumes">Perfumes</option>
-        <option value="Photographs &amp; Prints">Photographs &amp; Prints</option>
-        <option value="Powder">Powder</option>
-        <option value="Shoes">Shoes</option>
-        <option value="Spices">Spices</option>
-        <option value="Sports Goods">Sports Goods</option>
-        <option value="Tea">Tea</option>
-        <option value="Textiles">Textiles</option>
-        <option value="Utensils">Utensils</option>
-        <option value="Others">Others</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Shipment Type <em>*</em></label>
-      <select name="Shipment_Type" required>
-        <option value="-Select-">-Select-</option>
-        <option value="eCommerce">eCommerce</option>
-        <option value="D2C">D2C</option>
-        <option value="Courier Aggregator">Courier Aggregator</option>
-        <option value="Personal">Personal</option>
-        <option value="B2B">B2B</option>
-      </select>
-    </div>
-
-    <!-- Row 4 -->
-    <div class="field">
-      <label>Email <em>*</em></label>
-      <input type="email" name="Email" maxlength="255" fieldType="9" required>
-    </div>
-
-    <div class="field">
-      <label>Phone <em>*</em></label>
-      <input type="text"
-        compname="PhoneNumber"
-        name="Phone"
-        phoneFormat="1"
-        isCountryCodeEnabled="false"
-        maxlength="20"
-        fieldType="11"
-        id="international_PhoneNumber_countrycode"
-        required>
-    </div>
-
-    <!-- Row 5 -->
-    <div class="field full">
-      <label>Name <em>*</em></label>
-      <div class="name-grid">
-        <input type="text" name="First_Name" maxlength="255" fieldType="7" placeholder="First Name" required>
-        <input type="text" name="Last_Name" maxlength="255" fieldType="7" placeholder="Last Name" required>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="btn-wrapper">
-    <button type="submit" class="submit-btn">Submit</button>
-  </div>
-
-</form>
-
-  <div id="form-success" style="display:none; text-align:center; padding:14px 18px; margin-top:16px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px;">
-    <p style="color:#1D4ED8; font-size:15px; font-weight:600; margin:0;">Your form has been submitted! Someone will get in touch with you shortly.</p>
-  </div>
-  <div id="form-error" style="display:none; text-align:center; padding:14px 18px; margin-top:16px; background:#FEF2F2; border:1px solid #FECACA; border-radius:8px;">
-    <p style="color:#DC2626; font-size:15px; font-weight:600; margin:0;">Something went wrong. Please try again.</p>
-  </div>
-
-    </div>
-  </aside>
-</main>
-
-<!-- MARKETPLACE SLIDER -->
-<section class="marketplaces">
-  <h3>We help our partners grow globally on</h3>
-  <div class="logo-slider">
-    <div class="logo-track">
-      <!-- 8 logos -->
-      <img src="https://shipglobal.in/wp-content/uploads/2025/04/Walmart-Marketplace-Logo-Stacked-Color-RGB.webp" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/shopify.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/noon.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/myshopeurope.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/joom.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/etsy.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/ebay.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/amazon.png" alt="Marketplace">
-
-      <!-- duplicate for seamless loop -->
-      <img src="https://shipglobal.in/wp-content/uploads/2025/04/Walmart-Marketplace-Logo-Stacked-Color-RGB.webp" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/shopify.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/noon.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/myshopeurope.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/joom.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/etsy.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/ebay.png" alt="Marketplace">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/12/amazon.png" alt="Marketplace">
+      <figure class="sg-hero-quote">
+        <blockquote>“ShipGlobal's tracking system works seamlessly and they offer reliable door-to-door delivery.”</blockquote>
+        <figcaption><span class="sg-hero-quote-avatar" aria-hidden="true">MK</span><span><b>Mayank Kapoor</b><br>Owner, Aariv Impex, Gurugram</span></figcaption>
+      </figure>
     </div>
   </div>
 </section>
 
-<!-- Updated html code -->
-<section class="updatedhtml-section">
-  <div class="updatedhtml-container">
-    <?php echo $Updatedhtml; ?>
+<!-- MARKETPLACES -->
+<section class="sg-logos" aria-label="Marketplaces">
+  <p>Helping our partners grow globally on</p>
+  <div class="sg-marquee">
+    <div class="sg-marquee-track">
+<?php
+$marketplaces = [
+  'https://shipglobal.in/wp-content/uploads/2025/04/Walmart-Marketplace-Logo-Stacked-Color-RGB.webp' => 'Walmart Marketplace',
+  'https://shipglobal.in/wp-content/uploads/2025/12/shopify.png' => 'Shopify',
+  'https://shipglobal.in/wp-content/uploads/2025/12/noon.png' => 'noon',
+  'https://shipglobal.in/wp-content/uploads/2025/12/myshopeurope.png' => 'MyShopEurope',
+  'https://shipglobal.in/wp-content/uploads/2025/12/joom.png' => 'Joom',
+  'https://shipglobal.in/wp-content/uploads/2025/12/etsy.png' => 'Etsy',
+  'https://shipglobal.in/wp-content/uploads/2025/12/ebay.png' => 'eBay',
+  'https://shipglobal.in/wp-content/uploads/2025/12/amazon.png' => 'Amazon',
+];
+// Rendered twice for a seamless loop; the copy is hidden from screen readers.
+foreach ([false, true] as $copy) {
+  foreach ($marketplaces as $src => $alt) {
+    echo '      <img src="' . $src . '" alt="' . ($copy ? '' : $alt) . '" loading="lazy"' . ($copy ? ' aria-hidden="true"' : '') . ">\n";
+  }
+}
+?>
+    </div>
   </div>
 </section>
 
-<!-- Updated html code -->
-<section class="Relposts-section">
-  <div class="Relposts-container">
+<!-- WHY SHIPGLOBAL -->
+<section class="sg-section">
+  <div class="sg-wrap">
+    <div class="sg-section-head">
+      <p class="sg-kicker">Why ShipGlobal</p>
+      <h2 class="sg-h2">Everything you need to ship from <?php echo $origin; ?> to <?php echo $destination; ?></h2>
+      <p>Affordable, reliable, and built for Indian businesses &amp; consumers, from pickup to final delivery.</p>
+    </div>
+
+    <div class="sg-features">
+      <article class="sg-feature">
+        <div class="sg-feature-img"><img src="https://shipglobal.in/wp-content/uploads/2025/06/Benefit-1.webp" alt="Doorstep pickup" loading="lazy"></div>
+        <div class="sg-feature-body">
+          <h3>Door-to-door delivery</h3>
+          <p>No more “not serviceable” excuses. We pick up from your doorstep in <?php echo $origin; ?> and deliver straight to your buyer in <?php echo $destination; ?>.</p>
+          <button type="button" class="sg-link" data-quote-open="feature_pickup">Schedule my pickup <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </article>
+      <article class="sg-feature">
+        <div class="sg-feature-img"><img src="https://shipglobal.in/wp-content/uploads/2025/06/Benefits-4.webp" alt="eCommerce shipping" loading="lazy"></div>
+        <div class="sg-feature-body">
+          <h3>Dedicated supply chain for eCommerce</h3>
+          <p>Seamless marketplace integration, zero platform fees and shipping from just 50 g. No need to wait for bulk volumes to sell in <?php echo $destination; ?>.</p>
+          <button type="button" class="sg-link" data-quote-open="feature_ecom">Grow my eCommerce business <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </article>
+      <article class="sg-feature">
+        <div class="sg-feature-img"><img src="https://shipglobal.in/wp-content/uploads/2025/06/Image-2-480x474.webp" alt="Export documentation support" loading="lazy"></div>
+        <div class="sg-feature-body">
+          <h3>Documentation &amp; customs support</h3>
+          <p>Our Export Experts walk you through exactly what you need, so your parcel doesn't get stuck at <?php echo $destination; ?> customs.</p>
+          <button type="button" class="sg-link" data-quote-open="feature_docs">Simplify my export documentation <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </article>
+    </div>
+
+    <ul class="sg-caps">
+      <li><i class="fas fa-weight-hanging"></i><b>From 50 g</b><span>Ship single packets</span></li>
+      <li><i class="fas fa-store"></i><b>Zero platform fees</b><span>Pay only for shipping</span></li>
+      <li><i class="fas fa-location-crosshairs"></i><b>Track every parcel</b><span>Pickup to delivery</span></li>
+      <li><i class="fas fa-headset"></i><b>Export experts</b><span>Help at every step</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="sg-section sg-section-alt">
+  <div class="sg-wrap">
+    <div class="sg-section-head">
+      <p class="sg-kicker">How it works</p>
+      <h2 class="sg-h2">Your product deserves a global stage</h2>
+      <p>All it takes is a few minutes to kick-start your <?php echo $origin; ?> to <?php echo $destination; ?> export journey. Our dashboard guides you from signup to booking your first shipment.</p>
+    </div>
+    <ol class="sg-steps">
+      <li class="sg-step">
+        <span class="sg-step-num">1</span>
+        <h3>Create your order</h3>
+        <p>Enter your shipment details in a few clicks.</p>
+      </li>
+      <li class="sg-step">
+        <span class="sg-step-num">2</span>
+        <h3>Compare rates</h3>
+        <p>Choose the service that fits your speed and budget.</p>
+      </li>
+      <li class="sg-step">
+        <span class="sg-step-num">3</span>
+        <h3>Book your pickup</h3>
+        <p>Ship confidently and leave the rest to us.</p>
+      </li>
+    </ol>
+    <div class="sg-cta-row">
+      <button type="button" class="sg-btn sg-btn-primary" data-quote-open="steps">Get my price <i class="fas fa-arrow-right"></i></button>
+      <a class="sg-btn sg-btn-outline" href="<?php echo $signupUrl; ?>" target="_blank" rel="noopener">Create free account</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sg-section sg-reviews">
+  <div class="sg-wrap sg-reviews-grid">
+    <div class="sg-reviews-copy">
+      <p class="sg-kicker">Customer stories</p>
+      <h2 class="sg-h2">1 Crore+ successful shipments</h2>
+      <p>From mothers sending love abroad to new sellers starting their journey, ShipGlobal is for everyone.</p>
+      <div class="sg-reviews-nav">
+        <button type="button" data-reviews="-1" aria-label="Previous review"><i class="fas fa-chevron-left"></i></button>
+        <button type="button" data-reviews="1" aria-label="Next review"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+    <div class="sg-reviews-track" id="sg-reviews" tabindex="0" aria-label="Customer reviews">
+      <figure><img src="https://shipglobal.in/wp-content/uploads/2025/06/Mayak.webp" alt="Customer review" loading="lazy"></figure>
+      <figure><img src="https://shipglobal.in/wp-content/uploads/2025/05/review-3-1.png" alt="Customer review" loading="lazy"></figure>
+      <figure><img src="https://shipglobal.in/wp-content/uploads/2025/05/review-2-1.png" alt="Customer review" loading="lazy"></figure>
+      <figure><img src="https://shipglobal.in/wp-content/uploads/2025/06/Seema-ji.webp" alt="Customer review" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDE (page content) -->
+<section class="sg-section sg-section-alt sg-guide">
+  <div class="sg-wrap sg-guide-grid">
+    <article class="sg-article">
+      <p class="sg-kicker">Shipping guide</p>
+      <h2 class="sg-h2"><?php echo $origin; ?> to <?php echo $destination; ?> courier guide</h2>
+      <div class="sg-prose">
+        <?php echo $Updatedhtml; ?>
+      </div>
+    </article>
+    <aside class="sg-guide-aside">
+      <div class="sg-aside-card">
+        <span class="sg-aside-icon"><i class="fas fa-calculator"></i></span>
+        <h3>What will it cost to ship to <?php echo $destination; ?>?</h3>
+        <p>Tell us what you're sending and how much it weighs. It takes 30 seconds.</p>
+        <p class="sg-aside-from" data-sg-from hidden>Rates from <b>₹<span data-sg-from-price></span></b>, all-inclusive</p>
+        <button type="button" class="sg-btn sg-btn-primary" data-quote-open="guide">Get my price <i class="fas fa-arrow-right"></i></button>
+        <a class="sg-aside-call" href="tel:<?php echo $phoneTel; ?>"><i class="fas fa-phone"></i> or call <?php echo $phoneText; ?></a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sg-section sg-faq">
+  <div class="sg-wrap sg-faq-grid">
+    <div class="sg-faq-intro">
+      <p class="sg-kicker">FAQ</p>
+      <h2 class="sg-h2"><?php echo $faqHeading; ?></h2>
+      <p>Can't find your answer? Our export experts are a call away.</p>
+      <a class="sg-btn sg-btn-outline" href="tel:<?php echo $phoneTel; ?>"><i class="fas fa-phone"></i> <?php echo $phoneText; ?></a>
+    </div>
+    <div class="sg-faq-list">
+<?php if ($faqItems): ?>
+<?php foreach ($faqItems as $i => $item): ?>
+      <details class="sg-faq-item"<?php echo $i === 0 ? ' open' : ''; ?>>
+        <summary><?php echo $item['q']; ?><i class="fas fa-plus" aria-hidden="true"></i></summary>
+        <div class="sg-faq-a"><?php echo $item['a']; ?></div>
+      </details>
+<?php endforeach; ?>
+<?php else: ?>
+      <div class="sg-prose"><?php echo $FAQ; ?></div>
+<?php endif; ?>
+    </div>
+  </div>
+</section>
+
+<!-- RELATED ROUTES -->
+<?php if (trim($Relposts) !== ''): ?>
+<section class="sg-related">
+  <div class="sg-wrap">
     <?php echo $Relposts; ?>
-    <?php echo $FAQ; ?>
   </div>
 </section>
+<?php endif; ?>
 
-<!-- SERVICES -->
-<section class="section">
-  <div class="feature">
-    <div class="feature-img">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/06/Benefit-1.webp" alt="Door-to-Door Delivery">
-    </div>
-    <div class="feature-text">
-      <h3>Door-to-Door Delivery</h3>
-      <p>No more “not serviceable” excuses. Whether you’re in Mumbai, Guwahati, or a small town in Kerala, we pick up from your doorstep and deliver straight to your <?php echo $destination; ?> buyer.</p>
-      <p><strong>Fully door-to-door from <?php echo $origin; ?> to <?php echo $destination; ?>. Zero hassle.</strong></p>
-      <p>We’ve made the courier come to YOU, not the other way around.</p>
-      <a href="#">Schedule my Pick-up</a>
+<!-- PRESS -->
+<section class="sg-section sg-press">
+  <div class="sg-wrap">
+    <div class="sg-section-head">
+      <p class="sg-kicker">Press highlights</p>
+      <h2 class="sg-h2">Spotlighting our journey across media</h2>
+      <p>How we're making an impact and leading innovation in cross-border shipping.</p>
     </div>
   </div>
-</section>
-
-<section class="section alt supply-section">
-  <div class="feature">
-    <div class="feature-text">
-      <h3>Dedicated Supply Chain for eCommerce</h3>
-      <p>We’re here to take the shipping load off your shoulders with seamless marketplace integration, zero platform fees, and shipping that starts at just 50gm.</p>
-      <p>No need to wait for bulk or large volumes. Just ship your eCommerce packets to <?php echo $destination; ?> and scale your business without any hassle.</p>
-      <p><strong>Go global. Stay eCom-first.</strong></p>
-      <a href="#">Grow my eCommerce business</a>
-    </div>
-    <div class="feature-img">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/06/Benefits-4.webp" alt="eCommerce Shipping">
+  <div class="sg-marquee sg-press-marquee">
+    <div class="sg-marquee-track">
+<?php
+$press = [
+  'https://shipglobal.in/wp-content/uploads/2025/05/5-3.webp',
+  'https://shipglobal.in/wp-content/uploads/2025/05/5-2.webp',
+  'https://shipglobal.in/wp-content/uploads/2025/05/5-1.webp',
+  'https://shipglobal.in/wp-content/uploads/2025/05/5.webp',
+];
+foreach ([false, true] as $copy) {
+  foreach ($press as $src) {
+    echo '      <img src="' . $src . '" alt="' . ($copy ? '' : 'Press coverage') . '" loading="lazy"' . ($copy ? ' aria-hidden="true"' : '') . ">\n";
+  }
+}
+?>
     </div>
   </div>
 </section>
 
-<section class="section">
-  <div class="feature">
-    <div class="feature-img">
-      <img src="https://shipglobal.in/wp-content/uploads/2025/06/Image-2-480x474.webp" alt="Documentation Support">
+<!-- FINAL CTA -->
+<section class="sg-final">
+  <div class="sg-wrap sg-final-inner">
+    <div>
+      <h2>Ready to ship from <?php echo $origin; ?> to <?php echo $destination; ?>?</h2>
+      <p>Get your price in 30 seconds. Doorstep pickup, customs support and tracking included.</p>
     </div>
-    <div class="feature-text">
-      <h3>Easy Documentation and Customs Clearance Support</h3>
-      <p>Get your export paperwork done right as we walk you through exactly what you need. Our Export Experts simplify the process for you, supporting you every step of the way.</p>
-      <p>No more “Oops, wrong invoice format” or “Your parcel’s stuck at <?php echo $destination; ?> customs.”</p>
-      <p>Save time, skip queues, and focus on your business while we handle the messy part.</p>
-      <a href="#">Simplify my export documentation</a>
+    <div class="sg-final-actions">
+      <button type="button" class="sg-btn sg-btn-primary" data-quote-open="final">Get my price <i class="fas fa-arrow-right"></i></button>
+      <a class="sg-btn sg-btn-light" href="tel:<?php echo $phoneTel; ?>"><i class="fas fa-phone"></i> Talk to an expert</a>
     </div>
   </div>
 </section>
 
-<!-- STEPS -->
-<section class="steps">
-  <h3>Your product deserves a 'Global Stage'</h3>
-  <p>
-    All it takes is a few minutes and 3 easy steps to kick-start your <?php echo $origin; ?> to <?php echo $destination; ?> export journey.
-    Our user-friendly dashboard guides you seamlessly from signup to booking your first shipment.
-  </p>
-
-  <div class="step-grid">
-    <div class="step-card">
-      <h4>STEP ONE</h4>
-      <p>Create your order by entering your details.</p>
-    </div>
-    <div class="step-card">
-      <h4>STEP TWO</h4>
-      <p>Compare rates and choose the service that fits your needs.</p>
-    </div>
-    <div class="step-card">
-      <h4>STEP THREE</h4>
-      <p>Book your pickup and ship confidently—leave the rest to us!</p>
-    </div>
-  </div>
-
-  <div class="cta">
-    <button class="submit-btn" type="button" onclick="scrollToForm()">
-  Start Now
-</button>
-  </div>
-</section>
-
-
-<section class="testimonials-section">
-  <div class="testimonials-wrap">
-
-    <!-- LEFT TEXT -->
-    <div class="testimonials-left">
-      <div class="testimonials-kicker">Customer Testimonials</div>
-      <div class="testimonials-title">1 Crore+ Successful Shipments</div>
-      <p class="testimonials-desc">
-        From mothers sending love abroad to new sellers starting their journey,
-        ShipGlobal is for everyone.
-      </p>
-    </div>
-
-    <!-- RIGHT VERTICAL IMAGE SLIDER -->
-    <div class="testimonials-right">
-      <div class="testimonial-track">
-
-        <!-- 4 images -->
-        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Mayak.webp" alt="Testimonial">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-3-1.png" alt="Testimonial">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-2-1.png" alt="Testimonial">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Seema-ji.webp" alt="Testimonial">
-
-        <!-- duplicate for smooth loop -->
-        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Mayak.webp" alt="Testimonial">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-3-1.png" alt="Testimonial">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/review-2-1.png" alt="Testimonial">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/06/Seema-ji.webp" alt="Testimonial">
-
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- ===== Press Highlights Section ===== -->
-<section class="press-section">
-  <div class="press-container">
-
-    <div class="press-title">Press Highlights</div>
-    <div class="press-heading">
-      Spotlighting Our Journey and Impact Across Media
-    </div>
-    <div class="press-desc">
-      Discover our presence across various media platforms, where we share insights,
-      celebrate achievements, and shape conversations. Stay updated on how we’re
-      making an impact and leading innovation across industries.
-    </div>
-
-    <div class="press-slider">
-      <div class="press-track">
-        <!-- 4 Images -->
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/5-3.webp" alt="Press">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/5-2.webp" alt="Press">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/5-1.webp" alt="Press">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/5.webp" alt="Press">
-        
-
-        <!-- Duplicate for smooth infinite loop -->
-         <img src="https://shipglobal.in/wp-content/uploads/2025/05/5-3.webp" alt="Press">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/5-2.webp" alt="Press">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/5-1.webp" alt="Press">
-        <img src="https://shipglobal.in/wp-content/uploads/2025/05/5.webp" alt="Press">
-      </div>
-    </div>
-
-  </div>
-</section>
+</main>
 
 <!-- ===== WhatsApp Community Bar ===== -->
 <div class="wa-bar">
@@ -1964,6 +2158,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <p>©<?php echo date('Y'); ?> Ship Global Express Private Limited | All Rights Reserved</p>
 </div>
 
+<!-- Quote modal (opened by every "Get my price" button below the hero) -->
+<dialog class="sg-modal" id="sg-quote-modal" aria-label="Get your price">
+  <button type="button" class="sg-modal-close" data-modal-close aria-label="Close"><i class="fas fa-xmark"></i></button>
+  <?php render_quote_wizard('modal', $origin, $destination); ?>
+</dialog>
+
+<!-- Sticky mobile CTA -->
+<div class="sg-sticky" id="sg-sticky">
+  <button type="button" class="sg-sticky-quote" data-quote-open="sticky">Get my price<small data-sg-from hidden>· from ₹<span data-sg-from-price></span></small> <i class="fas fa-arrow-right"></i></button>
+  <a class="sg-sticky-call" href="tel:<?php echo $phoneTel; ?>" aria-label="Call ShipGlobal"><i class="fas fa-phone"></i></a>
+</div>
+
+<script>
+window.SG_QUOTE = {
+  origin: <?php echo json_encode($origin); ?>,
+  destination: <?php echo json_encode($destination); ?>,
+  rateSheet: <?php echo json_encode($rateSheetUrl); ?>
+};
+</script>
+
 <script>
 // Mobile nav toggle
 (function(){
@@ -1978,13 +2192,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
 })();
 
-function scrollToForm() {
-  const form = document.getElementById("form");
-  if (form) {
-    form.scrollIntoView({ behavior: "smooth" });
-  }
-}
-
 function toggleReadMore(btn) {
   const content = btn.nextElementSibling;
   const isHidden = content.style.display === 'none';
@@ -1992,30 +2199,402 @@ function toggleReadMore(btn) {
   btn.textContent = isHidden ? 'Read Less' : 'Read More';
 }
 
-document.getElementById('form').addEventListener('submit', function(e) {
-  e.preventDefault();
+// Quote wizard: item -> weight -> name + phone, posted to the Zoho Flow webhook.
+// GTM events: quote_open, quote_start, quote_step, generate_lead.
+(function(){
+  var cfg = window.SG_QUOTE || {};
+  var dataLayer = window.dataLayer = window.dataLayer || [];
+  var wizards = [];
+  var rates = null;
 
-  var form = e.target;
-  var btn = form.querySelector('.submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
+  function session(key, value) {
+    try {
+      if (value === undefined) return sessionStorage.getItem(key);
+      sessionStorage.setItem(key, value);
+    } catch (e) { return null; }
+  }
 
-  fetch(form.action, {
-    method: 'POST',
-    body: new FormData(form),
-    mode: 'no-cors'
-  }).then(function() {
-    btn.disabled = false;
-    btn.textContent = 'Submit';
-    document.getElementById('form-success').style.display = 'block';
-    document.getElementById('form-error').style.display = 'none';
-  }).catch(function() {
-    btn.disabled = false;
-    btn.textContent = 'Submit';
-    document.getElementById('form-error').style.display = 'block';
-    document.getElementById('form-success').style.display = 'none';
+  // ---- Rate card: rows of [startGrams, endGrams, price] for this destination
+  function loadRates() {
+    if (!cfg.rateSheet || !window.fetch) return;
+    fetch(cfg.rateSheet, { credentials: 'same-origin' })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function(text){
+        var lines = text.trim().split(/\r?\n/);
+        var want = String(cfg.destination || '').trim().toLowerCase();
+        var col = -1;
+        lines[0].split(',').forEach(function(h, i){
+          var m = h.trim().match(/^(.*?)\s*\(([A-Z]{2})\)$/);
+          if (i > 2 && m && (m[1].toLowerCase() === want || m[2].toLowerCase() === want)) col = i;
+        });
+        if (col < 0) return;
+        var rows = [];
+        for (var i = 1; i < lines.length; i++) {
+          var c = lines[i].split(',');
+          var start = parseFloat(c[1]), end = parseFloat(c[2]), price = parseFloat(c[col]);
+          if (isFinite(start) && isFinite(end) && price > 0) rows.push([start, end, price]);
+        }
+        if (!rows.length) return;
+        rates = rows;
+        wizards.forEach(function(w){ w.refresh(); });
+
+        // "Rates from ₹X" hooks: the lightest slab is the starting price.
+        var from = Math.min.apply(null, rows.map(function(r){ return r[2]; })).toLocaleString('en-IN');
+        document.querySelectorAll('[data-sg-from]').forEach(function(el){
+          el.querySelector('[data-sg-from-price]').textContent = from;
+          el.hidden = false;
+        });
+      })
+      .catch(function(){});
+  }
+
+  function priceFor(kg) {
+    if (!rates || !(kg > 0)) return null;
+    var g = Math.round(kg * 1000);
+    for (var i = 0; i < rates.length; i++) {
+      if (g >= rates[i][0] && g <= rates[i][1]) return rates[i][2];
+    }
+    return null;
+  }
+
+  // Exact weight -> Zoho CRM Packet_Weight picklist value
+  function weightBand(kg) {
+    var g = kg * 1000;
+    if (g <= 100) return '50-100 gms';
+    if (g <= 250) return '100-250 gms';
+    if (g <= 500) return '250-500 gms';
+    if (g <= 1000) return '500-1000 gms';
+    if (g <= 2000) return '1-2 Kg';
+    if (g <= 5000) return '2-5 Kg';
+    if (g <= 10000) return '5-10 Kg';
+    return '10Kg+';
+  }
+
+  function formatWeight(kg) {
+    return kg < 1
+      ? Math.round(kg * 1000) + ' g'
+      : (Math.round(kg * 100) / 100).toLocaleString('en-IN') + ' kg';
+  }
+
+  function digits(v) {
+    v = v.replace(/\D/g, '');
+    if (v.length > 10) v = v.replace(/^(91|0)/, '');
+    return v.slice(0, 10);
+  }
+
+  function Wizard(root) {
+    var id = root.getAttribute('data-qw');
+    var form = root.querySelector('.qw-form');
+    var steps = root.querySelectorAll('.qw-step');
+    var weightInput = root.querySelector('[data-qw-weight]');
+    var nameInput = root.querySelector('.qw-field[data-qw-check="name"] input');
+    var phoneInput = form.elements.Phone;
+    var submitBtn = root.querySelector('[data-qw-submit]');
+    var submitLabel = root.querySelector('[data-qw-submit-label]');
+    var hint = root.querySelector('[data-qw-hint]');
+    var current = 1;
+    var started = false;
+
+    function kg() { return parseFloat(weightInput.value); }
+    function item() { var r = form.querySelector('[name=Product_Type]:checked'); return r ? r : null; }
+
+    function valid(check) {
+      switch (check) {
+        case 'item':   return !!item();
+        case 'weight': var w = kg(); return w >= 0.05 && w <= 100;
+        case 'name':   return nameInput.value.trim().length >= 2;
+        case 'phone':  return /^[6-9]\d{9}$/.test(phoneInput.value);
+      }
+      return true;
+    }
+
+    // Mark invalid groups in a step and focus the first one.
+    function validate(step) {
+      var first = null;
+      step.querySelectorAll('[data-qw-check]').forEach(function(group){
+        var ok = valid(group.getAttribute('data-qw-check'));
+        group.classList.toggle('qw-bad', !ok);
+        if (!ok && !first) first = group;
+      });
+      if (first) first.querySelector('input').focus();
+      return !first;
+    }
+
+    function go(n, focus, silent) {
+      steps.forEach(function(s, i){ s.hidden = i !== n - 1; });
+      var step = steps[n - 1];
+      step.classList.remove('qw-in');
+      void step.offsetWidth;
+      step.classList.add('qw-in');
+      current = n;
+      root.setAttribute('data-step', n);
+      root.querySelector('[data-qw-num]').textContent = n;
+      root.querySelector('.qw-progress').setAttribute('aria-valuenow', n);
+      if (n === 3) {
+        root.querySelector('[data-qw-summary]').innerHTML =
+          '<b>' + item().parentNode.textContent.trim() + '</b> · <b>' + formatWeight(kg()) + '</b> · ' +
+          cfg.origin + ' → ' + cfg.destination;
+      }
+      if (focus) {
+        var target = step.querySelector(n === 1 ? 'input:checked, input' : 'input:not([type=hidden])');
+        if (target) target.focus({ preventScroll: true });
+      }
+      if (!silent) dataLayer.push({ event: 'quote_step', form_id: id, step: n });
+    }
+
+    function next() {
+      if (!validate(steps[current - 1])) return;
+      if (current < 3) go(current + 1, true);
+    }
+
+    function refresh() {
+      var w = kg();
+      var price = priceFor(w);
+      root.querySelectorAll('[data-qw-w]').forEach(function(chip){
+        chip.setAttribute('aria-pressed', parseFloat(chip.getAttribute('data-qw-w')) === w);
+      });
+      var text = 'Not sure? A rough estimate is fine.';
+      if (w >= 0.05 && w <= 100) {
+        text = price
+          ? 'Instant price ready for ' + formatWeight(w) + ' to ' + cfg.destination + '.'
+          : 'We ship ' + formatWeight(w) + ' parcels to ' + cfg.destination + '. Our expert will confirm your price.';
+      }
+      hint.classList.toggle('is-ok', !!price);
+      hint.querySelector('i').className = price ? 'fas fa-circle-check' : 'fas fa-circle-info';
+      hint.querySelector('span').textContent = text;
+      submitLabel.textContent = price ? 'See my price' : 'Get my price';
+    }
+
+    function setWeight(v) {
+      v = Math.min(100, Math.max(0.05, Math.round(v * 100) / 100));
+      weightInput.value = v;
+      weightInput.closest('.qw-group').classList.remove('qw-bad');
+      refresh();
+    }
+
+    function stepSize(v) { return v < 1 ? 0.1 : v < 10 ? 0.5 : 1; }
+
+    function start() {
+      if (started) return;
+      started = true;
+      window.SG_QUOTE_STARTED = true;
+      dataLayer.push({ event: 'quote_start', form_id: id });
+    }
+
+    function done(name, price) {
+      var w = kg();
+      root.querySelector('[data-qw-name]').textContent = name.split(' ')[0];
+      var box = root.querySelector('[data-qw-price]');
+      box.hidden = !price;
+      if (price) {
+        root.querySelector('[data-qw-price-weight]').textContent = formatWeight(w);
+        root.querySelector('[data-qw-price-value]').textContent = price.toLocaleString('en-IN');
+      }
+      var phone = phoneInput.value.replace(/(\d{5})(\d{5})/, '$1 $2');
+      root.querySelector('[data-qw-done-msg]').textContent = price
+        ? 'Our export expert will call you on ' + phone + ' shortly to confirm your price and help you book a pickup.'
+        : 'Our export expert will call you on ' + phone + ' shortly with the best ' + cfg.origin + ' to ' + cfg.destination + ' price.';
+      root.classList.remove('is-failed');
+      root.classList.add('is-done');
+      root.querySelector('[data-qw-done-title]').focus({ preventScroll: true });
+      session('sg_lead', '1');
+    }
+
+    root.addEventListener('pointerdown', start);
+    root.addEventListener('focusin', start);
+
+    root.addEventListener('input', function(e){
+      if (e.target === phoneInput) phoneInput.value = digits(phoneInput.value);
+      if (e.target === weightInput) refresh();
+      var group = e.target.closest('[data-qw-check]');
+      if (group && group.classList.contains('qw-bad') && valid(group.getAttribute('data-qw-check'))) {
+        group.classList.remove('qw-bad');
+      }
+    });
+
+    // Tapping an item tile moves straight on; keyboard users use Continue.
+    form.querySelectorAll('[name=Product_Type]').forEach(function(radio){
+      radio.addEventListener('click', function(e){
+        if (e.detail > 0) setTimeout(function(){ if (current === 1) go(2, false); }, 220);
+      });
+    });
+
+    root.querySelectorAll('[data-qw-next]').forEach(function(b){ b.addEventListener('click', next); });
+    root.querySelector('[data-qw-back]').addEventListener('click', function(){ if (current > 1) go(current - 1, true); });
+    root.querySelector('[data-qw-edit]').addEventListener('click', function(){ go(1, true); });
+    root.querySelector('[data-qw-inc]').addEventListener('click', function(){ var w = kg() || 0; setWeight(w + stepSize(w)); });
+    root.querySelector('[data-qw-dec]').addEventListener('click', function(){ var w = kg() || 0; setWeight(w - stepSize(w - 0.001)); });
+    root.querySelectorAll('[data-qw-w]').forEach(function(chip){
+      chip.addEventListener('click', function(){ setWeight(parseFloat(chip.getAttribute('data-qw-w'))); });
+    });
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      if (current < 3) { next(); return; }
+      if (!validate(steps[2])) return;
+
+      var name = nameInput.value.trim().replace(/\s+/g, ' ');
+      var cut = name.lastIndexOf(' ');
+      form.elements.First_Name.value = cut > 0 ? name.slice(0, cut) : '';
+      form.elements.Last_Name.value = cut > 0 ? name.slice(cut + 1) : name;
+      form.elements.Packet_Weight.value = weightBand(kg());
+      var price = priceFor(kg());
+
+      // Honeypot filled: a bot. Show success, send nothing.
+      if (root.querySelector('.qw-hp').value) { done(name, price); return; }
+
+      var data = new FormData(form);
+      var label = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="qw-spin" aria-hidden="true"></span> ' + (price ? 'Calculating your price…' : 'Sending…');
+
+      var sent = window.SG_PREVIEW
+        ? new Promise(function(resolve){ setTimeout(resolve, 700); })
+        : fetch(form.action, { method: 'POST', body: data, mode: 'no-cors' });
+
+      sent.then(function(){
+        dataLayer.push({
+          event: 'generate_lead',
+          form_id: id,
+          product_type: data.get('Product_Type'),
+          packet_weight: data.get('Packet_Weight'),
+          weight_kg: kg(),
+          price_shown: !!price
+        });
+        done(name, price);
+      }).catch(function(){
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = label;
+        root.classList.add('is-failed');
+      });
+    });
+
+    refresh();
+    return {
+      root: root,
+      refresh: refresh,
+      title: root.querySelector('.qw-title'),
+      state: function(){
+        var it = item();
+        return {
+          started: started,
+          done: root.classList.contains('is-done'),
+          item: it ? it.value : '',
+          kg: weightInput.value,
+          name: nameInput.value,
+          phone: phoneInput.value,
+          step: current
+        };
+      },
+      // Continue a quote started in another wizard (hero -> modal).
+      load: function(s){
+        form.querySelectorAll('[name=Product_Type]').forEach(function(r){ r.checked = r.value === s.item; });
+        weightInput.value = s.kg;
+        nameInput.value = s.name;
+        phoneInput.value = s.phone;
+        refresh();
+        go(s.item ? s.step : 1, false, true);
+      }
+    };
+  }
+
+  document.querySelectorAll('.qw').forEach(function(el){ wizards.push(Wizard(el)); });
+  loadRates();
+
+  // ---- Modal: every "Get my price" button below the hero opens the quote in a dialog
+  var modal = document.getElementById('sg-quote-modal');
+  var hero = document.querySelector('.sg-hero-form .qw');
+  var modalWizard = wizards.filter(function(w){ return w.root.closest('dialog'); })[0];
+  var heroWizard = wizards.filter(function(w){ return w.root === hero; })[0];
+  var modalTitle = modalWizard ? modalWizard.title.innerHTML : '';
+  var heroVisible = true;
+
+  function showHero() {
+    hero.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    hero.classList.remove('qw-pulse');
+    void hero.offsetWidth;
+    hero.classList.add('qw-pulse');
+  }
+
+  // While the hero quote is on screen, point to it; otherwise open the dialog,
+  // carrying over anything already entered in the hero.
+  function openQuote(source, title) {
+    dataLayer.push({ event: 'quote_open', source: source });
+    var canModal = modal && modalWizard && typeof modal.showModal === 'function';
+    if (hero && (!canModal || (heroVisible && source !== 'exit_intent'))) {
+      showHero();
+      return;
+    }
+    if (!canModal) return;
+    if (heroWizard) {
+      var hs = heroWizard.state(), ms = modalWizard.state();
+      if (hs.started && !hs.done && !ms.started && !ms.done) modalWizard.load(hs);
+    }
+    modalWizard.title.innerHTML = title || modalTitle;
+    if (!modal.open) {
+      modal.showModal();
+      document.body.classList.add('sg-modal-open');
+    }
+  }
+
+  if (modal) {
+    modal.addEventListener('close', function(){ document.body.classList.remove('sg-modal-open'); });
+    modal.querySelector('[data-modal-close]').addEventListener('click', function(){ modal.close(); });
+    modal.addEventListener('click', function(e){ if (e.target === modal) modal.close(); });
+  }
+
+  document.querySelectorAll('[data-quote-open]').forEach(function(b){
+    b.addEventListener('click', function(){ openQuote(b.getAttribute('data-quote-open')); });
   });
-});
+
+  // Announcement bar and bulk-order icon link to #form.
+  document.querySelectorAll('a[href="#form"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      openQuote('link');
+    });
+  });
+
+  // ---- Sticky mobile CTA: hidden while the hero quote is on screen
+  var sticky = document.getElementById('sg-sticky');
+  var ticking = false;
+  function updateSticky() {
+    ticking = false;
+    if (!hero) return;
+    var r = hero.getBoundingClientRect();
+    heroVisible = r.bottom > 80 && r.top < window.innerHeight - 80;
+    if (sticky) sticky.classList.toggle('is-hidden', heroVisible);
+  }
+  window.addEventListener('scroll', function(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(updateSticky);
+  }, { passive: true });
+  window.addEventListener('resize', updateSticky);
+  updateSticky();
+
+  // ---- Exit intent (desktop): offer the quote once per session
+  if (window.matchMedia && window.matchMedia('(pointer: fine) and (min-width: 901px)').matches) {
+    var armed = false;
+    setTimeout(function(){ armed = true; }, 8000);
+    document.addEventListener('mouseout', function(e){
+      if (!armed || e.relatedTarget || e.clientY > 0) return;
+      if (window.SG_QUOTE_STARTED || session('sg_lead') || session('sg_exit')) return;
+      session('sg_exit', '1');
+      openQuote('exit_intent', 'Before you go: get your <span>' + cfg.destination + '</span> price in 30 seconds');
+    });
+  }
+
+  // ---- Reviews carousel buttons
+  var track = document.getElementById('sg-reviews');
+  document.querySelectorAll('[data-reviews]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (!track || !track.firstElementChild) return;
+      var step = track.firstElementChild.getBoundingClientRect().width + 20;
+      track.scrollBy({ left: step * parseInt(b.getAttribute('data-reviews'), 10), behavior: 'smooth' });
+    });
+  });
+})();
 </script>
 
 
