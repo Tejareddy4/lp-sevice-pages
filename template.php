@@ -1212,10 +1212,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Nav Menu -->
     <nav class="header-nav-wrap">
       <ul class="header-nav">
-        <li><a href="https://shipglobal.in/services/">Services</a></li>
-        <li><a href="https://shipglobal.in/track/">Track</a></li>
-        <li><a href="https://shipglobal.in/blog/">Blog</a></li>
-        <li><a href="https://shipglobal.in/about-us/">About</a></li>
+        <li><a href="https://shipglobal.in/">Home</a></li>
+        <li><a href="https://shipglobal.in/tracking/">Tracking</a></li>
+        <li><a href="https://shipglobal.in/about/">About</a></li>
+        <li><a href="https://shipglobal.in/contact/">Contact</a></li>
       </ul>
     </nav>
 
@@ -1235,10 +1235,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <!-- Mobile Nav Drawer -->
   <nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
-    <a href="https://shipglobal.in/services/">Services</a>
-    <a href="https://shipglobal.in/track/">Track</a>
-    <a href="https://shipglobal.in/blog/">Blog</a>
-    <a href="https://shipglobal.in/about-us/">About</a>
+    <a href="https://shipglobal.in/">Home</a>
+    <a href="https://shipglobal.in/tracking/">Tracking</a>
+    <a href="https://shipglobal.in/about/">About</a>
+    <a href="https://shipglobal.in/contact/">Contact</a>
     <a class="mobile-ship-btn" href="https://v2.app.shipglobal.in/auth/signup" target="_blank" rel="noopener">Ship Now</a>
   </nav>
 
