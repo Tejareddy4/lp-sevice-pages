@@ -243,6 +243,14 @@ function render_quote_wizard(string $id, string $origin, string $destination): v
         <small>All-inclusive estimate from our rate card, fuel surcharge included.</small>
       </div>
       <p data-qw-done-msg></p>
+      <div class="qw-next">
+        <p class="qw-next-title">What happens next</p>
+        <ol>
+          <li><i class="fas fa-phone-volume"></i><span><b>Expert call</b>We confirm your price and paperwork</span></li>
+          <li><i class="fas fa-truck-fast"></i><span><b>Doorstep pickup</b>From your address in <?php echo $o; ?></span></li>
+          <li><i class="fas fa-location-crosshairs"></i><span><b>Tracked delivery</b>All the way to <?php echo $d; ?></span></li>
+        </ol>
+      </div>
       <div class="qw-done-actions">
         <a class="qw-btn qw-btn-cta" href="<?php echo $signupUrl; ?>" target="_blank" rel="noopener">Book my shipment <i class="fas fa-arrow-right"></i></a>
         <a class="qw-btn qw-btn-ghost" href="tel:<?php echo $phoneTel; ?>"><i class="fas fa-phone"></i> Call <?php echo $phoneText; ?></a>
@@ -749,6 +757,28 @@ body{
 
 .sg-wrap{max-width:1200px;margin:0 auto;padding:0 24px}
 
+/* Header: quote button next to Ship Now */
+.header-nav-wrap{width:auto;flex:1}
+.header-cta-wrap{width:auto;flex:none;gap:10px;justify-content:flex-end;align-items:center}
+.header-quote-btn{
+  padding:10px 20px;
+  border:0;
+  border-radius:8px;
+  background:var(--sg-amber);
+  color:#111827;
+  font:700 15px var(--sg-head);
+  cursor:pointer;
+  transition:background .15s;
+}
+.header-quote-btn:hover{background:var(--sg-amber-light)}
+@media(max-width:1024px){
+  .header-cta-wrap{display:flex}
+  .header-ship-btn{display:none}
+}
+@media(max-width:768px){
+  .header-cta-wrap{display:none}
+}
+
 /* ===== Hero ===== */
 .sg-hero{
   position:relative;
@@ -808,6 +838,44 @@ body{
   color:#C9D4F2;
   margin:0;
   max-width:560px;
+}
+.sg-from{
+  display:inline-flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px 8px;
+  margin:22px 0 0;
+  padding:10px 16px;
+  border-radius:12px;
+  background:rgba(251,191,36,.12);
+  border:1px solid rgba(251,191,36,.35);
+  color:#FDE68A;
+  font-size:15px;
+}
+.sg-from[hidden]{display:none}
+.sg-from b{color:#fff;font:800 19px var(--sg-head)}
+.sg-from-note{font-size:12.5px;color:#C9D4F2}
+.sg-hero-quote{
+  max-width:560px;
+  margin:30px 0 0;
+  padding:18px 20px;
+  border-left:3px solid var(--sg-amber-light);
+  border-radius:0 var(--sg-radius) var(--sg-radius) 0;
+  background:rgba(255,255,255,.05);
+}
+.sg-hero-quote blockquote{margin:0 0 12px;font-size:15px;line-height:1.6;font-style:italic;color:#E2E8FF}
+.sg-hero-quote figcaption{display:flex;align-items:center;gap:12px;font-size:13px;line-height:1.4;color:#93A5D8}
+.sg-hero-quote b{color:#fff;font-weight:600}
+.sg-hero-quote-avatar{
+  display:grid;
+  place-items:center;
+  flex:none;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:var(--sg-amber-light);
+  color:var(--sg-navy);
+  font:800 12px var(--sg-head);
 }
 .sg-route{
   display:flex;
@@ -1123,6 +1191,35 @@ body{
 .qw-price strong{display:block;margin:4px 0;font:800 38px/1.15 var(--sg-head);color:var(--sg-navy)}
 .qw-done p{margin:0 0 18px;font-size:14.5px;line-height:1.6;color:var(--sg-text)}
 .qw-done-actions{display:grid;gap:10px}
+.qw-next{
+  margin:0 0 18px;
+  padding:14px 16px;
+  border:1px solid var(--sg-line);
+  border-radius:var(--sg-radius);
+  background:var(--sg-bg);
+  text-align:left;
+}
+.qw-next-title{margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sg-muted)}
+.qw-next ol{list-style:none;display:grid;gap:12px;margin:0;padding:0}
+.qw-next li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;align-items:center}
+.qw-next i{
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:#fff;
+  color:var(--sg-blue);
+  font-size:13px;
+  box-shadow:var(--sg-shadow-sm);
+}
+.qw-next span{font-size:13px;line-height:1.4;color:var(--sg-muted)}
+.qw-next b{display:block;font-size:14px;color:var(--sg-ink)}
+.qw-pulse{animation:qwPulse 1.2s ease-out}
+@keyframes qwPulse{
+  0%{box-shadow:0 0 0 0 rgba(251,191,36,.75),var(--sg-shadow-lg)}
+  100%{box-shadow:0 0 0 22px rgba(251,191,36,0),var(--sg-shadow-lg)}
+}
 
 /* ===== Sections ===== */
 .sg-section{padding:96px 0}
@@ -1390,6 +1487,8 @@ body{
 }
 .sg-aside-card h3{margin:0;font:800 21px/1.3 var(--sg-head)}
 .sg-aside-card p{margin:0;font-size:14.5px;line-height:1.6;color:#C9D4F2}
+.sg-aside-card .sg-aside-from{color:#FDE68A}
+.sg-aside-from b{color:#fff;font:800 18px var(--sg-head)}
 .sg-aside-call{color:#C9D4F2;font-size:14px;text-align:center;text-decoration:none}
 .sg-aside-call:hover{color:#fff}
 
@@ -1568,6 +1667,7 @@ body.sg-modal-open{overflow:hidden}
     font:700 16px var(--sg-body);
     cursor:pointer;
   }
+  .sg-sticky-quote small{margin-left:-4px;font-size:13.5px;font-weight:600}
   .sg-sticky-call{
     display:grid;
     place-items:center;
@@ -1586,6 +1686,10 @@ body.sg-modal-open{overflow:hidden}
   .sg-eyebrow{margin-bottom:14px;padding:7px 12px;font-size:12px}
   .sg-hero h1{font-size:30px;margin-bottom:10px}
   .sg-hero-lead{font-size:15px}
+  .sg-from{margin-top:14px;padding:8px 12px;font-size:13.5px}
+  .sg-from b{font-size:16px}
+  .sg-hero-quote{margin-top:24px;padding:14px 16px}
+  .sg-hero-quote blockquote{font-size:14px}
   .sg-route{padding:14px 16px;gap:12px}
   .sg-route-end b{font-size:15px}
   .sg-hero-points{gap:10px 18px;font-size:14px}
@@ -1675,6 +1779,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <!-- CTA Button (desktop only) -->
     <div class="header-cta-wrap">
+      <button type="button" class="header-quote-btn" data-quote-open="header">Get my price</button>
       <a class="header-ship-btn" href="https://v2.app.shipglobal.in/auth/signup" target="_blank" rel="noopener">Ship Now</a>
     </div>
 
@@ -1715,6 +1820,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p class="sg-eyebrow"><i class="fas fa-plane-departure"></i> International courier from <?php echo $origin; ?></p>
       <h1><?php echo $origin; ?> to <?php echo $destination; ?> <span>Courier Shipment</span></h1>
       <p class="sg-hero-lead">Doorstep pickup in <?php echo $origin; ?>, export paperwork support and tracked delivery to <?php echo $destination; ?>. Ship packets from just 50 g, no bulk needed.</p>
+      <p class="sg-from" data-sg-from hidden><i class="fas fa-tag"></i> Rates to <?php echo $destination; ?> from <b>₹<span data-sg-from-price></span></b> <span class="sg-from-note">all-inclusive</span></p>
     </div>
 
     <div class="sg-hero-form" id="form">
@@ -1737,6 +1843,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div><b>1 Crore+</b><span>Orders shipped</span></div>
         <div><b>220+</b><span>Countries</span></div>
       </div>
+      <figure class="sg-hero-quote">
+        <blockquote>“ShipGlobal's tracking system works seamlessly and they offer reliable door-to-door delivery.”</blockquote>
+        <figcaption><span class="sg-hero-quote-avatar" aria-hidden="true">MK</span><span><b>Mayank Kapoor</b><br>Owner, Aariv Impex, Gurugram</span></figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -1881,6 +1991,7 @@ foreach ([false, true] as $copy) {
         <span class="sg-aside-icon"><i class="fas fa-calculator"></i></span>
         <h3>What will it cost to ship to <?php echo $destination; ?>?</h3>
         <p>Tell us what you're sending and how much it weighs. It takes 30 seconds.</p>
+        <p class="sg-aside-from" data-sg-from hidden>Rates from <b>₹<span data-sg-from-price></span></b>, all-inclusive</p>
         <button type="button" class="sg-btn sg-btn-primary" data-quote-open="guide">Get my price <i class="fas fa-arrow-right"></i></button>
         <a class="sg-aside-call" href="tel:<?php echo $phoneTel; ?>"><i class="fas fa-phone"></i> or call <?php echo $phoneText; ?></a>
       </div>
@@ -2055,7 +2166,7 @@ foreach ([false, true] as $copy) {
 
 <!-- Sticky mobile CTA -->
 <div class="sg-sticky" id="sg-sticky">
-  <button type="button" class="sg-sticky-quote" data-quote-open="sticky">Get my price <i class="fas fa-arrow-right"></i></button>
+  <button type="button" class="sg-sticky-quote" data-quote-open="sticky">Get my price<small data-sg-from hidden>· from ₹<span data-sg-from-price></span></small> <i class="fas fa-arrow-right"></i></button>
   <a class="sg-sticky-call" href="tel:<?php echo $phoneTel; ?>" aria-label="Call ShipGlobal"><i class="fas fa-phone"></i></a>
 </div>
 
@@ -2126,6 +2237,13 @@ function toggleReadMore(btn) {
         if (!rows.length) return;
         rates = rows;
         wizards.forEach(function(w){ w.refresh(); });
+
+        // "Rates from ₹X" hooks: the lightest slab is the starting price.
+        var from = Math.min.apply(null, rows.map(function(r){ return r[2]; })).toLocaleString('en-IN');
+        document.querySelectorAll('[data-sg-from]').forEach(function(el){
+          el.querySelector('[data-sg-from-price]').textContent = from;
+          el.hidden = false;
+        });
       })
       .catch(function(){});
   }
@@ -2202,7 +2320,7 @@ function toggleReadMore(btn) {
       return !first;
     }
 
-    function go(n, focus) {
+    function go(n, focus, silent) {
       steps.forEach(function(s, i){ s.hidden = i !== n - 1; });
       var step = steps[n - 1];
       step.classList.remove('qw-in');
@@ -2221,7 +2339,7 @@ function toggleReadMore(btn) {
         var target = step.querySelector(n === 1 ? 'input:checked, input' : 'input:not([type=hidden])');
         if (target) target.focus({ preventScroll: true });
       }
-      dataLayer.push({ event: 'quote_step', form_id: id, step: n });
+      if (!silent) dataLayer.push({ event: 'quote_step', form_id: id, step: n });
     }
 
     function next() {
@@ -2272,7 +2390,7 @@ function toggleReadMore(btn) {
         root.querySelector('[data-qw-price-weight]').textContent = formatWeight(w);
         root.querySelector('[data-qw-price-value]').textContent = price.toLocaleString('en-IN');
       }
-      var phone = phoneInput.value.replace(/(\d{5})(\d{5})/, '$1 $2');
+      var phone = phoneInput.value.replace(/(\d{5})(\d{5})/, '$1 $2');
       root.querySelector('[data-qw-done-msg]').textContent = price
         ? 'Our export expert will call you on ' + phone + ' shortly to confirm your price and help you book a pickup.'
         : 'Our export expert will call you on ' + phone + ' shortly with the best ' + cfg.origin + ' to ' + cfg.destination + ' price.';
@@ -2352,7 +2470,32 @@ function toggleReadMore(btn) {
     });
 
     refresh();
-    return { root: root, refresh: refresh, title: root.querySelector('.qw-title') };
+    return {
+      root: root,
+      refresh: refresh,
+      title: root.querySelector('.qw-title'),
+      state: function(){
+        var it = item();
+        return {
+          started: started,
+          done: root.classList.contains('is-done'),
+          item: it ? it.value : '',
+          kg: weightInput.value,
+          name: nameInput.value,
+          phone: phoneInput.value,
+          step: current
+        };
+      },
+      // Continue a quote started in another wizard (hero -> modal).
+      load: function(s){
+        form.querySelectorAll('[name=Product_Type]').forEach(function(r){ r.checked = r.value === s.item; });
+        weightInput.value = s.kg;
+        nameInput.value = s.name;
+        phoneInput.value = s.phone;
+        refresh();
+        go(s.item ? s.step : 1, false, true);
+      }
+    };
   }
 
   document.querySelectorAll('.qw').forEach(function(el){ wizards.push(Wizard(el)); });
@@ -2362,16 +2505,32 @@ function toggleReadMore(btn) {
   var modal = document.getElementById('sg-quote-modal');
   var hero = document.querySelector('.sg-hero-form .qw');
   var modalWizard = wizards.filter(function(w){ return w.root.closest('dialog'); })[0];
+  var heroWizard = wizards.filter(function(w){ return w.root === hero; })[0];
   var modalTitle = modalWizard ? modalWizard.title.innerHTML : '';
   var heroVisible = true;
 
+  function showHero() {
+    hero.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    hero.classList.remove('qw-pulse');
+    void hero.offsetWidth;
+    hero.classList.add('qw-pulse');
+  }
+
+  // While the hero quote is on screen, point to it; otherwise open the dialog,
+  // carrying over anything already entered in the hero.
   function openQuote(source, title) {
     dataLayer.push({ event: 'quote_open', source: source });
-    if (!modal || typeof modal.showModal !== 'function') {
-      if (hero) hero.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    var canModal = modal && modalWizard && typeof modal.showModal === 'function';
+    if (hero && (!canModal || (heroVisible && source !== 'exit_intent'))) {
+      showHero();
       return;
     }
-    if (modalWizard) modalWizard.title.innerHTML = title || modalTitle;
+    if (!canModal) return;
+    if (heroWizard) {
+      var hs = heroWizard.state(), ms = modalWizard.state();
+      if (hs.started && !hs.done && !ms.started && !ms.done) modalWizard.load(hs);
+    }
+    modalWizard.title.innerHTML = title || modalTitle;
     if (!modal.open) {
       modal.showModal();
       document.body.classList.add('sg-modal-open');
@@ -2392,13 +2551,7 @@ function toggleReadMore(btn) {
   document.querySelectorAll('a[href="#form"]').forEach(function(a){
     a.addEventListener('click', function(e){
       e.preventDefault();
-      if (heroVisible && hero) {
-        hero.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        var first = hero.querySelector('.qw-step:not([hidden]) input');
-        if (first) first.focus({ preventScroll: true });
-      } else {
-        openQuote('link');
-      }
+      openQuote('link');
     });
   });
 
