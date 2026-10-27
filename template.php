@@ -116,6 +116,8 @@ $rateSheetUrl = '/wp-content/uploads/2025/04/rate_ship.csv';
 $phoneTel = '+919906599065';
 $phoneText = '+91 99065 99065';
 $signupUrl = 'https://v2.app.shipglobal.in/auth/signup';
+// Seconds on the page before the quote prompt appears (on top of exit intent on desktop).
+$quotePromptDelay = 45;
 $leadWebhook = 'https://flow.zoho.in/60030990815/flow/webhook/incoming?zapikey=1001.13056985b9392ffd01f82ea7b29ecd8c.274c0a48499a6dfba88a38d975d9ad65&isdebug=false';
 
 // $FAQ arrives as <p><strong>Question</strong><br>Answer</p> blocks; split them for the accordion.
@@ -1605,10 +1607,14 @@ body.sg-modal-open{overflow:hidden}
 /* ===== Sticky mobile CTA ===== */
 .sg-sticky{display:none}
 
+/* ===== Quote prompt card (phones and tablets) ===== */
+.sg-nudge{display:none}
+
 /* ===== Motion preferences ===== */
 @media (prefers-reduced-motion:reduce){
   .sg-marquee-track,.sg-route-line i{animation:none}
   .qw-step.qw-in,.qw.is-done .qw-done,.sg-modal[open]{animation:none}
+  .sg-nudge,.sg-nudge.is-open{transition:none}
 }
 
 /* ===== Responsive ===== */
@@ -1678,6 +1684,41 @@ body.sg-modal-open{overflow:hidden}
     color:var(--sg-blue);
     font-size:18px;
   }
+
+  .sg-nudge{
+    display:block;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:31;
+    padding:20px 16px calc(16px + env(safe-area-inset-bottom,0px));
+    background:#fff;
+    border-radius:20px 20px 0 0;
+    box-shadow:0 -16px 40px -8px rgba(7,21,64,.35);
+    visibility:hidden;
+    transform:translateY(110%);
+    transition:transform .3s ease,visibility 0s .3s;
+  }
+  .sg-nudge.is-open{visibility:visible;transform:none;transition:transform .3s ease}
+  .sg-nudge-close{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:34px;
+    height:34px;
+    border:0;
+    border-radius:50%;
+    background:var(--sg-bg);
+    color:var(--sg-ink);
+    font-size:15px;
+    cursor:pointer;
+  }
+  .sg-nudge-title{margin:0 44px 6px 0;font:800 18px/1.3 var(--sg-head);color:var(--sg-ink)}
+  .sg-nudge-title span{color:var(--sg-blue)}
+  .sg-nudge-sub{margin:0 0 14px;font-size:13.5px;color:var(--sg-muted)}
+  .sg-nudge-sub i{margin-right:4px;color:var(--sg-ok)}
+  .sg-nudge-sub b{color:var(--sg-ink)}
   .bulk-order-float{display:none}
 }
 @media(max-width:600px){
@@ -2170,11 +2211,20 @@ foreach ([false, true] as $copy) {
   <a class="sg-sticky-call" href="tel:<?php echo $phoneTel; ?>" aria-label="Call ShipGlobal"><i class="fas fa-phone"></i></a>
 </div>
 
+<!-- Quote prompt card (phones and tablets): shown in place of the popup after $quotePromptDelay seconds -->
+<div class="sg-nudge" id="sg-nudge" role="dialog" aria-labelledby="sg-nudge-title">
+  <button type="button" class="sg-nudge-close" data-nudge-close aria-label="Close"><i class="fas fa-xmark"></i></button>
+  <p class="sg-nudge-title" id="sg-nudge-title" data-nudge-title>Get your <span><?php echo $destination; ?></span> price in 30 seconds</p>
+  <p class="sg-nudge-sub"><i class="fas fa-lock"></i> Free, no-obligation quote<span data-sg-from hidden> · from ₹<b data-sg-from-price></b></span></p>
+  <button type="button" class="qw-btn qw-btn-cta" data-nudge-open><span data-nudge-cta>Get my price</span> <i class="fas fa-arrow-right"></i></button>
+</div>
+
 <script>
 window.SG_QUOTE = {
   origin: <?php echo json_encode($origin); ?>,
   destination: <?php echo json_encode($destination); ?>,
-  rateSheet: <?php echo json_encode($rateSheetUrl); ?>
+  rateSheet: <?php echo json_encode($rateSheetUrl); ?>,
+  promptAfter: <?php echo (int) $quotePromptDelay; ?>
 };
 </script>
 
@@ -2200,7 +2250,7 @@ function toggleReadMore(btn) {
 }
 
 // Quote wizard: item -> weight -> name + phone, posted to the Zoho Flow webhook.
-// GTM events: quote_open, quote_start, quote_step, generate_lead.
+// GTM events: quote_prompt, quote_open, quote_start, quote_step, generate_lead.
 (function(){
   var cfg = window.SG_QUOTE || {};
   var dataLayer = window.dataLayer = window.dataLayer || [];
@@ -2377,7 +2427,6 @@ function toggleReadMore(btn) {
     function start() {
       if (started) return;
       started = true;
-      window.SG_QUOTE_STARTED = true;
       dataLayer.push({ event: 'quote_start', form_id: id });
     }
 
@@ -2398,6 +2447,7 @@ function toggleReadMore(btn) {
       root.classList.add('is-done');
       root.querySelector('[data-qw-done-title]').focus({ preventScroll: true });
       session('sg_lead', '1');
+      try { localStorage.setItem('sg_lead', Date.now()); } catch (e) {}
     }
 
     root.addEventListener('pointerdown', start);
@@ -2503,6 +2553,7 @@ function toggleReadMore(btn) {
 
   // ---- Modal: every "Get my price" button below the hero opens the quote in a dialog
   var modal = document.getElementById('sg-quote-modal');
+  var nudge = document.getElementById('sg-nudge');
   var hero = document.querySelector('.sg-hero-form .qw');
   var modalWizard = wizards.filter(function(w){ return w.root.closest('dialog'); })[0];
   var heroWizard = wizards.filter(function(w){ return w.root === hero; })[0];
@@ -2517,11 +2568,14 @@ function toggleReadMore(btn) {
   }
 
   // While the hero quote is on screen, point to it; otherwise open the dialog,
-  // carrying over anything already entered in the hero.
+  // carrying over anything already entered in the hero. Automatic prompts
+  // (exit_intent, timer) always open the dialog.
   function openQuote(source, title) {
     dataLayer.push({ event: 'quote_open', source: source });
+    if (nudge) nudge.classList.remove('is-open');
     var canModal = modal && modalWizard && typeof modal.showModal === 'function';
-    if (hero && (!canModal || (heroVisible && source !== 'exit_intent'))) {
+    var auto = source === 'exit_intent' || source === 'timer';
+    if (hero && (!canModal || (heroVisible && !auto))) {
       showHero();
       return;
     }
@@ -2573,17 +2627,81 @@ function toggleReadMore(btn) {
   window.addEventListener('resize', updateSticky);
   updateSticky();
 
-  // ---- Exit intent (desktop): offer the quote once per session
+  // ---- Automatic prompts: exit intent (desktop) and after cfg.promptAfter seconds.
+  // Each shows at most once per tab session and never once a lead is sent.
+  // Phones and tablets get a bottom card instead of a full-screen popup
+  // (Google's intrusive interstitial guidelines); tapping it opens the quote.
+  var small = window.matchMedia ? window.matchMedia('(max-width: 900px)') : { matches: false };
+  var navMenu = document.getElementById('mobile-nav');
+  var quoteTouched = 0;
+
+  ['pointerdown', 'input'].forEach(function(type){
+    document.addEventListener(type, function(e){
+      if (e.target.closest && e.target.closest('.qw')) quoteTouched = Date.now();
+    }, true);
+  });
+
+  // A lead sent from this browser in the last 30 days, in any tab.
+  function hasLead() {
+    if (session('sg_lead')) return true;
+    try { return Date.now() - (Number(localStorage.getItem('sg_lead')) || 0) < 30 * 864e5; } catch (e) { return false; }
+  }
+
+  // Don't interrupt someone typing or working through a quote.
+  function busy() {
+    var el = document.activeElement;
+    return (modal && modal.open)
+      || (navMenu && navMenu.classList.contains('open'))
+      || (small.matches && heroVisible)
+      || Date.now() - quoteTouched < 15000
+      || !!(el && el.matches && el.matches('input:not([type=radio]):not([type=checkbox]), textarea, select'));
+  }
+
+  function autoPrompt(trigger) {
+    var key = trigger === 'exit_intent' ? 'sg_exit' : 'sg_timer';
+    if (hasLead() || session(key)) return;
+    session(key, '1');
+
+    var dest = '<span>' + cfg.destination + '</span>';
+    var midway = wizards.some(function(w){ var s = w.state(); return s.item && !s.done; });
+    var title = midway
+      ? 'Your ' + dest + ' price is almost ready'
+      : (trigger === 'exit_intent' ? 'Before you go: get' : 'Still comparing? Get') + ' your ' + dest + ' price in 30 seconds';
+    var card = !!nudge && small.matches;
+    dataLayer.push({ event: 'quote_prompt', trigger: trigger, format: card ? 'card' : 'popup' });
+
+    if (!card) { openQuote(trigger, title); return; }
+    nudge.querySelector('[data-nudge-title]').innerHTML = title;
+    nudge.querySelector('[data-nudge-cta]').textContent = midway ? 'Finish my quote' : 'Get my price';
+    nudge.classList.add('is-open');
+  }
+
+  if (nudge) {
+    nudge.querySelector('[data-nudge-close]').addEventListener('click', function(){ nudge.classList.remove('is-open'); });
+    nudge.querySelector('[data-nudge-open]').addEventListener('click', function(){ openQuote('nudge'); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') nudge.classList.remove('is-open'); });
+  }
+
+  // Exit intent (desktop): the pointer leaves through the top of the window.
   if (window.matchMedia && window.matchMedia('(pointer: fine) and (min-width: 901px)').matches) {
     var armed = false;
-    setTimeout(function(){ armed = true; }, 8000);
+    setTimeout(function(){ armed = true; }, 5000);
     document.addEventListener('mouseout', function(e){
-      if (!armed || e.relatedTarget || e.clientY > 0) return;
-      if (window.SG_QUOTE_STARTED || session('sg_lead') || session('sg_exit')) return;
-      session('sg_exit', '1');
-      openQuote('exit_intent', 'Before you go: get your <span>' + cfg.destination + '</span> price in 30 seconds');
+      if (!armed || e.relatedTarget || e.clientY > 10 || (modal && modal.open)) return;
+      autoPrompt('exit_intent');
     });
   }
+
+  // Timed prompt: seconds with the tab in the background don't count. Skipped
+  // if the exit-intent prompt already showed in this session.
+  var seen = 0;
+  var clock = setInterval(function(){
+    if (document.hidden || ++seen < (cfg.promptAfter || 45)) return;
+    if (hasLead() || session('sg_timer') || session('sg_exit')) { clearInterval(clock); return; }
+    if (busy()) return;
+    clearInterval(clock);
+    autoPrompt('timer');
+  }, 1000);
 
   // ---- Reviews carousel buttons
   var track = document.getElementById('sg-reviews');
