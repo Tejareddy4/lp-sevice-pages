@@ -118,105 +118,6 @@ $sgConfig = require __DIR__ . '/config.php';
 $sgBase = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/', 3));
 $sgBase = rtrim($sgBase, '/.');
 
-// Instant price: the same rate card the public shipping rate calculator reads.
-// Destinations that are not a column in the sheet (e.g. Australia) fall back to
-// "expert will call".
-$rateSheetUrl = $sgConfig['rate_sheet']['path'];
-$rateNames = array_merge([$destination], $sgConfig['rate_aliases'][strtolower(trim($destination))] ?? []);
-
-// Normalise a country label for comparison: "Czech Republic" -> "czechrepublic".
-function rate_key(string $label): string
-{
-  return preg_replace('/[^a-z0-9]+/', '', strtolower($label)) ?? '';
-}
-
-// [[startGrams, endGrams, price], ...] for one destination column of the CSV.
-function parse_rate_sheet(string $csv, array $names): array
-{
-  $csv = preg_replace('/^\xEF\xBB\xBF/', '', $csv) ?? $csv;
-  $want = array_map('rate_key', $names);
-  $rows = [];
-  $col = -1;
-  foreach (preg_split('/\r\n|\r|\n/', trim($csv)) ?: [] as $line) {
-    $cells = str_getcsv($line, ',', '"', '\\');
-    if ($col < 0) {
-      foreach ($cells as $i => $cell) {
-        if ($i < 3) continue;
-        $cell = trim((string) $cell);
-        $label = preg_replace('/\s*\(([A-Za-z]{2,3})\)\s*$/', '', $cell) ?? $cell;
-        $code = preg_match('/\(([A-Za-z]{2,3})\)\s*$/', $cell, $m) ? $m[1] : '';
-        if (in_array(rate_key($label), $want, true) || ($code !== '' && in_array(rate_key($code), $want, true))) {
-          $col = $i;
-          break;
-        }
-      }
-      continue;
-    }
-    $num = static function ($v): float {
-      return (float) preg_replace('/[^0-9.]/', '', (string) $v);
-    };
-    $start = $num($cells[1] ?? '');
-    $end = $num($cells[2] ?? '');
-    $price = $num($cells[$col] ?? '');
-    if ($end > 0 && $end >= $start && $price > 0) {
-      $rows[] = [$start, $end, $price];
-    }
-  }
-  return $rows;
-}
-
-// Read the rate card on the server: from disk when WordPress shares this server,
-// otherwise downloaded and cached. Returns null when unavailable, and the
-// browser then tries the CSV itself.
-function load_rate_sheet(array $sheet): ?string
-{
-  $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
-  if ($docRoot !== '' && is_readable($docRoot . $sheet['path'])) {
-    $csv = @file_get_contents($docRoot . $sheet['path']);
-    if ($csv !== false && trim($csv) !== '') return $csv;
-  }
-
-  $remote = (string) ($sheet['remote'] ?? '');
-  if ($remote === '') return null;
-  $cache = sys_get_temp_dir() . '/sg_rate_' . md5($remote) . '.csv';
-  $failMark = $cache . '.fail';
-  $ttl = (int) ($sheet['cache_ttl'] ?? 21600);
-  $cached = is_readable($cache) ? @file_get_contents($cache) : false;
-  if ($cached !== false && time() - (int) @filemtime($cache) < $ttl) return $cached;
-  // After a failed download, don't slow every page view down retrying.
-  if (is_file($failMark) && time() - (int) @filemtime($failMark) < 300) {
-    return $cached !== false ? $cached : null;
-  }
-
-  $csv = false;
-  if (function_exists('curl_init')) {
-    $ch = curl_init($remote);
-    curl_setopt_array($ch, [
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_CONNECTTIMEOUT => 2,
-      CURLOPT_TIMEOUT => 4,
-      CURLOPT_USERAGENT => 'ShipGlobal-Services/1.0',
-    ]);
-    $body = curl_exec($ch);
-    if (is_string($body) && (int) curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200) $csv = $body;
-    curl_close($ch);
-  } else {
-    $body = @file_get_contents($remote, false, stream_context_create(['http' => ['timeout' => 4]]));
-    if (is_string($body)) $csv = $body;
-  }
-
-  if ($csv !== false && strpos($csv, ',') !== false && stripos($csv, '<html') === false) {
-    @file_put_contents($cache, $csv, LOCK_EX);
-    return $csv;
-  }
-  @touch($failMark);
-  return $cached !== false ? $cached : null;
-}
-
-$rateCsv = load_rate_sheet($sgConfig['rate_sheet']);
-$rateRows = $rateCsv !== null ? parse_rate_sheet($rateCsv, $rateNames) : [];
-
 $phoneTel = '+919906599065';
 $phoneText = '+91 99065 99065';
 $signupUrl = 'https://v2.app.shipglobal.in/auth/signup';
@@ -310,7 +211,7 @@ function render_quote_wizard(string $id, string $origin, string $destination, ar
           <div class="qw-weight">
             <button type="button" class="qw-stepper" data-qw-dec aria-label="Decrease weight"><i class="fas fa-minus"></i></button>
             <label class="qw-weight-field">
-              <input type="number" inputmode="decimal" min="0.05" max="100" step="any" value="1" data-qw-weight aria-label="Parcel weight in kg">
+              <input type="number" inputmode="decimal" min="0.05" max="100000" step="any" value="1" data-qw-weight aria-label="Parcel weight in kg">
               <span>kg</span>
             </label>
             <button type="button" class="qw-stepper" data-qw-inc aria-label="Increase weight"><i class="fas fa-plus"></i></button>
@@ -322,7 +223,7 @@ function render_quote_wizard(string $id, string $origin, string $destination, ar
             <button type="button" data-qw-w="5">5 kg</button>
             <button type="button" data-qw-w="10">10 kg</button>
           </div>
-          <p class="qw-err">Enter a weight between 50 g and 100 kg</p>
+          <p class="qw-err">Enter a weight between 50 g and 1,00,000 kg</p>
         </div>
         <p class="qw-hint" data-qw-hint aria-live="polite"><i class="fas fa-circle-info"></i><span>Not sure? A rough estimate is fine.</span></p>
         <button type="button" class="qw-btn" data-qw-next>Continue <i class="fas fa-arrow-right"></i></button>
@@ -355,11 +256,6 @@ function render_quote_wizard(string $id, string $origin, string $destination, ar
     <div class="qw-done" role="status">
       <div class="qw-done-icon"><i class="fas fa-check"></i></div>
       <h3 tabindex="-1" data-qw-done-title>Thanks, <span data-qw-name></span>!</h3>
-      <div class="qw-price" data-qw-price hidden>
-        <small>Estimated price for <b data-qw-price-weight></b> to <?php echo $d; ?></small>
-        <strong>₹<span data-qw-price-value></span></strong>
-        <small>All-inclusive estimate from our rate card, fuel surcharge included.</small>
-      </div>
       <p data-qw-done-msg></p>
       <div class="qw-next">
         <p class="qw-next-title">What happens next</p>
@@ -957,22 +853,6 @@ body{
   margin:0;
   max-width:560px;
 }
-.sg-from{
-  display:inline-flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:6px 8px;
-  margin:22px 0 0;
-  padding:10px 16px;
-  border-radius:12px;
-  background:rgba(251,191,36,.12);
-  border:1px solid rgba(251,191,36,.35);
-  color:#FDE68A;
-  font-size:15px;
-}
-.sg-from[hidden]{display:none}
-.sg-from b{color:#fff;font:800 19px var(--sg-head)}
-.sg-from-note{font-size:12.5px;color:#C9D4F2}
 .sg-hero-quote{
   max-width:560px;
   margin:30px 0 0;
@@ -1165,7 +1045,6 @@ body{
 .qw-chips button[aria-pressed="true"]{background:var(--sg-blue);border-color:var(--sg-blue);color:#fff}
 .qw-hint{display:flex;gap:8px;margin:0;font-size:13px;line-height:1.5;color:var(--sg-muted)}
 .qw-hint i{margin-top:3px}
-.qw-hint.is-ok{color:#047857}
 .qw-summary{
   display:flex;
   align-items:center;
@@ -1297,16 +1176,6 @@ body{
 }
 @keyframes qwPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
 .qw-done h3{font:800 22px/1.3 var(--sg-head);margin:0 0 14px;outline:none}
-.qw-price{
-  margin:0 0 14px;
-  padding:18px 16px;
-  border:1px solid var(--sg-sky-2);
-  border-radius:var(--sg-radius);
-  background:linear-gradient(135deg,var(--sg-sky),#fff);
-}
-.qw-price[hidden]{display:none}
-.qw-price small{display:block;font-size:12.5px;line-height:1.5;color:var(--sg-muted)}
-.qw-price strong{display:block;margin:4px 0;font:800 38px/1.15 var(--sg-head);color:var(--sg-navy)}
 .qw-done p{margin:0 0 18px;font-size:14.5px;line-height:1.6;color:var(--sg-text)}
 .qw-done-actions{display:grid;gap:10px}
 .qw-next{
@@ -1605,8 +1474,6 @@ body{
 }
 .sg-aside-card h3{margin:0;font:800 21px/1.3 var(--sg-head)}
 .sg-aside-card p{margin:0;font-size:14.5px;line-height:1.6;color:#C9D4F2}
-.sg-aside-card .sg-aside-from{color:#FDE68A}
-.sg-aside-from b{color:#fff;font:800 18px var(--sg-head)}
 .sg-aside-call{color:#C9D4F2;font-size:14px;text-align:center;text-decoration:none}
 .sg-aside-call:hover{color:#fff}
 
@@ -1843,8 +1710,6 @@ body.sg-modal-open{overflow:hidden}
   .sg-eyebrow{margin-bottom:14px;padding:7px 12px;font-size:12px}
   .sg-hero h1{font-size:30px;margin-bottom:10px}
   .sg-hero-lead{font-size:15px}
-  .sg-from{margin-top:14px;padding:8px 12px;font-size:13.5px}
-  .sg-from b{font-size:16px}
   .sg-hero-quote{margin-top:24px;padding:14px 16px}
   .sg-hero-quote blockquote{font-size:14px}
   .sg-route{padding:14px 16px;gap:12px}
@@ -1977,7 +1842,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p class="sg-eyebrow"><i class="fas fa-plane-departure"></i> International courier from <?php echo $origin; ?></p>
       <h1><?php echo $origin; ?> to <?php echo $destination; ?> <span>Courier Shipment</span></h1>
       <p class="sg-hero-lead">Doorstep pickup in <?php echo $origin; ?>, export paperwork support and tracked delivery to <?php echo $destination; ?>. Ship packets from just 50 g, no bulk needed.</p>
-      <p class="sg-from" data-sg-from hidden><i class="fas fa-tag"></i> Rates to <?php echo $destination; ?> from <b>₹<span data-sg-from-price></span></b> <span class="sg-from-note">all-inclusive</span></p>
     </div>
 
     <div class="sg-hero-form" id="form">
@@ -2148,7 +2012,6 @@ foreach ([false, true] as $copy) {
         <span class="sg-aside-icon"><i class="fas fa-calculator"></i></span>
         <h3>What will it cost to ship to <?php echo $destination; ?>?</h3>
         <p>Tell us what you're sending and how much it weighs. It takes 30 seconds.</p>
-        <p class="sg-aside-from" data-sg-from hidden>Rates from <b>₹<span data-sg-from-price></span></b>, all-inclusive</p>
         <button type="button" class="sg-btn sg-btn-primary" data-quote-open="guide">Get my price <i class="fas fa-arrow-right"></i></button>
         <a class="sg-aside-call" href="tel:<?php echo $phoneTel; ?>"><i class="fas fa-phone"></i> or call <?php echo $phoneText; ?></a>
       </div>
@@ -2323,7 +2186,7 @@ foreach ([false, true] as $copy) {
 
 <!-- Sticky mobile CTA -->
 <div class="sg-sticky" id="sg-sticky">
-  <button type="button" class="sg-sticky-quote" data-quote-open="sticky">Get my price<small data-sg-from hidden>· from ₹<span data-sg-from-price></span></small> <i class="fas fa-arrow-right"></i></button>
+  <button type="button" class="sg-sticky-quote" data-quote-open="sticky">Get my price <i class="fas fa-arrow-right"></i></button>
   <a class="sg-sticky-call" href="tel:<?php echo $phoneTel; ?>" aria-label="Call ShipGlobal"><i class="fas fa-phone"></i></a>
 </div>
 
@@ -2331,7 +2194,7 @@ foreach ([false, true] as $copy) {
 <div class="sg-nudge" id="sg-nudge" role="dialog" aria-labelledby="sg-nudge-title">
   <button type="button" class="sg-nudge-close" data-nudge-close aria-label="Close"><i class="fas fa-xmark"></i></button>
   <p class="sg-nudge-title" id="sg-nudge-title" data-nudge-title>Get your <span><?php echo $destination; ?></span> price in 30 seconds</p>
-  <p class="sg-nudge-sub"><i class="fas fa-lock"></i> Free, no-obligation quote<span data-sg-from hidden> · from ₹<b data-sg-from-price></b></span></p>
+  <p class="sg-nudge-sub"><i class="fas fa-lock"></i> Free, no-obligation quote</p>
   <button type="button" class="qw-btn qw-btn-cta" data-nudge-open><span data-nudge-cta>Get my price</span> <i class="fas fa-arrow-right"></i></button>
 </div>
 
@@ -2339,10 +2202,6 @@ foreach ([false, true] as $copy) {
 window.SG_QUOTE = <?php echo json_encode([
   'origin' => $origin,
   'destination' => $destination,
-  // Rate card rows read on the server; when empty the browser fetches rateSheet itself.
-  'rates' => $rateRows,
-  'rateSheet' => $rateSheetUrl,
-  'rateNames' => $rateNames,
   'leadEndpoint' => $leadEndpoint,
   'promptAfter' => (int) $quotePromptDelay,
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE); ?>;
@@ -2375,85 +2234,14 @@ function toggleReadMore(btn) {
   var cfg = window.SG_QUOTE || {};
   var dataLayer = window.dataLayer = window.dataLayer || [];
   var wizards = [];
-  var rates = null;
+  // Weight limits in kg, same as the input's min/max.
+  var MIN_KG = 0.05, MAX_KG = 100000;
 
   function session(key, value) {
     try {
       if (value === undefined) return sessionStorage.getItem(key);
       sessionStorage.setItem(key, value);
     } catch (e) { return null; }
-  }
-
-  // ---- Rate card: rows of [startGrams, endGrams, price] for this destination.
-  // Normally read on the server (cfg.rates); the browser fetches the CSV only
-  // when the server couldn't.
-  function rateKey(v) { return String(v).toLowerCase().replace(/[^a-z0-9]+/g, ''); }
-
-  function csvCells(line) {
-    var cells = [], cell = '', quoted = false;
-    for (var i = 0; i < line.length; i++) {
-      var ch = line[i];
-      if (quoted) {
-        if (ch === '"' && line[i + 1] === '"') { cell += '"'; i++; }
-        else if (ch === '"') quoted = false;
-        else cell += ch;
-      } else if (ch === '"') quoted = true;
-      else if (ch === ',') { cells.push(cell); cell = ''; }
-      else cell += ch;
-    }
-    cells.push(cell);
-    return cells;
-  }
-
-  function parseRates(text) {
-    var want = (cfg.rateNames && cfg.rateNames.length ? cfg.rateNames : [cfg.destination]).map(rateKey);
-    var num = function(v){ return parseFloat(String(v || '').replace(/[^0-9.]/g, '')); };
-    var rows = [], col = -1;
-    text.replace(/^﻿/, '').trim().split(/\r\n|\r|\n/).forEach(function(line){
-      var c = csvCells(line);
-      if (col < 0) {
-        c.forEach(function(h, i){
-          if (col >= 0 || i < 3) return;
-          var m = h.trim().match(/^(.*?)\s*(?:\(([A-Za-z]{2,3})\))?$/);
-          if (want.indexOf(rateKey(m[1])) >= 0 || (m[2] && want.indexOf(rateKey(m[2])) >= 0)) col = i;
-        });
-        return;
-      }
-      var start = num(c[1]), end = num(c[2]), price = num(c[col]);
-      if (end > 0 && end >= start && price > 0) rows.push([start, end, price]);
-    });
-    return rows;
-  }
-
-  function useRates(rows) {
-    if (!rows || !rows.length) return;
-    rates = rows;
-    wizards.forEach(function(w){ w.refresh(); });
-
-    // "Rates from ₹X" hooks: the lightest slab is the starting price.
-    var from = Math.min.apply(null, rows.map(function(r){ return r[2]; })).toLocaleString('en-IN');
-    document.querySelectorAll('[data-sg-from]').forEach(function(el){
-      el.querySelector('[data-sg-from-price]').textContent = from;
-      el.hidden = false;
-    });
-  }
-
-  function loadRates() {
-    if (cfg.rates && cfg.rates.length) { useRates(cfg.rates); return; }
-    if (!cfg.rateSheet || !window.fetch) return;
-    fetch(cfg.rateSheet, { credentials: 'same-origin' })
-      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function(text){ useRates(parseRates(text)); })
-      .catch(function(){});
-  }
-
-  function priceFor(kg) {
-    if (!rates || !(kg > 0)) return null;
-    var g = Math.round(kg * 1000);
-    for (var i = 0; i < rates.length; i++) {
-      if (g >= rates[i][0] && g <= rates[i][1]) return rates[i][2];
-    }
-    return null;
   }
 
   // Exact weight -> Zoho CRM Packet_Weight picklist value
@@ -2542,7 +2330,6 @@ function toggleReadMore(btn) {
     var nameInput = root.querySelector('.qw-field[data-qw-check="name"] input');
     var phoneInput = form.elements.Phone;
     var submitBtn = root.querySelector('[data-qw-submit]');
-    var submitLabel = root.querySelector('[data-qw-submit-label]');
     var hint = root.querySelector('[data-qw-hint]');
     var current = 1;
     var started = false;
@@ -2553,7 +2340,7 @@ function toggleReadMore(btn) {
     function valid(check) {
       switch (check) {
         case 'item':   return !!item();
-        case 'weight': var w = kg(); return w >= 0.05 && w <= 100;
+        case 'weight': var w = kg(); return w >= MIN_KG && w <= MAX_KG;
         case 'name':   return nameInput.value.trim().length >= 2;
         case 'phone':  return /^[6-9]\d{9}$/.test(phoneInput.value);
       }
@@ -2601,30 +2388,22 @@ function toggleReadMore(btn) {
 
     function refresh() {
       var w = kg();
-      var price = priceFor(w);
       root.querySelectorAll('[data-qw-w]').forEach(function(chip){
         chip.setAttribute('aria-pressed', parseFloat(chip.getAttribute('data-qw-w')) === w);
       });
       var text = 'Not sure? A rough estimate is fine.';
-      if (w >= 0.05 && w <= 100) {
-        text = price
-          ? 'Instant price ready for ' + formatWeight(w) + ' to ' + cfg.destination + '.'
-          : 'We ship ' + formatWeight(w) + ' parcels to ' + cfg.destination + '. Our expert will confirm your price.';
-      }
-      hint.classList.toggle('is-ok', !!price);
-      hint.querySelector('i').className = price ? 'fas fa-circle-check' : 'fas fa-circle-info';
+      if (w >= MIN_KG && w <= MAX_KG) text = 'We ship ' + formatWeight(w) + ' parcels to ' + cfg.destination + '.';
       hint.querySelector('span').textContent = text;
-      submitLabel.textContent = price ? 'See my price' : 'Get my price';
     }
 
     function setWeight(v) {
-      v = Math.min(100, Math.max(0.05, Math.round(v * 100) / 100));
+      v = Math.min(MAX_KG, Math.max(MIN_KG, Math.round(v * 100) / 100));
       weightInput.value = v;
       weightInput.closest('.qw-group').classList.remove('qw-bad');
       refresh();
     }
 
-    function stepSize(v) { return v < 1 ? 0.1 : v < 10 ? 0.5 : 1; }
+    function stepSize(v) { return v < 1 ? 0.1 : v < 10 ? 0.5 : v < 100 ? 1 : v < 1000 ? 10 : 100; }
 
     function start() {
       if (started) return;
@@ -2632,19 +2411,11 @@ function toggleReadMore(btn) {
       dataLayer.push({ event: 'quote_start', form_id: id });
     }
 
-    function done(name, price) {
-      var w = kg();
+    function done(name) {
       root.querySelector('[data-qw-name]').textContent = name.split(' ')[0];
-      var box = root.querySelector('[data-qw-price]');
-      box.hidden = !price;
-      if (price) {
-        root.querySelector('[data-qw-price-weight]').textContent = formatWeight(w);
-        root.querySelector('[data-qw-price-value]').textContent = price.toLocaleString('en-IN');
-      }
       var phone = phoneInput.value.replace(/(\d{5})(\d{5})/, '$1 $2');
-      root.querySelector('[data-qw-done-msg]').textContent = price
-        ? 'Our export expert will call you on ' + phone + ' shortly to confirm your price and help you book a pickup.'
-        : 'Our export expert will call you on ' + phone + ' shortly with the best ' + cfg.origin + ' to ' + cfg.destination + ' price.';
+      root.querySelector('[data-qw-done-msg]').textContent =
+        'Your details have been received. Our representative will contact you on ' + phone + ' shortly.';
       root.classList.remove('is-failed');
       root.classList.add('is-done');
       root.querySelector('[data-qw-done-title]').focus({ preventScroll: true });
@@ -2690,15 +2461,14 @@ function toggleReadMore(btn) {
       form.elements.First_Name.value = cut > 0 ? name.slice(0, cut) : '';
       form.elements.Last_Name.value = cut > 0 ? name.slice(cut + 1) : name;
       form.elements.Packet_Weight.value = weightBand(kg());
-      var price = priceFor(kg());
 
       // Honeypot filled: a bot. Show success, send nothing.
-      if (root.querySelector('.qw-hp').value) { done(name, price); return; }
+      if (root.querySelector('.qw-hp').value) { done(name); return; }
 
       var data = new FormData(form);
       var label = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="qw-spin" aria-hidden="true"></span> ' + (price ? 'Calculating your price…' : 'Sending…');
+      submitBtn.innerHTML = '<span class="qw-spin" aria-hidden="true"></span> Sending…';
 
       var sent = window.SG_PREVIEW
         ? new Promise(function(resolve){ setTimeout(resolve, 700); })
@@ -2710,10 +2480,9 @@ function toggleReadMore(btn) {
           form_id: id,
           product_type: data.get('Product_Type'),
           packet_weight: data.get('Packet_Weight'),
-          weight_kg: kg(),
-          price_shown: !!price
+          weight_kg: kg()
         });
-        done(name, price);
+        done(name);
       }).catch(function(){
         submitBtn.disabled = false;
         submitBtn.innerHTML = label;
@@ -2751,7 +2520,6 @@ function toggleReadMore(btn) {
   }
 
   document.querySelectorAll('.qw').forEach(function(el){ wizards.push(Wizard(el)); });
-  loadRates();
 
   // ---- Modal: every "Get my price" button below the hero opens the quote in a dialog
   var modal = document.getElementById('sg-quote-modal');
@@ -2867,7 +2635,7 @@ function toggleReadMore(btn) {
     var dest = '<span>' + cfg.destination + '</span>';
     var midway = wizards.some(function(w){ var s = w.state(); return s.item && !s.done; });
     var title = midway
-      ? 'Your ' + dest + ' price is almost ready'
+      ? 'Your ' + dest + ' quote is almost ready'
       : (trigger === 'exit_intent' ? 'Before you go: get' : 'Still comparing? Get') + ' your ' + dest + ' price in 30 seconds';
     var card = !!nudge && small.matches;
     dataLayer.push({ event: 'quote_prompt', trigger: trigger, format: card ? 'card' : 'popup' });
