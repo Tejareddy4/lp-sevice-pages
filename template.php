@@ -87,7 +87,10 @@ if (trim($featuredImage) === '' && trim($origin) !== '' && trim($destination) !=
 
   // Production path: http://shipglobal.in/services/images/{Destination}/{origin-slug}-to-{destination-slug}.webp
   // Destination folder uses the original $destination casing (e.g. "Croatia").
-  $featuredImage = '/services/images/' . rawurlencode($destination) . '/' . rawurlencode($page_slug) . '.webp';
+  // Only Croatia has images so far; skip the og:image rather than point at a 404.
+  if (is_file(__DIR__ . '/images/' . $destination . '/' . $page_slug . '.webp')) {
+    $featuredImage = '/services/images/' . rawurlencode($destination) . '/' . rawurlencode($page_slug) . '.webp';
+  }
 }
 
 if (trim($featuredImageAlt) === '') {
@@ -108,17 +111,120 @@ $title = "$origin to $destination Courier Shipment";
 
 $meta_description = "Ship internationally from $origin to $destination with transparent pricing, fast delivery, and customs support.";
 
+$sgConfig = require __DIR__ . '/config.php';
+
+// URL path of this folder (template.php, lead.php): "/services" on production,
+// "" on dev. Pages live two levels down, at {country}/{city}/index.php.
+$sgBase = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/', 3));
+$sgBase = rtrim($sgBase, '/.');
+
 // Instant price: the same rate card the public shipping rate calculator reads.
-// Same origin as /services/, so the page fetches it directly. Destinations that
-// are not a column in the sheet (e.g. Australia) fall back to "expert will call".
-$rateSheetUrl = '/wp-content/uploads/2025/04/rate_ship.csv';
+// Destinations that are not a column in the sheet (e.g. Australia) fall back to
+// "expert will call".
+$rateSheetUrl = $sgConfig['rate_sheet']['path'];
+$rateNames = array_merge([$destination], $sgConfig['rate_aliases'][strtolower(trim($destination))] ?? []);
+
+// Normalise a country label for comparison: "Czech Republic" -> "czechrepublic".
+function rate_key(string $label): string
+{
+  return preg_replace('/[^a-z0-9]+/', '', strtolower($label)) ?? '';
+}
+
+// [[startGrams, endGrams, price], ...] for one destination column of the CSV.
+function parse_rate_sheet(string $csv, array $names): array
+{
+  $csv = preg_replace('/^\xEF\xBB\xBF/', '', $csv) ?? $csv;
+  $want = array_map('rate_key', $names);
+  $rows = [];
+  $col = -1;
+  foreach (preg_split('/\r\n|\r|\n/', trim($csv)) ?: [] as $line) {
+    $cells = str_getcsv($line, ',', '"', '\\');
+    if ($col < 0) {
+      foreach ($cells as $i => $cell) {
+        if ($i < 3) continue;
+        $cell = trim((string) $cell);
+        $label = preg_replace('/\s*\(([A-Za-z]{2,3})\)\s*$/', '', $cell) ?? $cell;
+        $code = preg_match('/\(([A-Za-z]{2,3})\)\s*$/', $cell, $m) ? $m[1] : '';
+        if (in_array(rate_key($label), $want, true) || ($code !== '' && in_array(rate_key($code), $want, true))) {
+          $col = $i;
+          break;
+        }
+      }
+      continue;
+    }
+    $num = static function ($v): float {
+      return (float) preg_replace('/[^0-9.]/', '', (string) $v);
+    };
+    $start = $num($cells[1] ?? '');
+    $end = $num($cells[2] ?? '');
+    $price = $num($cells[$col] ?? '');
+    if ($end > 0 && $end >= $start && $price > 0) {
+      $rows[] = [$start, $end, $price];
+    }
+  }
+  return $rows;
+}
+
+// Read the rate card on the server: from disk when WordPress shares this server,
+// otherwise downloaded and cached. Returns null when unavailable, and the
+// browser then tries the CSV itself.
+function load_rate_sheet(array $sheet): ?string
+{
+  $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+  if ($docRoot !== '' && is_readable($docRoot . $sheet['path'])) {
+    $csv = @file_get_contents($docRoot . $sheet['path']);
+    if ($csv !== false && trim($csv) !== '') return $csv;
+  }
+
+  $remote = (string) ($sheet['remote'] ?? '');
+  if ($remote === '') return null;
+  $cache = sys_get_temp_dir() . '/sg_rate_' . md5($remote) . '.csv';
+  $failMark = $cache . '.fail';
+  $ttl = (int) ($sheet['cache_ttl'] ?? 21600);
+  $cached = is_readable($cache) ? @file_get_contents($cache) : false;
+  if ($cached !== false && time() - (int) @filemtime($cache) < $ttl) return $cached;
+  // After a failed download, don't slow every page view down retrying.
+  if (is_file($failMark) && time() - (int) @filemtime($failMark) < 300) {
+    return $cached !== false ? $cached : null;
+  }
+
+  $csv = false;
+  if (function_exists('curl_init')) {
+    $ch = curl_init($remote);
+    curl_setopt_array($ch, [
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_CONNECTTIMEOUT => 2,
+      CURLOPT_TIMEOUT => 4,
+      CURLOPT_USERAGENT => 'ShipGlobal-Services/1.0',
+    ]);
+    $body = curl_exec($ch);
+    if (is_string($body) && (int) curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200) $csv = $body;
+    curl_close($ch);
+  } else {
+    $body = @file_get_contents($remote, false, stream_context_create(['http' => ['timeout' => 4]]));
+    if (is_string($body)) $csv = $body;
+  }
+
+  if ($csv !== false && strpos($csv, ',') !== false && stripos($csv, '<html') === false) {
+    @file_put_contents($cache, $csv, LOCK_EX);
+    return $csv;
+  }
+  @touch($failMark);
+  return $cached !== false ? $cached : null;
+}
+
+$rateCsv = load_rate_sheet($sgConfig['rate_sheet']);
+$rateRows = $rateCsv !== null ? parse_rate_sheet($rateCsv, $rateNames) : [];
 
 $phoneTel = '+919906599065';
 $phoneText = '+91 99065 99065';
 $signupUrl = 'https://v2.app.shipglobal.in/auth/signup';
 // Seconds on the page before the quote prompt appears (on top of exit intent on desktop).
 $quotePromptDelay = 45;
-$leadWebhook = 'https://flow.zoho.in/60030990815/flow/webhook/incoming?zapikey=1001.13056985b9392ffd01f82ea7b29ecd8c.274c0a48499a6dfba88a38d975d9ad65&isdebug=false';
+$leadWebhook = $sgConfig['lead_webhook'];
+// Same-origin relay that forwards leads to $leadWebhook (see lead.php).
+$leadEndpoint = $sgBase . '/lead.php';
 
 // $FAQ arrives as <p><strong>Question</strong><br>Answer</p> blocks; split them for the accordion.
 $faqItems = [];
@@ -148,9 +254,19 @@ $quoteItems = [
   'Others' => ['Something else', 'fa-box-open'],
 ];
 
-function render_quote_wizard(string $id, string $origin, string $destination): void
+$quoteCtx = [
+  'items' => $quoteItems,
+  'webhook' => $leadWebhook,
+  'phoneTel' => $phoneTel,
+  'phoneText' => $phoneText,
+  'signupUrl' => $signupUrl,
+];
+
+// $ctx: items, webhook, phoneTel, phoneText, signupUrl. Passed in rather than
+// read from globals so the template still works when included from a function.
+function render_quote_wizard(string $id, string $origin, string $destination, array $ctx): void
 {
-  global $quoteItems, $leadWebhook, $phoneTel, $phoneText, $signupUrl;
+  ['items' => $quoteItems, 'webhook' => $leadWebhook, 'phoneTel' => $phoneTel, 'phoneText' => $phoneText, 'signupUrl' => $signupUrl] = $ctx;
   $o = htmlspecialchars($origin, ENT_QUOTES, 'UTF-8');
   $d = htmlspecialchars($destination, ENT_QUOTES, 'UTF-8');
   ?>
@@ -164,7 +280,7 @@ function render_quote_wizard(string $id, string $origin, string $destination): v
     </div>
 
     <form class="qw-form" method="POST" accept-charset="UTF-8" enctype="multipart/form-data" novalidate
-      action='<?php echo $leadWebhook; ?>'>
+      action="<?php echo htmlspecialchars($leadWebhook, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="zf_referrer_name" value="">
       <input type="hidden" name="zf_redirect_url" value="">
       <input type="hidden" name="zc_gad" value="">
@@ -222,7 +338,7 @@ function render_quote_wizard(string $id, string $origin, string $destination): v
         </div>
         <div class="qw-field qw-group" data-qw-check="phone">
           <label for="qw-<?php echo $id; ?>-phone">Mobile number</label>
-          <div class="qw-phone"><span>+91</span><input class="qw-input" id="qw-<?php echo $id; ?>-phone" type="tel" name="Phone" inputmode="numeric" autocomplete="tel-national" maxlength="14" placeholder="10-digit number"></div>
+          <div class="qw-phone"><span>+91</span><input class="qw-input" id="qw-<?php echo $id; ?>-phone" type="tel" name="Phone" inputmode="numeric" autocomplete="tel-national" maxlength="20" placeholder="10-digit number"></div>
           <p class="qw-err">Enter a valid 10-digit mobile number</p>
         </div>
         <button type="submit" class="qw-btn qw-btn-cta" data-qw-submit><span data-qw-submit-label>Get my price</span> <i class="fas fa-arrow-right"></i></button>
@@ -1865,7 +1981,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="sg-hero-form" id="form">
-      <?php render_quote_wizard('hero', $origin, $destination); ?>
+      <?php render_quote_wizard('hero', $origin, $destination, $quoteCtx); ?>
     </div>
 
     <div class="sg-hero-proof">
@@ -2202,7 +2318,7 @@ foreach ([false, true] as $copy) {
 <!-- Quote modal (opened by every "Get my price" button below the hero) -->
 <dialog class="sg-modal" id="sg-quote-modal" aria-label="Get your price">
   <button type="button" class="sg-modal-close" data-modal-close aria-label="Close"><i class="fas fa-xmark"></i></button>
-  <?php render_quote_wizard('modal', $origin, $destination); ?>
+  <?php render_quote_wizard('modal', $origin, $destination, $quoteCtx); ?>
 </dialog>
 
 <!-- Sticky mobile CTA -->
@@ -2220,12 +2336,16 @@ foreach ([false, true] as $copy) {
 </div>
 
 <script>
-window.SG_QUOTE = {
-  origin: <?php echo json_encode($origin); ?>,
-  destination: <?php echo json_encode($destination); ?>,
-  rateSheet: <?php echo json_encode($rateSheetUrl); ?>,
-  promptAfter: <?php echo (int) $quotePromptDelay; ?>
-};
+window.SG_QUOTE = <?php echo json_encode([
+  'origin' => $origin,
+  'destination' => $destination,
+  // Rate card rows read on the server; when empty the browser fetches rateSheet itself.
+  'rates' => $rateRows,
+  'rateSheet' => $rateSheetUrl,
+  'rateNames' => $rateNames,
+  'leadEndpoint' => $leadEndpoint,
+  'promptAfter' => (int) $quotePromptDelay,
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE); ?>;
 </script>
 
 <script>
@@ -2264,37 +2384,66 @@ function toggleReadMore(btn) {
     } catch (e) { return null; }
   }
 
-  // ---- Rate card: rows of [startGrams, endGrams, price] for this destination
+  // ---- Rate card: rows of [startGrams, endGrams, price] for this destination.
+  // Normally read on the server (cfg.rates); the browser fetches the CSV only
+  // when the server couldn't.
+  function rateKey(v) { return String(v).toLowerCase().replace(/[^a-z0-9]+/g, ''); }
+
+  function csvCells(line) {
+    var cells = [], cell = '', quoted = false;
+    for (var i = 0; i < line.length; i++) {
+      var ch = line[i];
+      if (quoted) {
+        if (ch === '"' && line[i + 1] === '"') { cell += '"'; i++; }
+        else if (ch === '"') quoted = false;
+        else cell += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === ',') { cells.push(cell); cell = ''; }
+      else cell += ch;
+    }
+    cells.push(cell);
+    return cells;
+  }
+
+  function parseRates(text) {
+    var want = (cfg.rateNames && cfg.rateNames.length ? cfg.rateNames : [cfg.destination]).map(rateKey);
+    var num = function(v){ return parseFloat(String(v || '').replace(/[^0-9.]/g, '')); };
+    var rows = [], col = -1;
+    text.replace(/^﻿/, '').trim().split(/\r\n|\r|\n/).forEach(function(line){
+      var c = csvCells(line);
+      if (col < 0) {
+        c.forEach(function(h, i){
+          if (col >= 0 || i < 3) return;
+          var m = h.trim().match(/^(.*?)\s*(?:\(([A-Za-z]{2,3})\))?$/);
+          if (want.indexOf(rateKey(m[1])) >= 0 || (m[2] && want.indexOf(rateKey(m[2])) >= 0)) col = i;
+        });
+        return;
+      }
+      var start = num(c[1]), end = num(c[2]), price = num(c[col]);
+      if (end > 0 && end >= start && price > 0) rows.push([start, end, price]);
+    });
+    return rows;
+  }
+
+  function useRates(rows) {
+    if (!rows || !rows.length) return;
+    rates = rows;
+    wizards.forEach(function(w){ w.refresh(); });
+
+    // "Rates from ₹X" hooks: the lightest slab is the starting price.
+    var from = Math.min.apply(null, rows.map(function(r){ return r[2]; })).toLocaleString('en-IN');
+    document.querySelectorAll('[data-sg-from]').forEach(function(el){
+      el.querySelector('[data-sg-from-price]').textContent = from;
+      el.hidden = false;
+    });
+  }
+
   function loadRates() {
+    if (cfg.rates && cfg.rates.length) { useRates(cfg.rates); return; }
     if (!cfg.rateSheet || !window.fetch) return;
     fetch(cfg.rateSheet, { credentials: 'same-origin' })
       .then(function(r){ if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function(text){
-        var lines = text.trim().split(/\r?\n/);
-        var want = String(cfg.destination || '').trim().toLowerCase();
-        var col = -1;
-        lines[0].split(',').forEach(function(h, i){
-          var m = h.trim().match(/^(.*?)\s*\(([A-Z]{2})\)$/);
-          if (i > 2 && m && (m[1].toLowerCase() === want || m[2].toLowerCase() === want)) col = i;
-        });
-        if (col < 0) return;
-        var rows = [];
-        for (var i = 1; i < lines.length; i++) {
-          var c = lines[i].split(',');
-          var start = parseFloat(c[1]), end = parseFloat(c[2]), price = parseFloat(c[col]);
-          if (isFinite(start) && isFinite(end) && price > 0) rows.push([start, end, price]);
-        }
-        if (!rows.length) return;
-        rates = rows;
-        wizards.forEach(function(w){ w.refresh(); });
-
-        // "Rates from ₹X" hooks: the lightest slab is the starting price.
-        var from = Math.min.apply(null, rows.map(function(r){ return r[2]; })).toLocaleString('en-IN');
-        document.querySelectorAll('[data-sg-from]').forEach(function(el){
-          el.querySelector('[data-sg-from-price]').textContent = from;
-          el.hidden = false;
-        });
-      })
+      .then(function(text){ useRates(parseRates(text)); })
       .catch(function(){});
   }
 
@@ -2330,6 +2479,59 @@ function toggleReadMore(btn) {
     v = v.replace(/\D/g, '');
     if (v.length > 10) v = v.replace(/^(91|0)/, '');
     return v.slice(0, 10);
+  }
+
+  // ---- Lead delivery. First the same-origin relay (lead.php), which reports
+  // whether Zoho accepted the lead. If the relay is missing or down, post
+  // straight to the Zoho webhook: fetch, then a hidden iframe form post, which
+  // still gets through where a Content-Security-Policy blocks fetch.
+  function sendLead(form, data) {
+    return relayLead(data).catch(function(err){
+      if (err && err.invalid) throw err;
+      return postDirect(form, data);
+    });
+  }
+
+  function relayLead(data) {
+    if (!cfg.leadEndpoint || !window.fetch) return Promise.reject(new Error('no relay'));
+    return fetch(cfg.leadEndpoint, {
+      method: 'POST',
+      body: data,
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' }
+    }).then(function(r){
+      return r.json().catch(function(){ return null; }).then(function(body){
+        if (r.ok && body && body.ok) return;
+        var err = new Error('relay ' + r.status);
+        // Details rejected by the relay: Zoho would reject them too.
+        err.invalid = r.status === 422 && !!body;
+        throw err;
+      });
+    });
+  }
+
+  function postDirect(form, data) {
+    var post = window.fetch
+      ? fetch(form.action, { method: 'POST', body: data, mode: 'no-cors' })
+      : Promise.reject(new Error('no fetch'));
+    return post.catch(function(){ return postViaFrame(form); });
+  }
+
+  function postViaFrame(form) {
+    return new Promise(function(resolve){
+      var name = 'sg-lead-' + Date.now();
+      var frame = document.createElement('iframe');
+      frame.name = name;
+      frame.hidden = true;
+      frame.tabIndex = -1;
+      frame.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(frame);
+      var timer = setTimeout(resolve, 4000);
+      frame.addEventListener('load', function(){ clearTimeout(timer); resolve(); });
+      form.target = name;
+      HTMLFormElement.prototype.submit.call(form);
+      form.removeAttribute('target');
+    });
   }
 
   function Wizard(root) {
@@ -2500,7 +2702,7 @@ function toggleReadMore(btn) {
 
       var sent = window.SG_PREVIEW
         ? new Promise(function(resolve){ setTimeout(resolve, 700); })
-        : fetch(form.action, { method: 'POST', body: data, mode: 'no-cors' });
+        : sendLead(form, data);
 
       sent.then(function(){
         dataLayer.push({
