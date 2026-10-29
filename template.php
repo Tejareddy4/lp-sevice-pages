@@ -1569,7 +1569,7 @@ body{
 .sg-modal::backdrop{background:rgba(7,21,64,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .sg-modal[open]{animation:sgModalIn .25s ease}
 @keyframes sgModalIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
-.sg-modal .qw{box-shadow:0 40px 80px -20px rgba(7,21,64,.6)}
+.sg-modal .qw{max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow-y:auto;box-shadow:0 40px 80px -20px rgba(7,21,64,.6)}
 .sg-modal-close{
   position:absolute;
   top:-14px;
@@ -2611,6 +2611,13 @@ function toggleReadMore(btn) {
     }, true);
   });
 
+  // ?popup=test forgets this browser's lead and shown prompts, to test them again.
+  if (/[?&]popup=test\b/.test(location.search)) {
+    ['sg_lead', 'sg_exit', 'sg_timer'].forEach(function(k){
+      try { sessionStorage.removeItem(k); localStorage.removeItem(k); } catch (e) {}
+    });
+  }
+
   // A lead sent from this browser in the last 30 days, in any tab.
   function hasLead() {
     if (session('sg_lead')) return true;
@@ -2652,15 +2659,21 @@ function toggleReadMore(btn) {
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') nudge.classList.remove('is-open'); });
   }
 
-  // Exit intent (desktop): the pointer leaves through the top of the window.
-  if (window.matchMedia && window.matchMedia('(pointer: fine) and (min-width: 901px)').matches) {
-    var armed = false;
-    setTimeout(function(){ armed = true; }, 5000);
-    document.addEventListener('mouseout', function(e){
-      if (!armed || e.relatedTarget || e.clientY > 10 || (modal && modal.open)) return;
-      autoPrompt('exit_intent');
-    });
-  }
+  // Exit intent (desktop): the pointer leaves the window near the top or while
+  // heading up (to the tabs, address bar or close button). A quick flick is
+  // last seen well below the edge, so don't require it to touch the edge.
+  // Checked on each exit, so it also works after the window is resized.
+  var desktop = window.matchMedia ? window.matchMedia('(pointer: fine) and (min-width: 901px)') : { matches: true };
+  var armed = false, lastY = null, goingUp = false;
+  setTimeout(function(){ armed = true; }, 3000);
+  document.addEventListener('mousemove', function(e){
+    if (lastY !== null && e.clientY !== lastY) goingUp = e.clientY < lastY;
+    lastY = e.clientY;
+  }, { passive: true });
+  document.addEventListener('mouseout', function(e){
+    if (!armed || e.relatedTarget || !desktop.matches || (modal && modal.open)) return;
+    if (e.clientY < 80 || (goingUp && e.clientY < window.innerHeight / 3)) autoPrompt('exit_intent');
+  });
 
   // Timed prompt: seconds with the tab in the background don't count. Skipped
   // if the exit-intent prompt already showed in this session.
